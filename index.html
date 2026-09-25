@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Optics Clinic | Clear Vision • Brighter Tomorrow</title>
+    <meta name="description" content="Discover modern eyewear and book an eye examination at One Optics Clinic in Manila.">
+    <!-- Google Fonts for modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Theme Toggle Script to avoid flicker -->
+    <script>
+        if (localStorage.getItem('oneOpticsTheme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+            document.addEventListener('DOMContentLoaded', () => document.body.classList.add('dark-mode'));
+        }
+    </script>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header>
+        <div class="container navbar">
+            <div class="logo">
+                <a href="index.html" style="color: inherit; text-decoration: none;">ONE OPTICS Clinic</a>
+                <span class="tagline">Clear Vision • Brighter Tomorrow</span>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="catalog.html">Eyewear</a></li>
+                    <li><a href="appointment.html">Appointments</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="admin-login.html">Admin</a></li>
+                    <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">🌙</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>ONE OPTICS Clinic</h1>
+            <h2 class="tagline">Clear Vision • Brighter Tomorrow</h2>
+            <p>Welcome to One Optics Clinic. Explore our premium collection of modern eyewear and schedule your professional eye examination today.</p>
+            <div class="hero-btns">
+                <a href="catalog.html" class="btn btn-primary">Browse Eyewear</a>
+                <a href="appointment.html" class="btn btn-outline">Book an Appointment</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Eyewear -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Featured Eyewear</h2>
+            <div class="product-grid" id="featured-products">
+                <!-- Products will be injected here via JavaScript -->
+            </div>
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="catalog.html" class="btn btn-outline">View Full Catalog</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Clinic Services -->
+    <section class="section" style="background-color: var(--bg-light);">
+        <div class="container">
+            <h2 class="section-title">Our Services</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                
+                <div style="background: var(--bg-color); padding: 2rem; border-radius: var(--border-radius); box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; border: 1px solid var(--border-color);">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--accent-color);">👁️</div>
+                    <h3 style="font-size: 1.25rem;">Eye Examination</h3>
+                    <p style="color: var(--text-light);">Comprehensive eye check-ups performed by our professional optometrists to ensure your visual health.</p>
+                </div>
+                
+                <div style="background: var(--bg-color); padding: 2rem; border-radius: var(--border-radius); box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; border: 1px solid var(--border-color);">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--accent-color);">👓</div>
+                    <h3 style="font-size: 1.25rem;">Eyewear Catalog</h3>
+                    <p style="color: var(--text-light);">Browse our wide selection of premium frames and lenses designed for style and comfort.</p>
+                </div>
+
+                <div style="background: var(--bg-color); padding: 2rem; border-radius: var(--border-radius); box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; border: 1px solid var(--border-color);">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--accent-color);">🛠️</div>
+                    <h3 style="font-size: 1.25rem;">Optical Services</h3>
+                    <p style="color: var(--text-light);">Expert frame adjustments, lens fitting, and repairs provided by our experienced opticians.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- About & Contact Preview -->
+    <section class="section">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 4rem;">
+                
+                <!-- About Preview -->
+                <div>
+                    <h2 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--primary-color);">About One Optics Clinic</h2>
+                    <p style="color: var(--text-light); margin-bottom: 1.5rem;">We are a premier optical clinic and eyewear manufacturer located in the heart of Manila. Our mission is to provide top-tier eye care services and high-quality optical products to our community.</p>
+                    <a href="about.html" class="btn btn-outline">Learn More About Us</a>
+                </div>
+
+                <!-- Contact Preview -->
+                <div style="background: var(--bg-light); padding: 2.5rem; border-radius: var(--border-radius); border-left: 4px solid var(--accent-color);">
+                    <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Visit Our Clinic</h2>
+                    <p style="margin-bottom: 0.5rem; color: var(--text-dark);"><strong>Address:</strong> 2598 Singalong Street, Vito Cruz, Malate, Manila</p>
+                    <p style="margin-bottom: 0.5rem; color: var(--text-dark);"><strong>Phone:</strong> 0956 127 7149</p>
+                    <p style="margin-bottom: 0.5rem; color: var(--text-dark);"><strong>Email:</strong> one_optics@yahoo.com</p>
+                    <a href="appointment.html" class="btn btn-primary" style="margin-top: 1rem;">Book an Appointment</a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3>ONE OPTICS Clinic</h3>
+                    <p style="font-style: italic; color: var(--accent-color); margin-bottom: 1rem;">Clear Vision • Brighter Tomorrow</p>
+                    <p>Your trusted partner for professional eye care and premium eyewear in Manila.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <a href="index.html">Home</a>
+                    <a href="catalog.html">Eyewear Catalog</a>
+                    <a href="appointment.html">Book Appointment</a>
+                    <a href="about.html">About Us</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Contact Us</h3>
+                    <p>2598 Singalong Street<br>Vito Cruz, Malate, Manila</p>
+                    <p>0956 127 7149</p>
+                    <p>one_optics@yahoo.com</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Operating Hours</h3>
+                    <p>Clinic hours to be confirmed.</p>
+                    <p><em>(Closed · Opens 10 AM based on initial listing)</em></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; <span id="currentYear"></span> One Optics Clinic. All rights reserved. | Developed by Luis Agastine Lozada, BSIT
+            </div>
+        </div>
+    </footer>
+
+    <!-- Database Script -->
+    <script src="js/database.js"></script>
+    <script src="js/theme.js"></script>
+    
+    <!-- Page Specific Script -->
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Load Featured Products
+        document.addEventListener('DOMContentLoaded', () => {
+            const allProducts = window.OpticsDB.getProducts();
+            // Get first 3 products for the featured section
+            const featuredProducts = allProducts.slice(0, 3);
+            
+            const grid = document.getElementById('featured-products');
+            
+            featuredProducts.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-title">${product.name}</h3>
+                        <div class="product-meta">${product.style} | ${product.type}</div>
+                        <div class="product-price">₱${product.price.toLocaleString()}</div>
+                        <a href="catalog.html?id=${product.id}" class="btn btn-outline">View Details</a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html>

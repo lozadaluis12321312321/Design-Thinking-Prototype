@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment | One Optics Clinic</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        if (localStorage.getItem('oneOpticsTheme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+            document.addEventListener('DOMContentLoaded', () => document.body.classList.add('dark-mode'));
+        }
+    </script>
+    <style>
+        .appointment-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 4rem;
+            margin-top: 3rem;
+            margin-bottom: 5rem;
+        }
+        @media (max-width: 768px) {
+            .appointment-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        .info-panel {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 3rem 2rem;
+            border-radius: var(--border-radius);
+            height: fit-content;
+            border-top: 4px solid var(--accent-color);
+        }
+        .info-panel h3 {
+            color: #fff;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        .info-panel p {
+            color: #ffe6e6;
+            margin-bottom: 1.5rem;
+        }
+        .form-panel {
+            background: var(--bg-color);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+        .notice {
+            background-color: rgba(241, 196, 15, 0.1);
+            color: var(--text-dark);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            border: 1px solid var(--accent-color);
+        }
+        .section-label {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        .review-panel {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            display: none; /* Shown before submit */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header>
+        <div class="container navbar">
+            <div class="logo">
+                <a href="index.html" style="color: inherit; text-decoration: none;">ONE OPTICS Clinic</a>
+                <span class="tagline">Clear Vision • Brighter Tomorrow</span>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="catalog.html">Eyewear</a></li>
+                    <li><a href="appointment.html" class="active">Appointments</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="admin-login.html">Admin</a></li>
+                    <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">🌙</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="appointment-layout">
+            
+            <div class="info-panel">
+                <h3>Schedule Your Visit</h3>
+                <p>Book a comprehensive eye examination or a consultation for optical services with our experienced professionals.</p>
+                
+                <hr style="border-color: rgba(255,255,255,0.2); margin: 2rem 0;">
+                
+                <h4 style="color: #fff; margin-bottom: 1rem;">What to expect:</h4>
+                <ul style="color: #ffe6e6; padding-left: 1.2rem; line-height: 1.8;">
+                    <li>Professional visual acuity tests</li>
+                    <li>Detailed eye health screening</li>
+                    <li>Prescription updates</li>
+                    <li>Personalized eyewear recommendations</li>
+                </ul>
+            </div>
+
+            <div class="form-panel">
+                <h2 style="font-size: 2rem; margin-bottom: 1rem; color: var(--primary-color);">Book an Appointment</h2>
+                
+                <div class="notice">
+                    <strong>Please Note:</strong> Appointments requested online are subject to clinic confirmation. You will receive a status update from our admin team.
+                </div>
+
+                <form id="appointmentForm" onsubmit="handleAppointmentSubmit(event)">
+                    
+                    <h3 class="section-label">1. Customer Information</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label for="fullName">Full Name *</label>
+                            <input type="text" id="fullName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactNumber">Contact Number *</label>
+                            <input type="tel" id="contactNumber" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+
+                    <h3 class="section-label">2. Choose Your Doctor</h3>
+                    <div id="doctor-list">
+                        <!-- Populated by JS -->
+                    </div>
+                    <input type="hidden" id="selectedDoctorId" required>
+
+                    <h3 class="section-label">3. Appointment Type</h3>
+                    <div class="form-group">
+                        <select id="type" class="form-control" required>
+                            <option value="" disabled selected>Select an appointment type</option>
+                            <option value="Eye Examination">Eye Examination</option>
+                            <option value="Eyewear Fitting/Consultation">Eyewear Fitting/Consultation</option>
+                            <option value="Repair/Adjustment">Repair/Adjustment</option>
+                        </select>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div>
+                            <h3 class="section-label">4. Choose Date</h3>
+                            <div class="form-group">
+                                <input type="date" id="date" class="form-control" required>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="section-label">5. Choose Time</h3>
+                            <div class="form-group">
+                                <select id="time" class="form-control" required>
+                                    <option value="" disabled selected>Select a time</option>
+                                    <option value="10:00 AM">10:00 AM</option>
+                                    <option value="11:00 AM">11:00 AM</option>
+                                    <option value="1:00 PM">1:00 PM</option>
+                                    <option value="2:00 PM">2:00 PM</option>
+                                    <option value="3:00 PM">3:00 PM</option>
+                                    <option value="4:00 PM">4:00 PM</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="section-label">6. Additional Notes</h3>
+                    <div class="form-group">
+                        <textarea id="notes" class="form-control" rows="3" placeholder="Tell us if you have specific concerns or are looking for a specific product."></textarea>
+                    </div>
+
+                    <div class="review-panel" id="reviewPanel">
+                        <h4 style="margin-bottom: 1rem; color: var(--primary-color);">7. Review Appointment</h4>
+                        <p><strong>Name:</strong> <span id="revName"></span></p>
+                        <p><strong>Doctor:</strong> <span id="revDoctor"></span></p>
+                        <p><strong>Type:</strong> <span id="revType"></span></p>
+                        <p><strong>Date & Time:</strong> <span id="revDateTime"></span></p>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="button" class="btn btn-outline" id="reviewBtn" onclick="showReview()" style="flex: 1;">Review Details</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn" style="flex: 1; display: none;">8. Confirm Booking</button>
+                    </div>
+                </form>
+
+                <div id="bookingSuccess" style="display: none; text-align: center; padding: 3rem 0;">
+                    <div style="font-size: 4rem; color: #28a745; margin-bottom: 1rem;">✓</div>
+                    <h2 style="margin-bottom: 1rem; color: var(--primary-color);">Request Submitted!</h2>
+                    
+                    <div style="background: var(--bg-light); padding: 2rem; border-radius: var(--border-radius); text-align: left; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+                        <h4 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Appointment Summary</h4>
+                        <p><strong>Customer Name:</strong> <span id="confName"></span></p>
+                        <p><strong>Doctor:</strong> <span id="confDoctor"></span></p>
+                        <p><strong>Appointment Type:</strong> <span id="confType"></span></p>
+                        <p><strong>Date:</strong> <span id="confDate"></span></p>
+                        <p><strong>Time:</strong> <span id="confTime"></span></p>
+                        <p><strong>Status:</strong> <span style="color: #f1c40f; font-weight: bold;">Pending</span></p>
+                        
+                        <hr style="border: 0; border-top: 1px dashed var(--border-color); margin: 1rem 0;">
+                        
+                        <p><strong>Clinic:</strong> ONE OPTICS Clinic</p>
+                        <p><strong>Contact:</strong> 0956 127 7149</p>
+                    </div>
+
+                    <p style="color: var(--text-light); margin-bottom: 2rem;">Your appointment request has been submitted. Please wait for confirmation from One Optics Clinic.</p>
+                    <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Home</button>
+                    <button class="btn btn-outline" onclick="resetForm()" style="margin-left: 1rem;">Book Another</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3>ONE OPTICS Clinic</h3>
+                    <p style="font-style: italic; color: var(--accent-color); margin-bottom: 1rem;">Clear Vision • Brighter Tomorrow</p>
+                    <p>Your trusted partner for professional eye care and premium eyewear in Manila.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <a href="index.html">Home</a>
+                    <a href="catalog.html">Eyewear Catalog</a>
+                    <a href="appointment.html">Book Appointment</a>
+                    <a href="about.html">About Us</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Contact Us</h3>
+                    <p>2598 Singalong Street<br>Vito Cruz, Malate, Manila</p>
+                    <p>0956 127 7149</p>
+                    <p>one_optics@yahoo.com</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Operating Hours</h3>
+                    <p>Clinic hours to be confirmed.</p>
+                    <p><em>(Closed · Opens 10 AM based on initial listing)</em></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; <span id="currentYear"></span> One Optics Clinic. All rights reserved. | Developed by Luis Agastine Lozada, BSIT
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/database.js"></script>
+    <script src="js/theme.js"></script>
+    
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Prevent selecting past dates
+        const dateInput = document.getElementById('date');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+
+        // Load Doctors
+        document.addEventListener('DOMContentLoaded', () => {
+            const doctors = window.OpticsDB.getDoctors();
+            const doctorList = document.getElementById('doctor-list');
+            
+            if (doctors.length === 0) {
+                doctorList.innerHTML = '<p style="color: var(--text-light);">No doctors available at the moment.</p>';
+                return;
+            }
+
+            doctors.forEach(doc => {
+                const card = document.createElement('div');
+                card.className = 'doctor-card';
+                card.onclick = () => selectDoctor(doc.id, card);
+                card.innerHTML = `
+                    <img src="${doc.image}" alt="${doc.name}" class="doctor-img">
+                    <div class="doctor-info">
+                        <h4>${doc.name}</h4>
+                        <p>${doc.role}</p>
+                        <button type="button" class="btn btn-outline" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;">Select Doctor</button>
+                    </div>
+                `;
+                doctorList.appendChild(card);
+            });
+        });
+
+        function selectDoctor(id, element) {
+            // Remove selected class from all
+            document.querySelectorAll('.doctor-card').forEach(el => {
+                el.classList.remove('selected');
+                el.querySelector('.btn').textContent = 'Select Doctor';
+                el.querySelector('.btn').className = 'btn btn-outline';
+            });
+            // Add to clicked
+            element.classList.add('selected');
+            element.querySelector('.btn').textContent = 'Selected';
+            element.querySelector('.btn').className = 'btn btn-primary';
+            document.getElementById('selectedDoctorId').value = id;
+            
+            // Hide review panel if it was open to force re-review
+            document.getElementById('reviewPanel').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('reviewBtn').style.display = 'block';
+        }
+
+        function showReview() {
+            // Basic validation
+            const form = document.getElementById('appointmentForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            if (!document.getElementById('selectedDoctorId').value) {
+                alert("Please select a doctor.");
+                return;
+            }
+
+            // Populate Review
+            document.getElementById('revName').textContent = document.getElementById('fullName').value;
+            const docId = document.getElementById('selectedDoctorId').value;
+            const doctor = window.OpticsDB.getDoctorById(docId);
+            document.getElementById('revDoctor').textContent = doctor ? doctor.name : 'Unknown';
+            document.getElementById('revType').textContent = document.getElementById('type').value;
+            document.getElementById('revDateTime').textContent = `${document.getElementById('date').value} at ${document.getElementById('time').value}`;
+
+            document.getElementById('reviewPanel').style.display = 'block';
+            document.getElementById('reviewBtn').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'block';
+        }
+
+        function handleAppointmentSubmit(event) {
+            event.preventDefault();
+            
+            if (!document.getElementById('selectedDoctorId').value) {
+                alert("Please select a doctor.");
+                return;
+            }
+
+            const docId = document.getElementById('selectedDoctorId').value;
+            const doctor = window.OpticsDB.getDoctorById(docId);
+
+            const appointment = {
+                customerName: document.getElementById('fullName').value,
+                contactNumber: document.getElementById('contactNumber').value,
+                email: document.getElementById('email').value,
+                doctorId: docId,
+                doctorName: doctor ? doctor.name : 'Unknown',
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                type: document.getElementById('type').value,
+                notes: document.getElementById('notes').value
+            };
+
+            // Save to LocalStorage simulated database
+            window.OpticsDB.bookAppointment(appointment);
+
+            // Populate Confirmation screen
+            document.getElementById('confName').textContent = appointment.customerName;
+            document.getElementById('confDoctor').textContent = appointment.doctorName;
+            document.getElementById('confType').textContent = appointment.type;
+            document.getElementById('confDate').textContent = appointment.date;
+            document.getElementById('confTime').textContent = appointment.time;
+
+            // Show success message
+            document.getElementById('appointmentForm').style.display = 'none';
+            document.querySelector('.notice').style.display = 'none';
+            document.getElementById('bookingSuccess').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        function resetForm() {
+            document.getElementById('appointmentForm').reset();
+            
+            // reset UI state
+            document.querySelectorAll('.doctor-card').forEach(el => {
+                el.classList.remove('selected');
+                el.querySelector('.btn').textContent = 'Select Doctor';
+                el.querySelector('.btn').className = 'btn btn-outline';
+            });
+            document.getElementById('selectedDoctorId').value = '';
+            document.getElementById('reviewPanel').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('reviewBtn').style.display = 'block';
+
+            document.getElementById('appointmentForm').style.display = 'block';
+            document.querySelector('.notice').style.display = 'block';
+            document.getElementById('bookingSuccess').style.display = 'none';
+            window.scrollTo(0, 0);
+        }
+
+        // if form fields change after review, require review again
+        document.querySelectorAll('#appointmentForm input, #appointmentForm select, #appointmentForm textarea').forEach(el => {
+            el.addEventListener('change', () => {
+                if (document.getElementById('reviewPanel').style.display === 'block') {
+                    document.getElementById('reviewPanel').style.display = 'none';
+                    document.getElementById('submitBtn').style.display = 'none';
+                    document.getElementById('reviewBtn').style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eyewear Catalog | One Optics Clinic</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        if (localStorage.getItem('oneOpticsTheme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+            document.addEventListener('DOMContentLoaded', () => document.body.classList.add('dark-mode'));
+        }
+    </script>
+    <style>
+        .catalog-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        @media (max-width: 768px) {
+            .catalog-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        .filter-sidebar {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            height: fit-content;
+            border: 1px solid var(--border-color);
+        }
+        .filter-group {
+            margin-bottom: 1.5rem;
+        }
+        .filter-group h4 {
+            font-size: 1rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary-color);
+        }
+        .filter-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            cursor: pointer;
+        }
+        .filter-label input {
+            margin-right: 0.5rem;
+        }
+        .catalog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            background: var(--bg-color);
+            color: var(--text-dark);
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: var(--bg-color);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            border: 1px solid var(--border-color);
+        }
+        @media (max-width: 768px) {
+            .modal-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        .modal-img {
+            width: 100%;
+            border-radius: var(--border-radius);
+            background: #fff;
+        }
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+            background: var(--bg-light);
+            border-radius: var(--border-radius);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header>
+        <div class="container navbar">
+            <div class="logo">
+                <a href="index.html" style="color: inherit; text-decoration: none;">ONE OPTICS Clinic</a>
+                <span class="tagline">Clear Vision • Brighter Tomorrow</span>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="catalog.html" class="active">Eyewear</a></li>
+                    <li><a href="appointment.html">Appointments</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="admin-login.html">Admin</a></li>
+                    <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">🌙</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container" style="padding-top: 2rem; margin-bottom: 4rem;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--primary-color);">Eyewear Catalog</h1>
+        <p style="color: var(--text-light);">Find the perfect frames to match your style.</p>
+
+        <div class="catalog-layout">
+            <!-- Sidebar Filters -->
+            <aside class="filter-sidebar">
+                <input type="text" id="searchInput" class="search-bar" placeholder="Search products..." oninput="filterProducts()">
+                
+                <div class="filter-group">
+                    <h4>Sort By</h4>
+                    <select id="sortSelect" class="form-control" onchange="filterProducts()" style="padding: 0.5rem;">
+                        <option value="name">Product Name (A-Z)</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Frame Type</h4>
+                    <label class="filter-label"><input type="checkbox" value="Full Rim" class="type-filter" onchange="filterProducts()"> Full Rim</label>
+                    <label class="filter-label"><input type="checkbox" value="Half Rim" class="type-filter" onchange="filterProducts()"> Half Rim</label>
+                    <label class="filter-label"><input type="checkbox" value="Rimless" class="type-filter" onchange="filterProducts()"> Rimless</label>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Frame Style</h4>
+                    <label class="filter-label"><input type="checkbox" value="Round" class="style-filter" onchange="filterProducts()"> Round</label>
+                    <label class="filter-label"><input type="checkbox" value="Square" class="style-filter" onchange="filterProducts()"> Square</label>
+                    <label class="filter-label"><input type="checkbox" value="Rectangle" class="style-filter" onchange="filterProducts()"> Rectangle</label>
+                    <label class="filter-label"><input type="checkbox" value="Cat-Eye" class="style-filter" onchange="filterProducts()"> Cat-Eye</label>
+                    <label class="filter-label"><input type="checkbox" value="Aviator" class="style-filter" onchange="filterProducts()"> Aviator</label>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Availability</h4>
+                    <label class="filter-label"><input type="checkbox" value="In Stock" class="stock-filter" onchange="filterProducts()"> In Stock</label>
+                </div>
+            </aside>
+
+            <!-- Product Grid -->
+            <div>
+                <div class="catalog-header">
+                    <span id="resultCount" style="color: var(--text-light); font-weight: 500;">0 Results</span>
+                </div>
+                <div class="product-grid" id="catalog-grid">
+                    <!-- Products will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Details Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div>
+                <img id="modalImg" src="" alt="Product" class="modal-img">
+            </div>
+            <div>
+                <h2 id="modalTitle" style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--primary-color);"></h2>
+                <div id="modalPrice" style="font-size: 1.5rem; font-weight: 600; color: var(--accent-color); margin-bottom: 1rem;"></div>
+                
+                <p id="modalDesc" style="color: var(--text-light); margin-bottom: 1.5rem;"></p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                    <div>
+                        <strong style="display: block; font-size: 0.85rem; color: var(--text-light);">Frame Style</strong>
+                        <span id="modalStyle" style="color: var(--text-dark);"></span>
+                    </div>
+                    <div>
+                        <strong style="display: block; font-size: 0.85rem; color: var(--text-light);">Frame Type</strong>
+                        <span id="modalType" style="color: var(--text-dark);"></span>
+                    </div>
+                    <div>
+                        <strong style="display: block; font-size: 0.85rem; color: var(--text-light);">Color</strong>
+                        <span id="modalColor" style="color: var(--text-dark);"></span>
+                    </div>
+                    <div>
+                        <strong style="display: block; font-size: 0.85rem; color: var(--text-light);">Availability</strong>
+                        <span id="modalStock"></span>
+                    </div>
+                </div>
+
+                <a href="appointment.html" class="btn btn-primary" style="width: 100%; text-align: center; margin-bottom: 1rem;">Book an Eye Examination</a>
+                <button class="btn btn-outline" style="width: 100%;" onclick="closeModal()">Back to Catalog</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3>ONE OPTICS Clinic</h3>
+                    <p style="font-style: italic; color: var(--accent-color); margin-bottom: 1rem;">Clear Vision • Brighter Tomorrow</p>
+                    <p>Your trusted partner for professional eye care and premium eyewear in Manila.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <a href="index.html">Home</a>
+                    <a href="catalog.html">Eyewear Catalog</a>
+                    <a href="appointment.html">Book Appointment</a>
+                    <a href="about.html">About Us</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Contact Us</h3>
+                    <p>2598 Singalong Street<br>Vito Cruz, Malate, Manila</p>
+                    <p>0956 127 7149</p>
+                    <p>one_optics@yahoo.com</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Operating Hours</h3>
+                    <p>Clinic hours to be confirmed.</p>
+                    <p><em>(Closed · Opens 10 AM based on initial listing)</em></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; <span id="currentYear"></span> One Optics Clinic. All rights reserved. | Developed by Luis Agastine Lozada, BSIT
+            </div>
+        </div>
+    </footer>
+
+    <!-- Database Script -->
+    <script src="js/database.js"></script>
+    <script src="js/theme.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        let allProducts = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            allProducts = window.OpticsDB.getProducts();
+            
+            // Check for URL parameters (if navigating from featured product)
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            if (productId) {
+                const product = window.OpticsDB.getProductById(productId);
+                if (product) openModal(product);
+            }
+
+            renderProducts(allProducts);
+        });
+
+        function renderProducts(products) {
+            const grid = document.getElementById('catalog-grid');
+            document.getElementById('resultCount').textContent = `${products.length} Results`;
+            grid.innerHTML = '';
+
+            if (products.length === 0) {
+                grid.innerHTML = `<div class="empty-state"><h3>No products found.</h3><p>Try adjusting your search or filters.</p></div>`;
+                return;
+            }
+
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-title">${product.name}</h3>
+                        <div class="product-meta">${product.style} | ${product.type}</div>
+                        <div class="product-price">₱${product.price.toLocaleString()}</div>
+                        <div style="font-size: 0.8rem; color: ${product.availability === 'In Stock' ? '#28a745' : product.availability === 'Low Stock' ? '#f1c40f' : '#dc3545'}; margin-bottom: 1rem;">
+                            ${product.availability}
+                        </div>
+                        <button class="btn btn-outline" onclick='openModalById(${product.id})'>View Details</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterProducts() {
+            const searchTerms = document.getElementById('searchInput').value.toLowerCase();
+            const sortVal = document.getElementById('sortSelect').value;
+            
+            const typeFilters = Array.from(document.querySelectorAll('.type-filter:checked')).map(cb => cb.value);
+            const styleFilters = Array.from(document.querySelectorAll('.style-filter:checked')).map(cb => cb.value);
+            const inStockOnly = document.querySelector('.stock-filter:checked') !== null;
+
+            let filtered = allProducts.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchTerms);
+                const matchesType = typeFilters.length === 0 || typeFilters.includes(p.type);
+                const matchesStyle = styleFilters.length === 0 || styleFilters.includes(p.style);
+                const matchesStock = !inStockOnly || p.availability === 'In Stock';
+                
+                return matchesSearch && matchesType && matchesStyle && matchesStock;
+            });
+
+            // Sorting
+            filtered.sort((a, b) => {
+                if (sortVal === 'name') return a.name.localeCompare(b.name);
+                if (sortVal === 'price-asc') return a.price - b.price;
+                if (sortVal === 'price-desc') return b.price - a.price;
+                return 0;
+            });
+
+            renderProducts(filtered);
+        }
+
+        function openModalById(id) {
+            const product = window.OpticsDB.getProductById(id);
+            if (product) openModal(product);
+        }
+
+        function openModal(product) {
+            document.getElementById('modalImg').src = product.image;
+            document.getElementById('modalTitle').textContent = product.name;
+            document.getElementById('modalPrice').textContent = `₱${product.price.toLocaleString()}`;
+            document.getElementById('modalDesc').textContent = product.description;
+            document.getElementById('modalStyle').textContent = product.style;
+            document.getElementById('modalType').textContent = product.type;
+            document.getElementById('modalColor').textContent = product.color;
+            
+            const stockEl = document.getElementById('modalStock');
+            stockEl.textContent = product.availability;
+            stockEl.style.color = product.availability === 'In Stock' ? '#28a745' : product.availability === 'Low Stock' ? '#f1c40f' : '#dc3545';
+            
+            document.getElementById('productModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        // Close modal if clicked outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('productModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
