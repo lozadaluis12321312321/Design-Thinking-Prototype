@@ -276,29 +276,34 @@
         dateInput.setAttribute('min', today);
 
         // Load Doctors
-        document.addEventListener('DOMContentLoaded', () => {
-            const doctors = window.OpticsDB.getDoctors();
-            const doctorList = document.getElementById('doctor-list');
-            
-            if (doctors.length === 0) {
-                doctorList.innerHTML = '<p style="color: var(--text-light);">No doctors available at the moment.</p>';
-                return;
-            }
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const doctors = await window.OpticsDB.getDoctors();
+                const doctorList = document.getElementById('doctor-list');
+                
+                if (doctors.length === 0) {
+                    doctorList.innerHTML = '<p style="color: var(--text-light);">No doctors available at the moment.</p>';
+                    return;
+                }
 
-            doctors.forEach(doc => {
-                const card = document.createElement('div');
-                card.className = 'doctor-card';
-                card.onclick = () => selectDoctor(doc.id, card);
-                card.innerHTML = `
-                    <img src="${doc.image}" alt="${doc.name}" class="doctor-img">
-                    <div class="doctor-info">
-                        <h4>${doc.name}</h4>
-                        <p>${doc.role}</p>
-                        <button type="button" class="btn btn-outline" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;">Select Doctor</button>
-                    </div>
-                `;
-                doctorList.appendChild(card);
-            });
+                doctors.forEach(doc => {
+                    const card = document.createElement('div');
+                    card.className = 'doctor-card';
+                    card.onclick = () => selectDoctor(doc.id, card);
+                    card.innerHTML = `
+                        <img src="${doc.image}" alt="${doc.name}" class="doctor-img">
+                        <div class="doctor-info">
+                            <h4>${doc.name}</h4>
+                            <p>${doc.role}</p>
+                            <button type="button" class="btn btn-outline" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;">Select Doctor</button>
+                        </div>
+                    `;
+                    doctorList.appendChild(card);
+                });
+            } catch(e) {
+                console.error(e);
+                document.getElementById('doctor-list').innerHTML = '<p>Error loading doctors. Ensure backend is running.</p>';
+            }
         });
 
         function selectDoctor(id, element) {
@@ -320,7 +325,7 @@
             document.getElementById('reviewBtn').style.display = 'block';
         }
 
-        function showReview() {
+        async function showReview() {
             // Basic validation
             const form = document.getElementById('appointmentForm');
             if (!form.checkValidity()) {
@@ -335,7 +340,7 @@
             // Populate Review
             document.getElementById('revName').textContent = document.getElementById('fullName').value;
             const docId = document.getElementById('selectedDoctorId').value;
-            const doctor = window.OpticsDB.getDoctorById(docId);
+            const doctor = await window.OpticsDB.getDoctorById(docId);
             document.getElementById('revDoctor').textContent = doctor ? doctor.name : 'Unknown';
             document.getElementById('revType').textContent = document.getElementById('type').value;
             document.getElementById('revDateTime').textContent = `${document.getElementById('date').value} at ${document.getElementById('time').value}`;
@@ -345,7 +350,7 @@
             document.getElementById('submitBtn').style.display = 'block';
         }
 
-        function handleAppointmentSubmit(event) {
+        async function handleAppointmentSubmit(event) {
             event.preventDefault();
             
             if (!document.getElementById('selectedDoctorId').value) {
@@ -354,7 +359,7 @@
             }
 
             const docId = document.getElementById('selectedDoctorId').value;
-            const doctor = window.OpticsDB.getDoctorById(docId);
+            const doctor = await window.OpticsDB.getDoctorById(docId);
 
             const appointment = {
                 customerName: document.getElementById('fullName').value,
@@ -368,8 +373,8 @@
                 notes: document.getElementById('notes').value
             };
 
-            // Save to LocalStorage simulated database
-            window.OpticsDB.bookAppointment(appointment);
+            // Save to Backend
+            await window.OpticsDB.bookAppointment(appointment);
 
             // Populate Confirmation screen
             document.getElementById('confName').textContent = appointment.customerName;

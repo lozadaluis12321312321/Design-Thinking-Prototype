@@ -139,6 +139,44 @@
         .section-panel.active {
             display: block;
         }
+        
+        /* Modal Styles */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: var(--bg-color);
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .close-btn {
+            color: var(--text-light);
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            color: var(--text-dark);
+        }
     </style>
 </head>
 <body>
@@ -152,7 +190,10 @@
                 <li><a href="#" class="nav-btn active" data-target="dashboard">Dashboard</a></li>
                 <li><a href="#" class="nav-btn" data-target="appointments">Appointments</a></li>
                 <li><a href="#" class="nav-btn" data-target="inventory">Eyewear Inventory</a></li>
+                <li><a href="#" class="nav-btn" data-target="orders">Orders</a></li>
+                <li><a href="#" class="nav-btn" data-target="customers">Customers</a></li>
                 <li><a href="#" class="nav-btn" data-target="doctors">Doctors</a></li>
+                <li><a href="#" class="nav-btn" data-target="reports">Reports</a></li>
                 <li><a href="#" id="theme-toggle" style="margin-top: 1rem; display: flex; align-items: center; justify-content: space-between;">Toggle Dark Mode <span>🌙</span></a></li>
                 <li><a href="#" onclick="logout()" style="color: #ff9999; margin-top: 2rem;">Logout</a></li>
             </ul>
@@ -230,8 +271,7 @@
             <div id="inventory" class="section-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3 style="color: var(--primary-color);">Manage Inventory</h3>
-                    <!-- In a real app this would open a modal to add products -->
-                    <button class="btn btn-primary btn-sm" onclick="alert('Add product modal would open here.')">Add Product</button>
+                    <button class="btn btn-primary btn-sm" onclick="openProductModal()">Add Product</button>
                 </div>
                 <div style="overflow-x: auto;">
                     <table class="data-table">
@@ -256,7 +296,7 @@
             <div id="doctors" class="section-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3 style="color: var(--primary-color);">Manage Doctors</h3>
-                    <button class="btn btn-primary btn-sm" onclick="alert('Add doctor modal would open here.')">Add Doctor</button>
+                    <button class="btn btn-primary btn-sm" onclick="openDoctorModal()">Add Doctor</button>
                 </div>
                 <div style="overflow-x: auto;">
                     <table class="data-table">
@@ -275,7 +315,163 @@
                 </div>
             </div>
 
+            <!-- Orders Management -->
+            <div id="orders" class="section-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="color: var(--primary-color);">Manage Orders</h3>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Customer Info</th>
+                                <th>Total Amount</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Customer Records -->
+            <div id="customers" class="section-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="color: var(--primary-color);">Customer Records</h3>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Contact Number</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customers-table">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reports -->
+            <div id="reports" class="section-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="color: var(--primary-color);">Reports</h3>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">Total Sales (Completed)</div>
+                        <div class="stat-val" id="report-sales">₱0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Total Orders</div>
+                        <div class="stat-val" id="report-orders">0</div>
+                    </div>
+                </div>
+                <p style="color: var(--text-light); margin-top: 1rem;">Additional reporting charts and CSV exports would go here.</p>
+            </div>
+
         </main>
+    </div>
+
+    <!-- Doctor Modal -->
+    <div id="doctorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="doctorModalTitle" style="margin: 0; color: var(--primary-color);">Add Doctor</h3>
+                <span class="close-btn" onclick="closeDoctorModal()">&times;</span>
+            </div>
+            <form id="doctorForm" onsubmit="saveDoctor(event)">
+                <input type="hidden" id="doctorId">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="doctorName">Doctor Name</label>
+                    <input type="text" id="doctorName" class="form-control" required placeholder="e.g. Dr. John Doe">
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="doctorRole">Role</label>
+                    <input type="text" id="doctorRole" class="form-control" required placeholder="e.g. Optometrist">
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="doctorImage">Image URL</label>
+                    <input type="url" id="doctorImage" class="form-control" placeholder="https://...">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button type="button" class="btn btn-outline" onclick="closeDoctorModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Doctor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 id="productModalTitle" style="margin: 0; color: var(--primary-color);">Add Product</h3>
+                <span class="close-btn" onclick="closeProductModal()">&times;</span>
+            </div>
+            <form id="productForm" onsubmit="saveProduct(event)">
+                <input type="hidden" id="productId">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label for="productName">Product Name</label>
+                        <input type="text" id="productName" class="form-control" required placeholder="e.g. Classic Aviator">
+                    </div>
+                    <div class="form-group">
+                        <label for="productType">Type</label>
+                        <select id="productType" class="form-control" required>
+                            <option value="Eyeglasses">Eyeglasses</option>
+                            <option value="Sunglasses">Sunglasses</option>
+                            <option value="Contact Lenses">Contact Lenses</option>
+                            <option value="Accessories">Accessories</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label for="productStyle">Style</label>
+                        <input type="text" id="productStyle" class="form-control" placeholder="e.g. Aviator">
+                    </div>
+                    <div class="form-group">
+                        <label for="productColor">Color</label>
+                        <input type="text" id="productColor" class="form-control" placeholder="e.g. Gold">
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">Price (₱)</label>
+                        <input type="number" id="productPrice" class="form-control" required min="0" step="0.01">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label for="productStock">Stock Count</label>
+                        <input type="number" id="productStock" class="form-control" required min="0">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="productDescription">Description</label>
+                    <textarea id="productDescription" class="form-control" rows="2" placeholder="Product details..."></textarea>
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="productImage">Image URL</label>
+                    <input type="url" id="productImage" class="form-control" placeholder="https://...">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button type="button" class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Database Script -->
@@ -283,11 +479,13 @@
     <script src="js/theme.js"></script>
 
     <script>
-        // Check Authentication - bypassing for demo purposes but normally would be:
-        // if (localStorage.getItem('adminAuth') !== 'true') { window.location.href = 'admin-login.html'; }
+        // Check Authentication
+        if (localStorage.getItem('adminAuth') !== 'true' || !localStorage.getItem('adminToken')) { 
+            window.location.href = 'admin-login.html'; 
+        }
 
         function logout() {
-            localStorage.removeItem('adminAuth');
+            window.OpticsDB.logout();
             window.location.href = 'admin-login.html';
         }
 
@@ -309,19 +507,44 @@
         });
 
         // Load Data
-        function loadAdminData() {
-            const products = window.OpticsDB.getProducts();
-            const appointments = window.OpticsDB.getAppointments();
-            const doctors = window.OpticsDB.getDoctors();
+        async function loadAdminData() {
+            try {
+                // Fetch basic data
+                const products = await window.OpticsDB.getProducts();
+                const appointments = await window.OpticsDB.getAppointments();
+                const doctors = await window.OpticsDB.getDoctors();
+                
+                // Extra features
+                const token = localStorage.getItem('adminToken');
+                const headers = { 'Authorization': `Bearer ${token}` };
+                
+                const ordersReq = await fetch('api/orders.php', { headers });
+                const orders = ordersReq.ok ? await ordersReq.json() : [];
+                
+                const custReq = await fetch('api/customers.php', { headers });
+                const customers = custReq.ok ? await custReq.json() : [];
+                
+                const repReq = await fetch('api/reports.php', { headers });
+                const reports = repReq.ok ? await repReq.json() : {};
 
-            // Stats
-            document.getElementById('stat-products').textContent = products.length;
-            document.getElementById('stat-pending').textContent = appointments.filter(a => a.status === 'Pending').length;
-            document.getElementById('stat-confirmed').textContent = appointments.filter(a => a.status === 'Confirmed').length;
+                // Stats
+                document.getElementById('stat-products').textContent = reports.totalProducts || products.length;
+                document.getElementById('stat-pending').textContent = reports.pendingAppointments || appointments.filter(a => a.status === 'Pending').length;
+                document.getElementById('stat-confirmed').textContent = appointments.filter(a => a.status === 'Confirmed').length;
+                
+                if (document.getElementById('report-sales')) {
+                    document.getElementById('report-sales').textContent = `₱${(reports.totalSales || 0).toLocaleString()}`;
+                    document.getElementById('report-orders').textContent = reports.totalOrders || 0;
+                }
 
-            renderAppointments(appointments);
-            renderInventory(products);
-            renderDoctors(doctors);
+                renderAppointments(appointments);
+                renderInventory(products);
+                renderDoctors(doctors);
+                if (orders.length >= 0) renderOrders(orders);
+                if (customers.length >= 0) renderCustomers(customers);
+            } catch(e) {
+                console.error("Error loading admin data", e);
+            }
         }
 
         function getStatusClass(status) {
@@ -408,7 +631,11 @@
                             </span>
                         </td>
                         <td>
-                            <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.85rem;" onclick="alert('Edit product modal would open here.')">Edit</button>
+                            <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.85rem;" onclick="openProductModal({
+                                id: ${p.id}, name: '${p.name.replace(/'/g, "\\'")}', type: '${p.type}', style: '${p.style || ''}', 
+                                color: '${p.color || ''}', price: ${p.price}, description: '${(p.description || '').replace(/'/g, "\\'").replace(/\n/g, '\\n')}', 
+                                availability: '${p.availability}', stock: ${p.stock || 0}, image: '${p.image || ''}'
+                            })">Edit</button>
                             <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.85rem; color: #dc3545; border-color: #dc3545;" onclick="deleteProd(${p.id})">Delete</button>
                         </td>
                     </tr>
@@ -432,22 +659,229 @@
                         </td>
                         <td>${d.role}</td>
                         <td>
-                            <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.85rem;" onclick="alert('Edit doctor modal would open here.')">Edit</button>
+                            <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.85rem;" onclick="openDoctorModal({id: ${d.id}, name: '${d.name.replace(/'/g, "\\'")}', role: '${d.role.replace(/'/g, "\\'")}', image: '${d.image}'})">Edit</button>
+                            <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.85rem; color: #dc3545; border-color: #dc3545;" onclick="deleteDoctorBtn(${d.id})">Delete</button>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        function updateAppStatus(id, newStatus) {
-            window.OpticsDB.updateAppointmentStatus(id, newStatus);
-            loadAdminData(); // Refresh UI
+        async function updateAppStatus(id, newStatus) {
+            try {
+                await window.OpticsDB.updateAppointmentStatus(id, newStatus);
+                await loadAdminData(); // Refresh UI
+            } catch(e) { console.error(e); }
         }
 
-        function deleteProd(id) {
+        async function deleteProd(id) {
             if(confirm('Are you sure you want to delete this product?')) {
-                window.OpticsDB.deleteProduct(id);
-                loadAdminData(); // Refresh UI
+                try {
+                    await window.OpticsDB.deleteProduct(id);
+                    await loadAdminData(); // Refresh UI
+                } catch(e) { console.error(e); }
+            }
+        }
+
+        function renderOrders(orders) {
+            const tbody = document.getElementById('orders-table');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            orders.forEach(o => {
+                let itemsHtml = o.items ? o.items.map(i => `${i.quantity}x ${i.name}`).join(', ') : '';
+                tbody.innerHTML += `
+                    <tr>
+                        <td>#${o.id}</td>
+                        <td>${new Date(o.date).toLocaleString()}</td>
+                        <td>
+                            <strong>${o.customerName}</strong><br>
+                            <span style="font-size:0.85rem; color: var(--text-light);">${o.email} | ${o.contactNumber}</span>
+                        </td>
+                        <td>₱${o.totalAmount.toLocaleString()}<br><span style="font-size:0.85rem; color: var(--text-light);">${itemsHtml}</span></td>
+                        <td>${o.paymentMethod}<br><span style="font-size:0.85rem; color: var(--text-light);">${o.paymentStatus}</span></td>
+                        <td>
+                            <select class="form-control" style="padding: 0.3rem; font-size: 0.85rem;" onchange="updateOrderStatus(${o.id}, this.value)">
+                                <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                                <option value="Completed" ${o.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                                <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.85rem;" onclick="alert('View details for order #${o.id}')">View</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderCustomers(customers) {
+            const tbody = document.getElementById('customers-table');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            customers.forEach(c => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${c.name}</strong></td>
+                        <td>${c.email || 'N/A'}</td>
+                        <td>${c.contactNumber || 'N/A'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function updateOrderStatus(id, newStatus) {
+            try {
+                const token = localStorage.getItem('adminToken');
+                await fetch(`api/orders.php/${id}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                await loadAdminData();
+            } catch(e) { console.error(e); }
+        }
+
+        // --- Doctor Modal Logic ---
+        function openDoctorModal(doctor = null) {
+            const modal = document.getElementById('doctorModal');
+            const title = document.getElementById('doctorModalTitle');
+            const idInput = document.getElementById('doctorId');
+            const nameInput = document.getElementById('doctorName');
+            const roleInput = document.getElementById('doctorRole');
+            const imageInput = document.getElementById('doctorImage');
+
+            if (doctor) {
+                title.textContent = 'Edit Doctor';
+                idInput.value = doctor.id;
+                nameInput.value = doctor.name;
+                roleInput.value = doctor.role;
+                imageInput.value = doctor.image;
+            } else {
+                title.textContent = 'Add Doctor';
+                idInput.value = '';
+                document.getElementById('doctorForm').reset();
+            }
+            modal.style.display = 'block';
+        }
+
+        function closeDoctorModal() {
+            document.getElementById('doctorModal').style.display = 'none';
+        }
+
+        async function saveDoctor(event) {
+            event.preventDefault();
+            const id = document.getElementById('doctorId').value;
+            let imageVal = document.getElementById('doctorImage').value;
+            
+            if (!imageVal) {
+                const name = document.getElementById('doctorName').value;
+                const encodedName = encodeURIComponent(name);
+                imageVal = `https://via.placeholder.com/150/f8f9fa/333333?text=${encodedName}`;
+            }
+
+            const docData = {
+                name: document.getElementById('doctorName').value,
+                role: document.getElementById('doctorRole').value,
+                image: imageVal
+            };
+
+            try {
+                if (id) {
+                    await window.OpticsDB.updateDoctor(id, docData);
+                } else {
+                    await window.OpticsDB.addDoctor(docData);
+                }
+                closeDoctorModal();
+                await loadAdminData(); // Refresh UI
+            } catch(e) {
+                console.error("Error saving doctor:", e);
+                alert("Failed to save doctor.");
+            }
+        }
+
+        async function deleteDoctorBtn(id) {
+            if (confirm("Are you sure you want to delete this doctor?")) {
+                try {
+                    await window.OpticsDB.deleteDoctor(id);
+                    await loadAdminData(); // Refresh UI
+                } catch(e) {
+                    console.error("Error deleting doctor:", e);
+                    alert("Failed to delete doctor.");
+                }
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const docModal = document.getElementById('doctorModal');
+            const prodModal = document.getElementById('productModal');
+            if (event.target === docModal) closeDoctorModal();
+            if (event.target === prodModal) closeProductModal();
+        }
+
+        // --- Product Modal Logic ---
+        function openProductModal(product = null) {
+            const modal = document.getElementById('productModal');
+            const title = document.getElementById('productModalTitle');
+            
+            if (product) {
+                title.textContent = 'Edit Product';
+                document.getElementById('productId').value = product.id;
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productType').value = product.type;
+                document.getElementById('productStyle').value = product.style || '';
+                document.getElementById('productColor').value = product.color || '';
+                document.getElementById('productPrice').value = product.price;
+                document.getElementById('productStock').value = product.stock || 0;
+                document.getElementById('productDescription').value = product.description || '';
+                document.getElementById('productImage').value = product.image || '';
+            } else {
+                title.textContent = 'Add Product';
+                document.getElementById('productId').value = '';
+                document.getElementById('productForm').reset();
+                document.getElementById('productType').value = 'Eyeglasses';
+            }
+            modal.style.display = 'block';
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        async function saveProduct(event) {
+            event.preventDefault();
+            const id = document.getElementById('productId').value;
+            let imageVal = document.getElementById('productImage').value;
+            
+            if (!imageVal) {
+                const name = document.getElementById('productName').value;
+                const encodedName = encodeURIComponent(name);
+                imageVal = `https://via.placeholder.com/200/f8f9fa/333333?text=${encodedName}`;
+            }
+
+            const prodData = {
+                name: document.getElementById('productName').value,
+                type: document.getElementById('productType').value,
+                style: document.getElementById('productStyle').value,
+                color: document.getElementById('productColor').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                stock: parseInt(document.getElementById('productStock').value, 10),
+                description: document.getElementById('productDescription').value,
+                image: imageVal
+            };
+
+            try {
+                if (id) {
+                    await window.OpticsDB.updateProduct(id, prodData);
+                } else {
+                    await window.OpticsDB.addProduct(prodData);
+                }
+                closeProductModal();
+                await loadAdminData(); // Refresh UI
+            } catch(e) {
+                console.error("Error saving product:", e);
+                alert("Failed to save product.");
             }
         }
 

@@ -133,6 +133,7 @@
                     <li><a href="appointment.html">Appointments</a></li>
                     <li><a href="about.html">About Us</a></li>
                     <li><a href="contact.html">Contact</a></li>
+                    <li><a href="#" onclick="openCart(event)" style="color: var(--accent-color); font-weight: 600;">🛒 Cart (<span id="cartCount">0</span>)</a></li>
                     <li><a href="admin-login.html">Admin</a></li>
                     <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">🌙</button></li>
                 </ul>
@@ -224,9 +225,45 @@
                     </div>
                 </div>
 
-                <a href="appointment.html" class="btn btn-primary" style="width: 100%; text-align: center; margin-bottom: 1rem;">Book an Eye Examination</a>
-                <button class="btn btn-outline" style="width: 100%;" onclick="closeModal()">Back to Catalog</button>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <button class="btn btn-outline" style="flex: 1;" onclick="addToCartFromModal()">Add to Cart</button>
+                    <a href="appointment.html" class="btn btn-primary" style="flex: 1; text-align: center;">Book an Exam</a>
+                </div>
+                <button class="btn btn-outline" style="width: 100%; border: none;" onclick="closeModal()">Back to Catalog</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Shopping Cart Modal -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content" style="max-width: 500px; display: block;">
+            <span class="close-btn" onclick="closeCart()">&times;</span>
+            <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--primary-color);">Your Cart</h2>
+            
+            <div id="cartItems" style="margin-bottom: 2rem;">
+                <!-- Cart items populated by JS -->
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-bottom: 1.5rem;">
+                <span>Total:</span>
+                <span id="cartTotal">₱0</span>
+            </div>
+
+            <form id="checkoutForm" onsubmit="handleCheckout(event)" style="display: none; background: var(--bg-light); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <h3 style="margin-bottom: 1rem;">Checkout Details</h3>
+                <div class="form-group"><input type="text" id="coName" class="form-control" placeholder="Full Name" required></div>
+                <div class="form-group"><input type="email" id="coEmail" class="form-control" placeholder="Email" required></div>
+                <div class="form-group"><input type="tel" id="coPhone" class="form-control" placeholder="Contact Number" required></div>
+                <div class="form-group">
+                    <select id="coPayment" class="form-control" required>
+                        <option value="Cash on Pickup">Cash on Pickup</option>
+                        <option value="GCash">GCash (Pending Verification)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm Order</button>
+            </form>
+
+            <button id="checkoutBtn" class="btn btn-primary" style="width: 100%;" onclick="showCheckoutForm()">Proceed to Checkout</button>
         </div>
     </div>
 
@@ -274,18 +311,23 @@
 
         let allProducts = [];
 
-        document.addEventListener('DOMContentLoaded', () => {
-            allProducts = window.OpticsDB.getProducts();
-            
-            // Check for URL parameters (if navigating from featured product)
-            const urlParams = new URLSearchParams(window.location.search);
-            const productId = urlParams.get('id');
-            if (productId) {
-                const product = window.OpticsDB.getProductById(productId);
-                if (product) openModal(product);
-            }
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                allProducts = await window.OpticsDB.getProducts();
+                
+                // Check for URL parameters (if navigating from featured product)
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('id');
+                if (productId) {
+                    const product = await window.OpticsDB.getProductById(productId);
+                    if (product) openModal(product);
+                }
 
-            renderProducts(allProducts);
+                renderProducts(allProducts);
+            } catch (error) {
+                console.error("Error loading products:", error);
+                document.getElementById('catalog-grid').innerHTML = '<div class="empty-state"><h3>Error loading products.</h3><p>Ensure the backend is running on port 3000.</p></div>';
+            }
         });
 
         function renderProducts(products) {
@@ -345,12 +387,17 @@
             renderProducts(filtered);
         }
 
-        function openModalById(id) {
-            const product = window.OpticsDB.getProductById(id);
-            if (product) openModal(product);
+        async function openModalById(id) {
+            try {
+                const product = await window.OpticsDB.getProductById(id);
+                if (product) openModal(product);
+            } catch(e) {
+                console.error(e);
+            }
         }
 
         function openModal(product) {
+            currentModalProduct = product;
             document.getElementById('modalImg').src = product.image;
             document.getElementById('modalTitle').textContent = product.name;
             document.getElementById('modalPrice').textContent = `₱${product.price.toLocaleString()}`;
@@ -373,10 +420,133 @@
         // Close modal if clicked outside
         window.onclick = function(event) {
             const modal = document.getElementById('productModal');
-            if (event.target == modal) {
+            const cart = document.getElementById('cartModal');
+            if (event.target == modal) closeModal();
+            if (event.target == cart) closeCart();
+        }
+
+        // Cart Logic
+        let cart = JSON.parse(localStorage.getItem('opticsCart') || '[]');
+        let currentModalProduct = null;
+
+        function updateCartCount() {
+            document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            localStorage.setItem('opticsCart', JSON.stringify(cart));
+        }
+
+        function addToCart(product) {
+            if (product.availability === 'Out of Stock') {
+                alert('This product is out of stock.');
+                return;
+            }
+            const existing = cart.find(i => i.productId === product.id);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({ productId: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 });
+            }
+            updateCartCount();
+            alert(`${product.name} added to cart!`);
+        }
+
+        function addToCartFromModal() {
+            if(currentModalProduct) {
+                addToCart(currentModalProduct);
                 closeModal();
             }
         }
+
+        function openCart(e) {
+            e.preventDefault();
+            renderCart();
+            document.getElementById('checkoutForm').style.display = 'none';
+            document.getElementById('checkoutBtn').style.display = cart.length ? 'block' : 'none';
+            document.getElementById('cartModal').style.display = 'flex';
+        }
+
+        function closeCart() {
+            document.getElementById('cartModal').style.display = 'none';
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            container.innerHTML = '';
+            let total = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-light);">Your cart is empty.</p>';
+            }
+
+            cart.forEach((item, index) => {
+                total += item.price * item.quantity;
+                container.innerHTML += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <img src="${item.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                            <div>
+                                <div style="font-weight: 500;">${item.name}</div>
+                                <div style="color: var(--text-light); font-size: 0.9rem;">₱${item.price.toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <span>Qty: ${item.quantity}</span>
+                            <button class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; color: #dc3545; border-color: #dc3545;" onclick="removeFromCart(${index})">Remove</button>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('cartTotal').textContent = `₱${total.toLocaleString()}`;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartCount();
+            renderCart();
+            if(cart.length === 0) {
+                document.getElementById('checkoutBtn').style.display = 'none';
+                document.getElementById('checkoutForm').style.display = 'none';
+            }
+        }
+
+        function showCheckoutForm() {
+            document.getElementById('checkoutBtn').style.display = 'none';
+            document.getElementById('checkoutForm').style.display = 'block';
+        }
+
+        async function handleCheckout(e) {
+            e.preventDefault();
+            const orderData = {
+                customerName: document.getElementById('coName').value,
+                email: document.getElementById('coEmail').value,
+                contactNumber: document.getElementById('coPhone').value,
+                paymentMethod: document.getElementById('coPayment').value,
+                totalAmount: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                items: cart.map(i => ({ productId: i.productId, quantity: i.quantity, price: i.price }))
+            };
+
+            try {
+                const response = await fetch('api/orders.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+                
+                if(response.ok) {
+                    alert('Order placed successfully! We will contact you shortly.');
+                    cart = [];
+                    updateCartCount();
+                    closeCart();
+                } else {
+                    alert('Error placing order. Please try again.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Could not connect to the backend server. Make sure it is running.');
+            }
+        }
+
+        // Initialize cart count
+        updateCartCount();
     </script>
 </body>
 </html>

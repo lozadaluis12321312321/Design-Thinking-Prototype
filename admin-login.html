@@ -82,6 +82,7 @@
         </p>
     </div>
 
+    <script src="js/database.js"></script>
     <script src="js/theme.js"></script>
     <script>
         // Check if already logged in
@@ -89,16 +90,18 @@
             window.location.href = 'admin-dashboard.html';
         }
 
-        function handleLogin(event) {
+        async function handleLogin(event) {
             event.preventDefault();
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
 
-            // Simple demo authentication
-            if (user === 'admin' && pass === 'admin123') {
-                localStorage.setItem('adminAuth', 'true');
-                window.location.href = 'admin-dashboard.html';
-            } else {
+            try {
+                const result = await window.OpticsDB.login(user, pass);
+                if (result.token) {
+                    window.location.href = 'admin-dashboard.html';
+                }
+            } catch (err) {
+                document.getElementById('errorMsg').textContent = "Invalid credentials. Ensure backend is running.";
                 document.getElementById('errorMsg').style.display = 'block';
             }
         }

@@ -164,27 +164,32 @@
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
         // Load Featured Products
-        document.addEventListener('DOMContentLoaded', () => {
-            const allProducts = window.OpticsDB.getProducts();
-            // Get first 3 products for the featured section
-            const featuredProducts = allProducts.slice(0, 3);
-            
-            const grid = document.getElementById('featured-products');
-            
-            featuredProducts.forEach(product => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <img src="${product.image}" alt="${product.name}" class="product-img">
-                    <div class="product-info">
-                        <h3 class="product-title">${product.name}</h3>
-                        <div class="product-meta">${product.style} | ${product.type}</div>
-                        <div class="product-price">₱${product.price.toLocaleString()}</div>
-                        <a href="catalog.html?id=${product.id}" class="btn btn-outline">View Details</a>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const allProducts = await window.OpticsDB.getProducts();
+                // Get first 3 products for the featured section
+                const featuredProducts = allProducts.slice(0, 3);
+                
+                const grid = document.getElementById('featured-products');
+                
+                featuredProducts.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}" class="product-img">
+                        <div class="product-info">
+                            <h3 class="product-title">${product.name}</h3>
+                            <div class="product-meta">${product.style} | ${product.type}</div>
+                            <div class="product-price">₱${product.price.toLocaleString()}</div>
+                            <a href="catalog.html?id=${product.id}" class="btn btn-outline">View Details</a>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (error) {
+                console.error("Error loading featured products:", error);
+                document.getElementById('featured-products').innerHTML = '<p>Ensure backend is running on port 3000.</p>';
+            }
         });
     </script>
 </body>
