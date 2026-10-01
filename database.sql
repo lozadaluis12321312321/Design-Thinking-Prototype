@@ -11,7 +11,7 @@ CREATE TABLE `users` (
 
 -- Password is 'admin123'
 INSERT INTO `users` (`username`, `password`) VALUES
-('admin', '$2y$10$eO.x4Y5M/qf1zYI0kO68uOpM8H5m1YI4Q/x8ZlT3wV7w5vT4m1Z0a');
+('admin', '$2y$10$hN.7xHuwpFoTjlOavjnH7OuPhEGwLTYxz0GTD8yKqrpddHefCnfVC');
 
 CREATE TABLE `doctors` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

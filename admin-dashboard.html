@@ -6,7 +6,7 @@
     <title>Admin Dashboard | One Optics Clinic</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <script>
         if (localStorage.getItem('oneOpticsTheme') === 'dark') {
@@ -21,7 +21,7 @@
         .admin-layout {
             display: grid;
             grid-template-columns: 250px 1fr;
-            min-height: 100vh;
+            min-height: 100dvh;
         }
         @media (max-width: 768px) {
             .admin-layout {
@@ -194,10 +194,13 @@
                 <li><a href="#" class="nav-btn" data-target="customers">Customers</a></li>
                 <li><a href="#" class="nav-btn" data-target="doctors">Doctors</a></li>
                 <li><a href="#" class="nav-btn" data-target="reports">Reports</a></li>
-                <li><a href="#" id="theme-toggle" style="margin-top: 1rem; display: flex; align-items: center; justify-content: space-between;">Toggle Dark Mode <span>🌙</span></a></li>
-                <li><a href="#" onclick="logout()" style="color: #ff9999; margin-top: 2rem;">Logout</a></li>
+                
+                <li><a href="#" class="logout-link" onclick="logout()">Logout</a></li>
             </ul>
         </aside>
+
+        <!-- Floating theme switch -->
+        <a href="#" id="theme-toggle" class="theme-fab" role="button" aria-label="Toggle dark mode"><span class="tt-icon">🌙</span></a>
 
         <!-- Main Content -->
         <main class="content">
@@ -271,7 +274,7 @@
             <div id="inventory" class="section-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3 style="color: var(--primary-color);">Manage Inventory</h3>
-                    <button class="btn btn-primary btn-sm" onclick="openProductModal()">Add Product</button>
+                    <button class="btn btn-primary btn-sm btn-add" onclick="openProductModal()">Add Product</button>
                 </div>
                 <div style="overflow-x: auto;">
                     <table class="data-table">
@@ -296,7 +299,7 @@
             <div id="doctors" class="section-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3 style="color: var(--primary-color);">Manage Doctors</h3>
-                    <button class="btn btn-primary btn-sm" onclick="openDoctorModal()">Add Doctor</button>
+                    <button class="btn btn-primary btn-sm btn-add" onclick="openDoctorModal()">Add Doctor</button>
                 </div>
                 <div style="overflow-x: auto;">
                     <table class="data-table">
@@ -602,7 +605,7 @@
                             </select>
                         </td>
                         <td>
-                            <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.85rem;" onclick="alert('Notes: ${app.notes || 'None'}')">Notes</button>
+                            <button class="btn btn-act btn-notes" onclick="alert('Notes: ${app.notes || 'None'}')">Notes</button>
                         </td>
                     </tr>
                 `;
@@ -631,12 +634,12 @@
                             </span>
                         </td>
                         <td>
-                            <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.85rem;" onclick="openProductModal({
+                            <button class="btn btn-act btn-edit" onclick="openProductModal({
                                 id: ${p.id}, name: '${p.name.replace(/'/g, "\\'")}', type: '${p.type}', style: '${p.style || ''}', 
                                 color: '${p.color || ''}', price: ${p.price}, description: '${(p.description || '').replace(/'/g, "\\'").replace(/\n/g, '\\n')}', 
                                 availability: '${p.availability}', stock: ${p.stock || 0}, image: '${p.image || ''}'
                             })">Edit</button>
-                            <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.85rem; color: #dc3545; border-color: #dc3545;" onclick="deleteProd(${p.id})">Delete</button>
+                            <button class="btn btn-act btn-delete" onclick="deleteProd(${p.id})">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -659,8 +662,8 @@
                         </td>
                         <td>${d.role}</td>
                         <td>
-                            <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.85rem;" onclick="openDoctorModal({id: ${d.id}, name: '${d.name.replace(/'/g, "\\'")}', role: '${d.role.replace(/'/g, "\\'")}', image: '${d.image}'})">Edit</button>
-                            <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.85rem; color: #dc3545; border-color: #dc3545;" onclick="deleteDoctorBtn(${d.id})">Delete</button>
+                            <button class="btn btn-act btn-edit" onclick="openDoctorModal({id: ${d.id}, name: '${d.name.replace(/'/g, "\\'")}', role: '${d.role.replace(/'/g, "\\'")}', image: '${d.image}'})">Edit</button>
+                            <button class="btn btn-act btn-delete" onclick="deleteDoctorBtn(${d.id})">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -708,7 +711,7 @@
                             </select>
                         </td>
                         <td>
-                            <button class="btn btn-outline" style="padding: 0.3rem 0.5rem; font-size: 0.85rem;" onclick="alert('View details for order #${o.id}')">View</button>
+                            <button class="btn btn-act btn-view" onclick="alert('View details for order #${o.id}')">View</button>
                         </td>
                     </tr>
                 `;
