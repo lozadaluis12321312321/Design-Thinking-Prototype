@@ -267,7 +267,16 @@
     <!-- Error Modal -->
     <div id="errorModal" class="modal" style="display: none;">
         <div class="modal-content" style="max-width: 400px; text-align: center; padding: 2rem; margin: auto;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">🗓️</div>
+            <div style="margin-bottom: 1rem;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-color);">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                  <line x1="10" y1="14" x2="14" y2="18"></line>
+                  <line x1="14" y1="14" x2="10" y2="18"></line>
+                </svg>
+            </div>
             <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--primary-color);">Oh oh!</h2>
             <p id="errorModalText" style="color: var(--text-light); margin-bottom: 1.5rem;">The doctor is not available in this time period.</p>
             <button class="btn" style="width: 100%;" onclick="document.getElementById('errorModal').style.display='none'">Pick Another Time</button>
