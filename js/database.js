@@ -27,7 +27,12 @@ async function apiRequest(endpoint, method = 'GET', data = null, requireAuth = f
   try {
     const response = await fetch(`${API_BASE}${endpoint}`, config);
     if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
+        let errorMsg = `API Error: ${response.status}`;
+        try {
+            const errData = await response.json();
+            if (errData.error) errorMsg = errData.error;
+        } catch (e) {}
+        throw new Error(errorMsg);
     }
     return await response.json();
   } catch (error) {

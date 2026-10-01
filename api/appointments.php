@@ -9,6 +9,17 @@ if ($method === 'GET') {
     echo json_encode($stmt->fetchAll());
 } elseif ($method === 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
+    
+    // Check for existing appointment
+    $checkStmt = $pdo->prepare("SELECT id FROM appointments WHERE doctorId = ? AND date = ? AND time = ? AND status != 'Cancelled'");
+    $checkStmt->execute([$data['doctorId'], $data['date'], $data['time']]);
+    if ($checkStmt->rowCount() > 0) {
+        http_response_code(409); // Conflict
+        header('Content-Type: application/json');
+        echo json_encode(["error" => "The doctor is already booked for this date and time."]);
+        exit;
+    }
+
     $createdDate = date('Y-m-d H:i:s');
     $stmt = $pdo->prepare("INSERT INTO appointments (customerName, contactNumber, email, doctorId, type, date, time, notes, status, createdDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?)");
     $stmt->execute([
@@ -27,4 +38,3 @@ if ($method === 'GET') {
         echo json_encode(["message" => "Status updated"]);
     }
 }
-?>

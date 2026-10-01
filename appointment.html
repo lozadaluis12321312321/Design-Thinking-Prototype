@@ -264,6 +264,16 @@
         </div>
     </footer>
 
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 400px; text-align: center; padding: 2rem; margin: auto;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🗓️</div>
+            <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--primary-color);">Oh oh!</h2>
+            <p id="errorModalText" style="color: var(--text-light); margin-bottom: 1.5rem;">The doctor is not available in this time period.</p>
+            <button class="btn" style="width: 100%;" onclick="document.getElementById('errorModal').style.display='none'">Pick Another Time</button>
+        </div>
+    </div>
+
     <script src="js/database.js"></script>
     <script src="js/theme.js"></script>
     
@@ -374,7 +384,13 @@
             };
 
             // Save to Backend
-            await window.OpticsDB.bookAppointment(appointment);
+            try {
+                await window.OpticsDB.bookAppointment(appointment);
+            } catch (error) {
+                document.getElementById('errorModalText').textContent = error.message || "The doctor is not available in this time period. Please try a different time or doctor.";
+                document.getElementById('errorModal').style.display = 'flex';
+                return; // Stop execution if booking fails
+            }
 
             // Populate Confirmation screen
             document.getElementById('confName').textContent = appointment.customerName;
