@@ -342,7 +342,48 @@
             document.getElementById('reviewPanel').style.display = 'none';
             document.getElementById('submitBtn').style.display = 'none';
             document.getElementById('reviewBtn').style.display = 'block';
+            
+            updateAvailableTimes();
         }
+
+        async function updateAvailableTimes() {
+            const docId = document.getElementById('selectedDoctorId').value;
+            const date = document.getElementById('date').value;
+            const timeSelect = document.getElementById('time');
+            
+            // Reset all options first
+            Array.from(timeSelect.options).forEach(opt => {
+                if (opt.value !== "") {
+                    opt.disabled = false;
+                    opt.text = opt.value;
+                }
+            });
+
+            if (docId && date) {
+                try {
+                    const unavailableTimes = await window.OpticsDB.getUnavailableTimes(docId, date);
+                    let selectedIsNowDisabled = false;
+                    
+                    Array.from(timeSelect.options).forEach(opt => {
+                        if (unavailableTimes.includes(opt.value)) {
+                            opt.disabled = true;
+                            opt.text = `${opt.value} (Booked)`;
+                            if (timeSelect.value === opt.value) {
+                                selectedIsNowDisabled = true;
+                            }
+                        }
+                    });
+                    
+                    if (selectedIsNowDisabled) {
+                        timeSelect.value = ""; // Reset if selected is now booked
+                    }
+                } catch (e) {
+                    console.error("Error fetching available times", e);
+                }
+            }
+        }
+
+        document.getElementById('date').addEventListener('change', updateAvailableTimes);
 
         async function showReview() {
             // Basic validation

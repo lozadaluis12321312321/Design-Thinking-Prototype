@@ -4,6 +4,16 @@ require_once 'db.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
+    if (isset($_GET['action']) && $_GET['action'] === 'unavailable_times') {
+        $doctorId = $_GET['doctorId'];
+        $date = $_GET['date'];
+        $stmt = $pdo->prepare("SELECT time FROM appointments WHERE doctorId = ? AND date = ? AND status NOT IN ('Cancelled', 'Completed')");
+        $stmt->execute([$doctorId, $date]);
+        $times = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        echo json_encode($times);
+        exit;
+    }
+    
     checkAuth();
     $stmt = $pdo->query("SELECT a.*, d.name as doctorName FROM appointments a LEFT JOIN doctors d ON a.doctorId = d.id ORDER BY a.id DESC");
     echo json_encode($stmt->fetchAll());
@@ -11,7 +21,7 @@ if ($method === 'GET') {
     $data = json_decode(file_get_contents("php://input"), true);
     
     // Check for existing appointment
-    $checkStmt = $pdo->prepare("SELECT id FROM appointments WHERE doctorId = ? AND date = ? AND time = ? AND status != 'Cancelled'");
+    $checkStmt = $pdo->prepare("SELECT id FROM appointments WHERE doctorId = ? AND date = ? AND time = ? AND status NOT IN ('Cancelled', 'Completed')");
     $checkStmt->execute([$data['doctorId'], $data['date'], $data['time']]);
     if ($checkStmt->rowCount() > 0) {
         http_response_code(409); // Conflict

@@ -89,6 +89,10 @@ async function getAppointments() {
   return await apiRequest('/appointments.php', 'GET', null, true);
 }
 
+async function getUnavailableTimes(doctorId, date) {
+  return await apiRequest(`/appointments.php?action=unavailable_times&doctorId=${doctorId}&date=${date}`, 'GET');
+}
+
 async function bookAppointment(appointment) {
   return await apiRequest('/appointments.php', 'POST', appointment);
 }
@@ -125,6 +129,7 @@ window.OpticsDB = {
   updateDoctor,
   deleteDoctor,
   getAppointments,
+  getUnavailableTimes,
   bookAppointment,
   updateAppointmentStatus,
   login,
