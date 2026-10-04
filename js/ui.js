@@ -75,4 +75,27 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     targets.forEach((el) => el.classList.add('is-in'));
   }
+
+  // ---- Hero: the illustration drifts toward the cursor (mouse devices only) ----
+  const hero = document.querySelector('.hero');
+  const visual = document.querySelector('.hero-visual');
+  if (hero && visual && !reduceMotion && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    let tx = 0, ty = 0, x = 0, y = 0, raf = 0;
+    const step = () => {
+      x += (tx - x) * 0.1;
+      y += (ty - y) * 0.1;
+      visual.style.setProperty('--px', x.toFixed(3));
+      visual.style.setProperty('--py', y.toFixed(3));
+      // keep animating only until the position has caught up with the cursor
+      raf = (Math.abs(tx - x) > 0.001 || Math.abs(ty - y) > 0.001) ? requestAnimationFrame(step) : 0;
+    };
+    const kick = () => { if (!raf) raf = requestAnimationFrame(step); };
+    hero.addEventListener('pointermove', (e) => {
+      const r = hero.getBoundingClientRect();
+      tx = ((e.clientX - r.left) / r.width) * 2 - 1;
+      ty = ((e.clientY - r.top) / r.height) * 2 - 1;
+      kick();
+    }, { passive: true });
+    hero.addEventListener('pointerleave', () => { tx = 0; ty = 0; kick(); });
+  }
 });
