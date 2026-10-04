@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Main Stylesheet -->
-    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="css/style.css?v=16">
     <!-- Theme Toggle Script to avoid flicker -->
     <script>
         if (localStorage.getItem('oneOpticsTheme') === 'dark') {
@@ -22,25 +22,8 @@
 <body>
 
     <!-- Navigation -->
-    <header>
-        <div class="container navbar">
-            <div class="logo">
-                <a href="index.html" style="color: inherit; text-decoration: none;">ONE OPTICS Clinic</a>
-                <span class="tagline">Clear Vision • Brighter Tomorrow</span>
-            </div>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="index.html" class="active">Home</a></li>
-                    <li><a href="catalog.html">Eyewear</a></li>
-                    <li><a href="appointment.html">Appointments</a></li>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                    <li><a href="admin-login.html">Admin</a></li>
-                    <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">🌙</button></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+    <header id="site-header"></header>
+    <script src="js/ui-core.js?v=16"></script>
 
     <!-- Hero Section -->
     <section class="hero" id="main-content">
@@ -66,22 +49,18 @@
                         <defs>
                             <linearGradient id="lens" x1="0" y1="0" x2="1" y2="1">
                                 <stop offset="0" stop-color="#fff" stop-opacity=".75"/>
-                                <stop offset="1" stop-color="#c4162a" stop-opacity=".16"/>
+                                <stop offset="1" stop-color="#a8121f" stop-opacity=".16"/>
                             </linearGradient>
-                            <clipPath id="clipL"><circle cx="105" cy="112" r="72"/></clipPath>
-                            <clipPath id="clipR"><circle cx="295" cy="112" r="72"/></clipPath>
                         </defs>
                         <path d="M33 100L10 38M367 100L390 38" stroke="#6e0a16" stroke-width="9" stroke-linecap="round"/>
                         <path d="M177 100q23-26 46 0" stroke="#6e0a16" stroke-width="9" stroke-linecap="round"/>
-                        <circle cx="105" cy="112" r="72" fill="url(#lens)" stroke="#c4162a" stroke-width="10"/>
-                        <circle cx="295" cy="112" r="72" fill="url(#lens)" stroke="#c4162a" stroke-width="10"/>
+                        <circle cx="105" cy="112" r="72" fill="url(#lens)" stroke="#a8121f" stroke-width="10"/>
+                        <circle cx="295" cy="112" r="72" fill="url(#lens)" stroke="#a8121f" stroke-width="10"/>
                         <g font-family="Plus Jakarta Sans, sans-serif" font-weight="800" fill="#1f1a1a" fill-opacity=".82" text-anchor="middle">
                             <text x="105" y="140" font-size="92">E</text>
                             <text x="295" y="108" font-size="40" letter-spacing="6">F P</text>
                             <text x="295" y="140" font-size="26" letter-spacing="5">T O Z</text>
                         </g>
-                        <g clip-path="url(#clipL)"><rect class="glare" x="70" y="30" width="26" height="170" fill="#fff" fill-opacity=".75" transform="rotate(20 83 115)"/></g>
-                        <g clip-path="url(#clipR)"><rect class="glare" x="260" y="30" width="26" height="170" fill="#fff" fill-opacity=".75" transform="rotate(20 273 115)"/></g>
                     </svg>
                 </div>
                 <div class="hv-chip c1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Professional eye exams</div>
@@ -185,47 +164,16 @@
     </section>
 
     <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-col">
-                    <h3>ONE OPTICS Clinic</h3>
-                    <p style="font-style: italic; color: var(--accent-color); margin-bottom: 1rem;">Clear Vision • Brighter Tomorrow</p>
-                    <p>Your trusted partner for professional eye care and premium eyewear in Manila.</p>
-                </div>
-                <div class="footer-col">
-                    <h3>Quick Links</h3>
-                    <a href="index.html">Home</a>
-                    <a href="catalog.html">Eyewear Catalog</a>
-                    <a href="appointment.html">Book Appointment</a>
-                    <a href="about.html">About Us</a>
-                </div>
-                <div class="footer-col">
-                    <h3>Contact Us</h3>
-                    <p>2598 Singalong Street<br>Vito Cruz, Malate, Manila</p>
-                    <p>0956 127 7149</p>
-                    <p>one_optics@yahoo.com</p>
-                </div>
-                <div class="footer-col">
-                    <h3>Operating Hours</h3>
-                    <p>Clinic hours to be confirmed.</p>
-                    <p><em>(Closed · Opens 10 AM based on initial listing)</em></p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                &copy; <span id="currentYear"></span> One Optics Clinic. All rights reserved. | Developed by Luis Agastine Lozada, BSIT
-            </div>
-        </div>
-    </footer>
+    <footer id="site-footer"></footer>
 
     <!-- Database Script -->
     <script src="js/database.js"></script>
-    <script src="js/theme.js?v=5"></script>
-    <script src="js/ui.js?v=5"></script>
+    <script src="js/theme.js?v=16"></script>
+    <script src="js/ui.js?v=16"></script>
     
     <!-- Page Specific Script -->
     <script>
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
 
         // Load Featured Products
         document.addEventListener('DOMContentLoaded', async () => {

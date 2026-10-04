@@ -1,0 +1,3 @@
+# Serve the branded 404 page for missing URLs.
+# If you host the site at the domain root instead of /Design-Thinking-Prototype/, change this path to /404.html
+ErrorDocument 404 /Design-Thinking-Prototype/404.html

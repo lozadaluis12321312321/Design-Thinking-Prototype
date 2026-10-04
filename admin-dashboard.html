@@ -3,893 +3,674 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
     <title>Admin Dashboard | One Optics Clinic</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=16">
+    <link rel="stylesheet" href="css/admin.css?v=16">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23a8121f'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round'%3E%3Ccircle cx='20' cy='36' r='10'/%3E%3Ccircle cx='44' cy='36' r='10'/%3E%3Cpath d='M30 34q2-3 4 0'/%3E%3C/g%3E%3C/svg%3E">
     <script>
+        if (localStorage.getItem('adminAuth') !== 'true' || !localStorage.getItem('adminToken')) { location.replace('admin-login.html'); }
         if (localStorage.getItem('oneOpticsTheme') === 'dark') {
             document.documentElement.classList.add('dark-mode');
             document.addEventListener('DOMContentLoaded', () => document.body.classList.add('dark-mode'));
         }
     </script>
-    <style>
-        body {
-            background-color: var(--bg-color);
-        }
-        .admin-layout {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: 100dvh;
-        }
-        @media (max-width: 768px) {
-            .admin-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-        .sidebar {
-            background-color: var(--primary-color);
-            color: #fff;
-            padding: 2rem;
-            border-right: 4px solid var(--accent-color);
-        }
-        .sidebar-brand {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 3rem;
-            display: block;
-            color: #fff;
-        }
-        .sidebar-menu {
-            list-style: none;
-        }
-        .sidebar-menu li {
-            margin-bottom: 1rem;
-        }
-        .sidebar-menu a {
-            color: #ffe6e6;
-            text-decoration: none;
-            display: block;
-            padding: 0.8rem;
-            border-radius: 4px;
-            transition: var(--transition);
-        }
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background-color: rgba(255,255,255,0.2);
-            color: #fff;
-            border-left: 4px solid var(--accent-color);
-        }
-        .content {
-            padding: 2rem;
-            overflow-y: auto;
-            background-color: var(--bg-light);
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            background: var(--bg-color);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            border: 1px solid var(--border-color);
-        }
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .stat-card {
-            background: var(--bg-color);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            border-left: 4px solid var(--accent-color);
-            border: 1px solid var(--border-color);
-            border-left-width: 4px;
-        }
-        .stat-title {
-            color: var(--text-light);
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-        .stat-val {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: var(--bg-color);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            border: 1px solid var(--border-color);
-        }
-        .data-table th, .data-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-dark);
-        }
-        .data-table th {
-            background-color: var(--bg-light);
-            font-weight: 600;
-            color: var(--text-light);
-        }
-        .status-badge {
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            display: inline-block;
-        }
-        .status-pending { background: rgba(241, 196, 15, 0.2); color: #b8860b; border: 1px solid #f1c40f; }
-        .status-confirmed { background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid #28a745; }
-        .status-completed { background: rgba(0, 123, 255, 0.2); color: #007bff; border: 1px solid #007bff; }
-        .status-cancelled { background: rgba(220, 53, 69, 0.2); color: #dc3545; border: 1px solid #dc3545; }
-        
-        .section-panel {
-            display: none;
-        }
-        .section-panel.active {
-            display: block;
-        }
-        
-        /* Modal Styles */
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
-            left: 0; 
-            top: 0; 
-            width: 100%; 
-            height: 100%; 
-            overflow: auto; 
-            background-color: rgba(0,0,0,0.5);
-        }
-        .modal-content {
-            background-color: var(--bg-color);
-            margin: 10% auto;
-            padding: 2rem;
-            border-radius: var(--border-radius);
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border: 1px solid var(--border-color);
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        .close-btn {
-            color: var(--text-light);
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close-btn:hover {
-            color: var(--text-dark);
-        }
-    </style>
 </head>
-<body>
+<body class="adm-body">
 
-    <div class="admin-layout">
-        
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <a href="index.html" class="sidebar-brand">ONE OPTICS Admin</a>
-            <ul class="sidebar-menu">
-                <li><a href="#" class="nav-btn active" data-target="dashboard">Dashboard</a></li>
-                <li><a href="#" class="nav-btn" data-target="appointments">Appointments</a></li>
-                <li><a href="#" class="nav-btn" data-target="inventory">Eyewear Inventory</a></li>
-                <li><a href="#" class="nav-btn" data-target="orders">Orders</a></li>
-                <li><a href="#" class="nav-btn" data-target="customers">Customers</a></li>
-                <li><a href="#" class="nav-btn" data-target="doctors">Doctors</a></li>
-                <li><a href="#" class="nav-btn" data-target="reports">Reports</a></li>
-                
-                <li><a href="#" class="logout-link" onclick="logout()">Logout</a></li>
-            </ul>
-        </aside>
+<!-- Icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+        <symbol id="i-dash" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></symbol>
+        <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+        <symbol id="i-glasses" viewBox="0 0 24 24"><circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/><path d="M10 15h4M2 15l2-8M22 15l-2-8"/></symbol>
+        <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 01-8 0"/></symbol>
+        <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/></symbol>
+        <symbol id="i-doc" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
+        <symbol id="i-chart" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></symbol>
+        <symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+        <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></symbol>
+        <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+        <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5M14 11v5"/></symbol>
+        <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+        <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+        <symbol id="i-peso" viewBox="0 0 24 24"><path d="M7 4v16M7 4h6a4 4 0 010 8H7M5 8h10M5 12h10"/></symbol>
+        <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5M4 21h16"/></symbol>
+        <symbol id="i-empty" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/></symbol>
+    </defs>
+</svg>
 
-        <!-- Floating theme switch -->
-        <a href="#" id="theme-toggle" class="theme-fab" role="button" aria-label="Toggle dark mode"><span class="tt-icon">🌙</span></a>
-
-        <!-- Main Content -->
-        <main class="content">
-            <div class="header">
-                <h2 style="margin: 0; color: var(--primary-color);">Admin Dashboard</h2>
-                <span style="color: var(--text-light);">Welcome, Admin</span>
-            </div>
-
-            <!-- Dashboard Overview -->
-            <div id="dashboard" class="section-panel active">
-                <div class="stat-grid">
-                    <div class="stat-card">
-                        <div class="stat-title">Total Products</div>
-                        <div class="stat-val" id="stat-products">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">Pending Appointments</div>
-                        <div class="stat-val" id="stat-pending">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">Confirmed Appointments</div>
-                        <div class="stat-val" id="stat-confirmed">0</div>
-                    </div>
-                </div>
-
-                <h3 style="margin-bottom: 1rem; color: var(--primary-color);">Recent Appointments</h3>
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Customer</th>
-                                <th>Doctor</th>
-                                <th>Type</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recent-appointments-table">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Appointments Management -->
-            <div id="appointments" class="section-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3 style="color: var(--primary-color);">Manage Appointments</h3>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Customer</th>
-                                <th>Selected Doctor</th>
-                                <th>Date & Time</th>
-                                <th>Type</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="all-appointments-table">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Inventory Management -->
-            <div id="inventory" class="section-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3 style="color: var(--primary-color);">Manage Inventory</h3>
-                    <button class="btn btn-primary btn-sm btn-add" onclick="openProductModal()">Add Product</button>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Type</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inventory-table">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Doctors Management -->
-            <div id="doctors" class="section-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3 style="color: var(--primary-color);">Manage Doctors</h3>
-                    <button class="btn btn-primary btn-sm btn-add" onclick="openDoctorModal()">Add Doctor</button>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Doctor Name</th>
-                                <th>Role</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="doctors-table">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Orders Management -->
-            <div id="orders" class="section-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3 style="color: var(--primary-color);">Manage Orders</h3>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Date</th>
-                                <th>Customer Info</th>
-                                <th>Total Amount</th>
-                                <th>Payment</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orders-table">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Customer Records -->
-            <div id="customers" class="section-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3 style="color: var(--primary-color);">Customer Records</h3>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Contact Number</th>
-                            </tr>
-                        </thead>
-                        <tbody id="customers-table">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Reports -->
-            <div id="reports" class="section-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3 style="color: var(--primary-color);">Reports</h3>
-                </div>
-                <div class="stat-grid">
-                    <div class="stat-card">
-                        <div class="stat-title">Total Sales (Completed)</div>
-                        <div class="stat-val" id="report-sales">₱0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">Total Orders</div>
-                        <div class="stat-val" id="report-orders">0</div>
-                    </div>
-                </div>
-                <p style="color: var(--text-light); margin-top: 1rem;">Additional reporting charts and CSV exports would go here.</p>
-            </div>
-
-        </main>
-    </div>
-
-    <!-- Doctor Modal -->
-    <div id="doctorModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="doctorModalTitle" style="margin: 0; color: var(--primary-color);">Add Doctor</h3>
-                <span class="close-btn" onclick="closeDoctorModal()">&times;</span>
-            </div>
-            <form id="doctorForm" onsubmit="saveDoctor(event)">
-                <input type="hidden" id="doctorId">
-                <div class="form-group" style="margin-bottom: 1rem;">
-                    <label for="doctorName">Doctor Name</label>
-                    <input type="text" id="doctorName" class="form-control" required placeholder="e.g. Dr. John Doe">
-                </div>
-                <div class="form-group" style="margin-bottom: 1rem;">
-                    <label for="doctorRole">Role</label>
-                    <input type="text" id="doctorRole" class="form-control" required placeholder="e.g. Optometrist">
-                </div>
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label for="doctorImage">Image URL</label>
-                    <input type="url" id="doctorImage" class="form-control" placeholder="https://...">
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
-                    <button type="button" class="btn btn-outline" onclick="closeDoctorModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Doctor</button>
-                </div>
-            </form>
+<div class="adm-shell">
+    <!-- Sidebar -->
+    <aside class="adm-side" id="admSide" aria-label="Admin navigation">
+        <a href="index.html" class="adm-brand">
+            <span class="adm-logo"><svg class="i" viewBox="0 0 24 24"><use href="#i-glasses"/></svg></span>
+            <span>ONE OPTICS<small>Admin</small></span>
+        </a>
+        <ul class="adm-nav" id="admNav">
+            <li><button type="button" data-panel="dashboard" class="is-active"><svg class="i"><use href="#i-dash"/></svg>Dashboard</button></li>
+            <li><button type="button" data-panel="appointments"><svg class="i"><use href="#i-cal"/></svg>Appointments <span class="badge-count" id="navPending" hidden>0</span></button></li>
+            <li><button type="button" data-panel="inventory"><svg class="i"><use href="#i-glasses"/></svg>Eyewear inventory</button></li>
+            <li><button type="button" data-panel="orders"><svg class="i"><use href="#i-bag"/></svg>Orders</button></li>
+            <li><button type="button" data-panel="customers"><svg class="i"><use href="#i-users"/></svg>Customers</button></li>
+            <li><button type="button" data-panel="doctors"><svg class="i"><use href="#i-doc"/></svg>Doctors</button></li>
+            <li><button type="button" data-panel="reports"><svg class="i"><use href="#i-chart"/></svg>Reports</button></li>
+        </ul>
+        <div class="adm-foot">
+            <a href="index.html" class="adm-link"><svg class="i"><use href="#i-home"/></svg>View website</a>
+            <button type="button" id="theme-toggle" class="theme-toggle adm-theme" aria-label="Toggle dark mode"><span class="tt-icon"></span><span class="tt-label">Dark mode</span></button>
+            <button type="button" class="out" data-act="logout"><svg class="i"><use href="#i-out"/></svg>Log out</button>
         </div>
-    </div>
+    </aside>
+    <div class="adm-scrim" id="admScrim"></div>
 
-    <!-- Product Modal -->
-    <div id="productModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header">
-                <h3 id="productModalTitle" style="margin: 0; color: var(--primary-color);">Add Product</h3>
-                <span class="close-btn" onclick="closeProductModal()">&times;</span>
+    <!-- Main -->
+    <main class="adm-main" id="main-content">
+        <div class="adm-top">
+            <div style="display:flex; align-items:center; gap:0.9rem; min-width:0;">
+                <button type="button" class="adm-menu-btn" id="admMenuBtn" aria-label="Open menu"><svg class="i" width="22" height="22"><use href="#i-menu"/></svg></button>
+                <div>
+                    <h1 id="panelTitle">Dashboard</h1>
+                    <p id="panelSub">Welcome back, Admin.</p>
+                </div>
             </div>
-            <form id="productForm" onsubmit="saveProduct(event)">
+        </div>
+
+        <!-- Dashboard -->
+        <section id="panel-dashboard" class="adm-panel is-active">
+            <div class="adm-stats">
+                <div class="adm-stat"><span class="ico"><svg class="i"><use href="#i-glasses"/></svg></span><div class="lbl">Total products</div><div class="val" id="stat-products">0</div></div>
+                <div class="adm-stat tone-warn"><span class="ico"><svg class="i"><use href="#i-clock"/></svg></span><div class="lbl">Pending appointments</div><div class="val" id="stat-pending">0</div></div>
+                <div class="adm-stat tone-ok"><span class="ico"><svg class="i"><use href="#i-check"/></svg></span><div class="lbl">Confirmed appointments</div><div class="val" id="stat-confirmed">0</div></div>
+                <div class="adm-stat tone-info"><span class="ico"><svg class="i"><use href="#i-peso"/></svg></span><div class="lbl">Sales (completed)</div><div class="val" id="stat-sales">₱0</div></div>
+            </div>
+            <div class="adm-two">
+                <div class="adm-card">
+                    <div class="adm-card-head"><h2>Needs your attention</h2><button type="button" class="btn btn-ghost btn-sm" data-go="appointments">See all</button></div>
+                    <ul class="adm-queue" id="queue-pending"></ul>
+                </div>
+                <div class="adm-card">
+                    <div class="adm-card-head"><h2>Upcoming appointments</h2></div>
+                    <ul class="adm-queue" id="queue-upcoming"></ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Appointments -->
+        <section id="panel-appointments" class="adm-panel">
+            <div class="adm-card">
+                <div class="adm-card-head">
+                    <h2>Manage appointments</h2>
+                    <div class="adm-tools">
+                        <label class="adm-search"><span class="sr-only">Search appointments</span><svg class="i"><use href="#i-search"/></svg><input type="search" id="apptSearch" placeholder="Search name, doctor, type"></label>
+                    </div>
+                </div>
+                <div class="adm-chips" id="apptChips" role="group" aria-label="Filter by status"></div>
+                <div class="adm-table-wrap">
+                    <table class="adm-table">
+                        <thead><tr><th>ID</th><th>Customer</th><th>Doctor</th><th>Date &amp; time</th><th>Type</th><th>Status</th><th></th></tr></thead>
+                        <tbody id="appt-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inventory -->
+        <section id="panel-inventory" class="adm-panel">
+            <div class="adm-card">
+                <div class="adm-card-head">
+                    <h2>Manage inventory</h2>
+                    <div class="adm-tools">
+                        <label class="adm-search"><span class="sr-only">Search products</span><svg class="i"><use href="#i-search"/></svg><input type="search" id="invSearch" placeholder="Search products"></label>
+                        <button type="button" class="btn btn-primary btn-sm" data-act="product-new"><svg class="i" width="15" height="15"><use href="#i-plus"/></svg>Add product</button>
+                    </div>
+                </div>
+                <div class="adm-table-wrap">
+                    <table class="adm-table">
+                        <thead><tr><th>Product</th><th>Type</th><th>Color</th><th class="num">Price</th><th>Stock</th><th></th></tr></thead>
+                        <tbody id="inv-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Orders -->
+        <section id="panel-orders" class="adm-panel">
+            <div class="adm-card">
+                <div class="adm-card-head"><h2>Manage orders</h2></div>
+                <div class="adm-table-wrap">
+                    <table class="adm-table">
+                        <thead><tr><th>Order</th><th>Date</th><th>Customer</th><th class="num">Total</th><th>Payment</th><th>Status</th><th></th></tr></thead>
+                        <tbody id="orders-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Customers -->
+        <section id="panel-customers" class="adm-panel">
+            <div class="adm-card">
+                <div class="adm-card-head">
+                    <h2>Customer records</h2>
+                    <div class="adm-tools"><label class="adm-search"><span class="sr-only">Search customers</span><svg class="i"><use href="#i-search"/></svg><input type="search" id="custSearch" placeholder="Search customers"></label></div>
+                </div>
+                <div class="adm-table-wrap">
+                    <table class="adm-table">
+                        <thead><tr><th>Name</th><th>Email</th><th>Contact number</th></tr></thead>
+                        <tbody id="cust-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Doctors -->
+        <section id="panel-doctors" class="adm-panel">
+            <div class="adm-card">
+                <div class="adm-card-head">
+                    <h2>Manage doctors</h2>
+                    <button type="button" class="btn btn-primary btn-sm" data-act="doctor-new"><svg class="i" width="15" height="15"><use href="#i-plus"/></svg>Add doctor</button>
+                </div>
+                <div class="adm-doctors" id="doctor-grid"></div>
+            </div>
+        </section>
+
+        <!-- Reports -->
+        <section id="panel-reports" class="adm-panel">
+            <div class="adm-stats">
+                <div class="adm-stat tone-info"><span class="ico"><svg class="i"><use href="#i-peso"/></svg></span><div class="lbl">Total sales (completed)</div><div class="val" id="rep-sales">₱0</div></div>
+                <div class="adm-stat"><span class="ico"><svg class="i"><use href="#i-bag"/></svg></span><div class="lbl">Total orders</div><div class="val" id="rep-orders">0</div></div>
+                <div class="adm-stat"><span class="ico"><svg class="i"><use href="#i-cal"/></svg></span><div class="lbl">Total appointments</div><div class="val" id="rep-appts">0</div></div>
+                <div class="adm-stat tone-ok"><span class="ico"><svg class="i"><use href="#i-check"/></svg></span><div class="lbl">Appointments completed</div><div class="val" id="rep-rate">0%</div></div>
+            </div>
+            <div class="adm-two">
+                <div class="adm-card">
+                    <div class="adm-card-head"><h2>Appointments by status</h2><button type="button" class="btn-icon" data-act="export-appts"><svg class="i"><use href="#i-down"/></svg>CSV</button></div>
+                    <div class="bars" id="bars-appts"></div>
+                </div>
+                <div class="adm-card">
+                    <div class="adm-card-head"><h2>Orders by status</h2><button type="button" class="btn-icon" data-act="export-orders"><svg class="i"><use href="#i-down"/></svg>CSV</button></div>
+                    <div class="bars" id="bars-orders"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Product drawer -->
+<div id="productLayer" class="ui-layer" hidden role="dialog" aria-modal="true" aria-labelledby="productTitle">
+    <div class="ui-backdrop" data-close-layer></div>
+    <aside class="ui-drawer">
+        <div class="drawer-head"><h2 id="productTitle">Add product</h2><button type="button" class="ui-close" data-close-layer aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button></div>
+        <form id="productForm" novalidate style="display:contents">
+            <div class="drawer-body">
                 <input type="hidden" id="productId">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <div class="form-group">
-                        <label for="productName">Product Name</label>
-                        <input type="text" id="productName" class="form-control" required placeholder="e.g. Classic Aviator">
-                    </div>
-                    <div class="form-group">
-                        <label for="productType">Type</label>
-                        <select id="productType" class="form-control" required>
-                            <option value="Eyeglasses">Eyeglasses</option>
-                            <option value="Sunglasses">Sunglasses</option>
-                            <option value="Contact Lenses">Contact Lenses</option>
-                            <option value="Accessories">Accessories</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <div class="form-group">
-                        <label for="productStyle">Style</label>
-                        <input type="text" id="productStyle" class="form-control" placeholder="e.g. Aviator">
-                    </div>
-                    <div class="form-group">
-                        <label for="productColor">Color</label>
-                        <input type="text" id="productColor" class="form-control" placeholder="e.g. Gold">
-                    </div>
-                    <div class="form-group">
-                        <label for="productPrice">Price (₱)</label>
-                        <input type="number" id="productPrice" class="form-control" required min="0" step="0.01">
+                <div class="adm-form-grid">
+                    <div class="form-group full"><label for="productName">Product name</label><input type="text" id="productName" class="form-control" required placeholder="e.g. Classic Aviator"></div>
+                    <div class="form-group"><label for="productType">Type</label><input type="text" id="productType" class="form-control" list="typeList" required placeholder="e.g. Eyeglasses"><datalist id="typeList"></datalist></div>
+                    <div class="form-group"><label for="productStyle">Style</label><input type="text" id="productStyle" class="form-control" placeholder="e.g. Aviator"></div>
+                    <div class="form-group"><label for="productColor">Color</label><input type="text" id="productColor" class="form-control" placeholder="e.g. Gold"></div>
+                    <div class="form-group"><label for="productPrice">Price (₱)</label><input type="number" id="productPrice" class="form-control" required min="0" step="0.01"></div>
+                    <div class="form-group"><label for="productStock">Stock count</label><input type="number" id="productStock" class="form-control" required min="0" step="1"></div>
+                    <div class="form-group full"><label for="productDescription">Description</label><textarea id="productDescription" class="form-control" rows="3" placeholder="Short product details"></textarea></div>
+                    <div class="form-group full">
+                        <label for="productImage">Image URL</label>
+                        <input type="text" id="productImage" class="form-control" placeholder="images/my-frame.jpg or https://...">
+                        <div class="adm-preview"><img id="productPreview" alt="" class="adm-img"><span>Leave blank to use the default placeholder.</span></div>
                     </div>
                 </div>
+                <p class="field-error" id="productError" role="alert" hidden></p>
+            </div>
+            <div class="drawer-foot" style="display:flex; gap:0.75rem; justify-content:flex-end;">
+                <button type="button" class="btn btn-outline" data-close-layer>Cancel</button>
+                <button type="submit" class="btn btn-primary" id="productSave">Save product</button>
+            </div>
+        </form>
+    </aside>
+</div>
 
-                <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <div class="form-group">
-                        <label for="productStock">Stock Count</label>
-                        <input type="number" id="productStock" class="form-control" required min="0">
-                    </div>
+<!-- Doctor drawer -->
+<div id="doctorLayer" class="ui-layer" hidden role="dialog" aria-modal="true" aria-labelledby="doctorTitle">
+    <div class="ui-backdrop" data-close-layer></div>
+    <aside class="ui-drawer">
+        <div class="drawer-head"><h2 id="doctorTitle">Add doctor</h2><button type="button" class="ui-close" data-close-layer aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button></div>
+        <form id="doctorForm" novalidate style="display:contents">
+            <div class="drawer-body">
+                <input type="hidden" id="doctorId">
+                <div class="form-group"><label for="doctorName">Doctor name</label><input type="text" id="doctorName" class="form-control" required placeholder="e.g. Dr. Maria Santos"></div>
+                <div class="form-group"><label for="doctorRole">Role</label><input type="text" id="doctorRole" class="form-control" required placeholder="e.g. Optometrist"></div>
+                <div class="form-group">
+                    <label for="doctorImage">Image URL</label>
+                    <input type="text" id="doctorImage" class="form-control" placeholder="images/doctor.jpg or https://...">
+                    <div class="adm-preview"><img id="doctorPreview" alt="" class="adm-img round"><span>Leave blank to use the default placeholder.</span></div>
                 </div>
+                <p class="field-error" id="doctorError" role="alert" hidden></p>
+            </div>
+            <div class="drawer-foot" style="display:flex; gap:0.75rem; justify-content:flex-end;">
+                <button type="button" class="btn btn-outline" data-close-layer>Cancel</button>
+                <button type="submit" class="btn btn-primary" id="doctorSave">Save doctor</button>
+            </div>
+        </form>
+    </aside>
+</div>
 
-                <div class="form-group" style="margin-bottom: 1rem;">
-                    <label for="productDescription">Description</label>
-                    <textarea id="productDescription" class="form-control" rows="2" placeholder="Product details..."></textarea>
-                </div>
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label for="productImage">Image URL</label>
-                    <input type="url" id="productImage" class="form-control" placeholder="https://...">
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
-                    <button type="button" class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Product</button>
-                </div>
-            </form>
-        </div>
-    </div>
+<!-- Details drawer -->
+<div id="detailLayer" class="ui-layer" hidden role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <div class="ui-backdrop" data-close-layer></div>
+    <aside class="ui-drawer">
+        <div class="drawer-head"><h2 id="detailTitle">Details</h2><button type="button" class="ui-close" data-close-layer aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button></div>
+        <div class="drawer-body" id="detailBody"></div>
+    </aside>
+</div>
 
-    <!-- Database Script -->
-    <script src="js/database.js"></script>
-    <script src="js/theme.js"></script>
+<script src="js/database.js"></script>
+<script src="js/ui-core.js?v=16"></script>
+<script src="js/theme.js?v=16"></script>
+<script>
+    const { toast, openLayer, closeLayer, esc } = window.OpticsUI;
+    const $ = (id) => document.getElementById(id);
+    const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { maximumFractionDigits: 2 });
+    const fmtDate = (d) => { const x = new Date(String(d) + 'T00:00:00'); return isNaN(x) ? esc(d) : x.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }); };
+    const mins = (t) => { const m = /(\d+):(\d+)\s*(AM|PM)/i.exec(t || ''); if (!m) return 0; let h = (+m[1]) % 12; if (/pm/i.test(m[3])) h += 12; return h * 60 + (+m[2]); };
+    const slug = (s) => String(s || '').toLowerCase().replace(/[^a-z]/g, '');
+    const pill = (s) => `<span class="pill pill-${slug(s)}">${esc(s)}</span>`;
+    const ico = (id, size) => `<svg class="i"${size ? ` width="${size}" height="${size}"` : ''}><use href="#i-${id}"/></svg>`;
+    const img = (url, name, cls = '') => `<img class="adm-img ${cls}" src="${esc(OpticsImg.pick(url, name))}" alt="" loading="lazy">`;
+    const token = () => localStorage.getItem('adminToken');
 
-    <script>
-        // Check Authentication
-        if (localStorage.getItem('adminAuth') !== 'true' || !localStorage.getItem('adminToken')) { 
-            window.location.href = 'admin-login.html'; 
+    const state = { products: [], appointments: [], doctors: [], orders: [], customers: [], reports: {} };
+    const ui = { apptStatus: 'All', apptQ: '', invQ: '', custQ: '' };
+    const APPT_STATUSES = ['Pending', 'Confirmed', 'Completed', 'Cancelled'];
+    const ORDER_STATUSES = ['Pending', 'Processing', 'Completed', 'Cancelled'];
+
+    function logout() { window.OpticsDB.logout(); location.href = 'admin-login.html'; }
+
+    async function authed(url, opts = {}) {
+        const headers = { Authorization: `Bearer ${token()}`, ...(opts.body ? { 'Content-Type': 'application/json' } : {}) };
+        const res = await fetch(url, { ...opts, headers });
+        if (res.status === 401) { logout(); throw new Error('Session expired'); }
+        return res;
+    }
+
+    /* ---------- panels ---------- */
+    const TITLES = {
+        dashboard: ['Dashboard', 'Welcome back, Admin.'],
+        appointments: ['Appointments', 'Review requests, confirm visits and update statuses.'],
+        inventory: ['Eyewear inventory', 'Add, edit and remove frames from the catalog.'],
+        orders: ['Orders', 'Track customer orders and payments.'],
+        customers: ['Customers', 'People who booked or ordered.'],
+        doctors: ['Doctors', 'The team customers can book with.'],
+        reports: ['Reports', 'Sales and appointment summaries.']
+    };
+
+    function showPanel(name) {
+        if (!TITLES[name]) name = 'dashboard';
+        document.querySelectorAll('.adm-panel').forEach((p) => p.classList.toggle('is-active', p.id === 'panel-' + name));
+        document.querySelectorAll('#admNav button').forEach((b) => b.classList.toggle('is-active', b.dataset.panel === name));
+        $('panelTitle').textContent = TITLES[name][0];
+        $('panelSub').textContent = TITLES[name][1];
+        document.title = `${TITLES[name][0]} | One Optics Admin`;
+        if (location.hash !== '#' + name) history.replaceState(null, '', '#' + name);
+        document.body.classList.remove('adm-menu-open');
+        window.scrollTo({ top: 0 });
+    }
+    document.querySelectorAll('#admNav button').forEach((b) => b.addEventListener('click', () => showPanel(b.dataset.panel)));
+    $('admMenuBtn').addEventListener('click', () => document.body.classList.toggle('adm-menu-open'));
+    $('admScrim').addEventListener('click', () => document.body.classList.remove('adm-menu-open'));
+
+    /* ---------- loading ---------- */
+    function skeletonRows(cols, rows = 4) {
+        return Array.from({ length: rows }, () => `<tr class="adm-skel">${'<td><div></div></td>'.repeat(cols)}</tr>`).join('');
+    }
+
+    async function load() {
+        $('appt-body').innerHTML = skeletonRows(7);
+        $('inv-body').innerHTML = skeletonRows(6);
+        $('orders-body').innerHTML = skeletonRows(7);
+        $('cust-body').innerHTML = skeletonRows(3);
+        try {
+            const [products, appointments, doctors] = await Promise.all([window.OpticsDB.getProducts(), window.OpticsDB.getAppointments(), window.OpticsDB.getDoctors()]);
+            const extra = await Promise.all(['orders', 'customers', 'reports'].map((n) => authed(`api/${n}.php`).then((r) => (r.ok ? r.json() : null)).catch(() => null)));
+            Object.assign(state, { products, appointments, doctors, orders: extra[0] || [], customers: extra[1] || [], reports: extra[2] || {} });
+        } catch (e) {
+            console.error(e);
+            if (/unauthorized/i.test(e.message)) { logout(); return; }
+            toast('Could not load admin data. Check that the server is running.', 'error', 6000);
         }
+        renderAll();
+    }
 
-        function logout() {
-            window.OpticsDB.logout();
-            window.location.href = 'admin-login.html';
-        }
+    /* ---------- render ---------- */
+    function empty(title, text, cols) {
+        const inner = `<div class="adm-empty">${ico('empty')}<h3>${esc(title)}</h3><p>${esc(text)}</p></div>`;
+        return cols ? `<tr><td colspan="${cols}">${inner}</td></tr>` : inner;
+    }
 
-        // Navigation logic
-        const navBtns = document.querySelectorAll('.nav-btn');
-        const panels = document.querySelectorAll('.section-panel');
+    function renderAll() {
+        renderDashboard(); renderAppointments(); renderInventory(); renderOrders(); renderCustomers(); renderDoctors(); renderReports();
+    }
 
-        navBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                // Remove active classes
-                navBtns.forEach(b => b.classList.remove('active'));
-                panels.forEach(p => p.classList.remove('active'));
-                
-                // Add active class to clicked
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.target).classList.add('active');
-            });
-        });
+    function apptSorted() { return [...state.appointments].sort((a, b) => b.id - a.id); }
+    function byWhen(a, b) { return String(a.date).localeCompare(String(b.date)) || mins(a.time) - mins(b.time); }
 
-        // Load Data
-        async function loadAdminData() {
-            try {
-                // Fetch basic data
-                const products = await window.OpticsDB.getProducts();
-                const appointments = await window.OpticsDB.getAppointments();
-                const doctors = await window.OpticsDB.getDoctors();
-                
-                // Extra features
-                const token = localStorage.getItem('adminToken');
-                const headers = { 'Authorization': `Bearer ${token}` };
-                
-                const ordersReq = await fetch('api/orders.php', { headers });
-                const orders = ordersReq.ok ? await ordersReq.json() : [];
-                
-                const custReq = await fetch('api/customers.php', { headers });
-                const customers = custReq.ok ? await custReq.json() : [];
-                
-                const repReq = await fetch('api/reports.php', { headers });
-                const reports = repReq.ok ? await repReq.json() : {};
+    function queueItem(a, withActions) {
+        return `<li>
+            <div class="who"><strong>${esc(a.customerName)}</strong><span>${esc(a.type)} &middot; ${esc(a.doctorName || 'No doctor selected')}</span></div>
+            <div class="when">${fmtDate(a.date)}<br>${esc(a.time)}</div>
+            ${withActions ? `<div class="adm-actions">
+                <button type="button" class="btn-icon ok" data-act="appt-status" data-id="${a.id}" data-status="Confirmed" aria-label="Confirm appointment">${ico('check')}</button>
+                <button type="button" class="btn-icon danger" data-act="appt-status" data-id="${a.id}" data-status="Cancelled" aria-label="Decline appointment">${ico('x')}</button>
+            </div>` : pill(a.status)}
+        </li>`;
+    }
 
-                // Stats
-                document.getElementById('stat-products').textContent = reports.totalProducts || products.length;
-                document.getElementById('stat-pending').textContent = reports.pendingAppointments || appointments.filter(a => a.status === 'Pending').length;
-                document.getElementById('stat-confirmed').textContent = appointments.filter(a => a.status === 'Confirmed').length;
-                
-                if (document.getElementById('report-sales')) {
-                    document.getElementById('report-sales').textContent = `₱${(reports.totalSales || 0).toLocaleString()}`;
-                    document.getElementById('report-orders').textContent = reports.totalOrders || 0;
+    function renderDashboard() {
+        const appts = state.appointments;
+        const pending = appts.filter((a) => a.status === 'Pending');
+        const confirmed = appts.filter((a) => a.status === 'Confirmed');
+        $('stat-products').textContent = state.reports.totalProducts || state.products.length;
+        $('stat-pending').textContent = pending.length;
+        $('stat-confirmed').textContent = confirmed.length;
+        $('stat-sales').textContent = peso(state.reports.totalSales || 0);
+        const nb = $('navPending'); nb.textContent = pending.length; nb.hidden = !pending.length;
+
+        const queue = [...pending].sort(byWhen).slice(0, 6);
+        $('queue-pending').innerHTML = queue.length ? queue.map((a) => queueItem(a, true)).join('') : empty('All caught up', 'No appointments are waiting for review.');
+
+        const today = new Date().toISOString().slice(0, 10);
+        const upcoming = appts.filter((a) => (a.status === 'Pending' || a.status === 'Confirmed') && String(a.date) >= today).sort(byWhen).slice(0, 6);
+        $('queue-upcoming').innerHTML = upcoming.length ? upcoming.map((a) => queueItem(a, false)).join('') : empty('Nothing scheduled', 'Upcoming visits will appear here.');
+    }
+
+    function renderAppointments() {
+        const counts = { All: state.appointments.length };
+        APPT_STATUSES.forEach((s) => { counts[s] = state.appointments.filter((a) => a.status === s).length; });
+        $('apptChips').innerHTML = ['All', ...APPT_STATUSES].map((s) => `<button type="button" class="chip" data-filter="${s}" aria-pressed="${ui.apptStatus === s}">${s} <span style="opacity:.65">${counts[s]}</span></button>`).join('');
+
+        const q = ui.apptQ;
+        const rows = apptSorted().filter((a) => (ui.apptStatus === 'All' || a.status === ui.apptStatus)
+            && (!q || `${a.customerName} ${a.email} ${a.doctorName} ${a.type}`.toLowerCase().includes(q)));
+        $('appt-body').innerHTML = rows.length ? rows.map((a) => `<tr>
+            <td>#${a.id}</td>
+            <td><strong>${esc(a.customerName)}</strong><span class="sub">${esc(a.email)}</span><span class="sub">${esc(a.contactNumber)}</span></td>
+            <td>${esc(a.doctorName || 'Not selected')}</td>
+            <td>${fmtDate(a.date)}<span class="sub">${esc(a.time)}</span></td>
+            <td>${esc(a.type)}</td>
+            <td><select class="status-select" data-act="appt-select" data-id="${a.id}" aria-label="Status for appointment ${a.id}">${APPT_STATUSES.map((s) => `<option ${s === a.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
+            <td><div class="adm-actions"><button type="button" class="btn-icon" data-act="appt-view" data-id="${a.id}">${ico('eye')}Details</button></div></td>
+        </tr>`).join('') : empty('No appointments found', q || ui.apptStatus !== 'All' ? 'Try a different search or filter.' : 'New booking requests will show up here.', 7);
+    }
+
+    function renderInventory() {
+        const q = ui.invQ;
+        const rows = state.products.filter((p) => !q || `${p.name} ${p.type} ${p.style} ${p.color}`.toLowerCase().includes(q));
+        $('typeList').innerHTML = [...new Set(['Eyeglasses', 'Sunglasses', 'Contact Lenses', 'Accessories', ...state.products.map((p) => p.type).filter(Boolean)])].map((t) => `<option value="${esc(t)}">`).join('');
+        $('inv-body').innerHTML = rows.length ? rows.map((p) => `<tr>
+            <td><div class="adm-cell">${img(p.image, p.name)}<div><strong>${esc(p.name)}</strong><span class="sub">#${p.id}</span></div></div></td>
+            <td>${esc(p.type)}<span class="sub">${esc(p.style || '')}</span></td>
+            <td>${esc(p.color || '-')}</td>
+            <td class="num">${peso(p.price)}</td>
+            <td>${pill(p.availability)}<span class="sub">${Number(p.stock || 0)} in stock</span></td>
+            <td><div class="adm-actions">
+                <button type="button" class="btn-icon" data-act="product-edit" data-id="${p.id}">${ico('edit')}Edit</button>
+                <button type="button" class="btn-icon danger" data-act="product-delete" data-id="${p.id}" aria-label="Delete ${esc(p.name)}">${ico('trash')}</button>
+            </div></td>
+        </tr>`).join('') : empty('No products found', q ? 'Try a different search.' : 'Add your first frame to get started.', 6);
+    }
+
+    function renderOrders() {
+        $('orders-body').innerHTML = state.orders.length ? state.orders.map((o) => {
+            const items = (o.items || []).map((i) => `${i.quantity}x ${i.name}`).join(', ');
+            return `<tr>
+                <td>#${o.id}</td>
+                <td>${esc(new Date(o.date).toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' }))}</td>
+                <td><strong>${esc(o.customerName)}</strong><span class="sub">${esc(o.email)}</span><span class="sub">${esc(o.contactNumber)}</span></td>
+                <td class="num"><strong>${peso(o.totalAmount)}</strong><span class="sub">${esc(items)}</span></td>
+                <td>${esc(o.paymentMethod)}<span class="sub">${esc(o.paymentStatus || '')}</span></td>
+                <td><select class="status-select" data-act="order-select" data-id="${o.id}" aria-label="Status for order ${o.id}">${ORDER_STATUSES.map((s) => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
+                <td><div class="adm-actions"><button type="button" class="btn-icon" data-act="order-view" data-id="${o.id}">${ico('eye')}View</button></div></td>
+            </tr>`;
+        }).join('') : empty('No orders yet', 'Orders placed from the catalog will appear here.', 7);
+    }
+
+    function renderCustomers() {
+        const q = ui.custQ;
+        const rows = state.customers.filter((c) => !q || `${c.name} ${c.email} ${c.contactNumber}`.toLowerCase().includes(q));
+        $('cust-body').innerHTML = rows.length ? rows.map((c) => `<tr><td><strong>${esc(c.name)}</strong></td><td>${esc(c.email || 'N/A')}</td><td>${esc(c.contactNumber || 'N/A')}</td></tr>`).join('') : empty('No customers found', q ? 'Try a different search.' : 'Customers appear after a booking or order.', 3);
+    }
+
+    function renderDoctors() {
+        $('doctor-grid').innerHTML = state.doctors.length ? state.doctors.map((d) => `<article class="adm-doc">
+            ${img(d.image, d.name)}
+            <strong>${esc(d.name)}</strong><span>${esc(d.role)}</span>
+            <div class="adm-actions">
+                <button type="button" class="btn-icon" data-act="doctor-edit" data-id="${d.id}">${ico('edit')}Edit</button>
+                <button type="button" class="btn-icon danger" data-act="doctor-delete" data-id="${d.id}" aria-label="Delete ${esc(d.name)}">${ico('trash')}</button>
+            </div>
+        </article>`).join('') : empty('No doctors yet', 'Add a doctor so customers can book appointments.');
+    }
+
+    function bars(host, counts, tones) {
+        const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
+        host.innerHTML = Object.entries(counts).map(([k, v]) => `<div class="bar-row"><span>${esc(k)}</span><div class="bar-track"><div class="bar-fill" style="--tone:${tones[k]}" data-w="${Math.round((v / total) * 100)}"></div></div><b>${v}</b></div>`).join('');
+        requestAnimationFrame(() => host.querySelectorAll('.bar-fill').forEach((b) => { b.style.width = b.dataset.w + '%'; }));
+    }
+
+    function renderReports() {
+        const appts = state.appointments;
+        $('rep-sales').textContent = peso(state.reports.totalSales || 0);
+        $('rep-orders').textContent = state.reports.totalOrders ?? state.orders.length;
+        $('rep-appts').textContent = appts.length;
+        $('rep-rate').textContent = appts.length ? Math.round((appts.filter((a) => a.status === 'Completed').length / appts.length) * 100) + '%' : '0%';
+        const tones = { Pending: 'var(--warning)', Confirmed: 'var(--success)', Completed: 'var(--info)', Processing: 'var(--info)', Cancelled: 'var(--danger)' };
+        bars($('bars-appts'), Object.fromEntries(APPT_STATUSES.map((s) => [s, appts.filter((a) => a.status === s).length])), tones);
+        bars($('bars-orders'), Object.fromEntries(ORDER_STATUSES.map((s) => [s, state.orders.filter((o) => o.status === s).length])), tones);
+    }
+
+    /* ---------- search + filters ---------- */
+    $('apptSearch').addEventListener('input', (e) => { ui.apptQ = e.target.value.trim().toLowerCase(); renderAppointments(); });
+    $('invSearch').addEventListener('input', (e) => { ui.invQ = e.target.value.trim().toLowerCase(); renderInventory(); });
+    $('custSearch').addEventListener('input', (e) => { ui.custQ = e.target.value.trim().toLowerCase(); renderCustomers(); });
+    $('apptChips').addEventListener('click', (e) => { const c = e.target.closest('[data-filter]'); if (c) { ui.apptStatus = c.dataset.filter; renderAppointments(); } });
+
+    /* ---------- actions ---------- */
+    async function setApptStatus(id, status) {
+        const a = state.appointments.find((x) => x.id == id);
+        if (!a || a.status === status) return;
+        try {
+            await window.OpticsDB.updateAppointmentStatus(id, status);
+            a.status = status;
+            toast(`Appointment #${id} marked ${status.toLowerCase()}.`, 'success');
+        } catch (e) { console.error(e); toast(e.message || 'Could not update the appointment.', 'error'); }
+        renderDashboard(); renderAppointments(); renderReports();
+    }
+
+    async function setOrderStatus(id, status) {
+        const o = state.orders.find((x) => x.id == id);
+        if (!o || o.status === status) return;
+        try {
+            const res = await authed(`api/orders.php/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
+            if (!res.ok) throw new Error('Could not update the order.');
+            o.status = status;
+            toast(`Order #${id} marked ${status.toLowerCase()}.`, 'success');
+        } catch (e) { console.error(e); toast(e.message, 'error'); }
+        renderOrders(); renderReports();
+    }
+
+    function row(label, value) { return `<div><dt>${label}</dt><dd>${value}</dd></div>`; }
+
+    function openApptDetails(id) {
+        const a = state.appointments.find((x) => x.id == id); if (!a) return;
+        $('detailTitle').textContent = `Appointment #${a.id}`;
+        $('detailBody').innerHTML = `<dl class="detail-list">
+            ${row('Status', pill(a.status))}
+            ${row('Customer', esc(a.customerName))}
+            ${row('Email', `<a href="mailto:${esc(a.email)}">${esc(a.email)}</a>`)}
+            ${row('Contact number', `<a href="tel:${esc(a.contactNumber)}">${esc(a.contactNumber)}</a>`)}
+            ${row('Doctor', esc(a.doctorName || 'Not selected'))}
+            ${row('Date and time', `${fmtDate(a.date)}, ${esc(a.time)}`)}
+            ${row('Type', esc(a.type))}
+            ${row('Notes', a.notes ? `<div class="detail-note">${esc(a.notes)}</div>` : '<span style="color:var(--text-light)">No notes from the customer.</span>')}
+        </dl>`;
+        openLayer($('detailLayer'));
+    }
+
+    function openOrderDetails(id) {
+        const o = state.orders.find((x) => x.id == id); if (!o) return;
+        $('detailTitle').textContent = `Order #${o.id}`;
+        const items = (o.items || []).map((i) => `<li><span>${i.quantity}x ${esc(i.name)}</span><span>${peso(Number(i.price) * Number(i.quantity))}</span></li>`).join('');
+        $('detailBody').innerHTML = `<dl class="detail-list">
+            ${row('Status', pill(o.status))}
+            ${row('Placed', esc(new Date(o.date).toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' })))}
+            ${row('Customer', esc(o.customerName))}
+            ${row('Email', `<a href="mailto:${esc(o.email)}">${esc(o.email)}</a>`)}
+            ${row('Contact number', `<a href="tel:${esc(o.contactNumber)}">${esc(o.contactNumber)}</a>`)}
+            ${row('Payment', `${esc(o.paymentMethod)} &middot; ${esc(o.paymentStatus || 'n/a')}`)}
+            ${row('Items', `<ul class="detail-items">${items}<li><span>Total</span><span>${peso(o.totalAmount)}</span></li></ul>`)}
+        </dl>`;
+        openLayer($('detailLayer'));
+    }
+
+    /* products */
+    const DEFAULT_IMG = 'images/placeholder.svg';
+    function setPreview(inputId, previewId, label) {
+        const url = $(inputId).value.trim();
+        const el = $(previewId); el.removeAttribute('data-fallback');
+        el.src = OpticsImg.pick(url || DEFAULT_IMG, label || 'One Optics');
+    }
+    function openProduct(p) {
+        $('productTitle').textContent = p ? 'Edit product' : 'Add product';
+        $('productForm').reset(); $('productError').hidden = true;
+        $('productId').value = p ? p.id : '';
+        if (p) {
+            $('productName').value = p.name; $('productType').value = p.type || ''; $('productStyle').value = p.style || '';
+            $('productColor').value = p.color || ''; $('productPrice').value = p.price; $('productStock').value = p.stock || 0;
+            $('productDescription').value = p.description || ''; $('productImage').value = p.image || '';
+        } else { $('productType').value = 'Eyeglasses'; $('productStock').value = 0; }
+        setPreview('productImage', 'productPreview', $('productName').value);
+        openLayer($('productLayer'), { focus: '#productName' });
+    }
+    $('productImage').addEventListener('input', () => setPreview('productImage', 'productPreview', $('productName').value));
+
+    $('productForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.currentTarget, err = $('productError'), btn = $('productSave');
+        err.hidden = true;
+        if (!form.checkValidity()) { err.textContent = 'Please fill in the name, type, price and stock.'; err.hidden = false; form.reportValidity(); return; }
+        const id = $('productId').value;
+        const data = {
+            name: $('productName').value.trim(), type: $('productType').value.trim(), style: $('productStyle').value.trim(), color: $('productColor').value.trim(),
+            price: parseFloat($('productPrice').value), stock: parseInt($('productStock').value, 10),
+            description: $('productDescription').value.trim(), image: $('productImage').value.trim() || DEFAULT_IMG
+        };
+        btn.disabled = true; btn.textContent = 'Saving...';
+        try {
+            id ? await window.OpticsDB.updateProduct(id, data) : await window.OpticsDB.addProduct(data);
+            closeLayer($('productLayer'));
+            toast(id ? 'Product updated.' : 'Product added.', 'success');
+            await load();
+        } catch (ex) { console.error(ex); err.textContent = 'We could not save this product. Please try again.'; err.hidden = false; }
+        finally { btn.disabled = false; btn.textContent = 'Save product'; }
+    });
+
+    /* doctors */
+    function openDoctor(d) {
+        $('doctorTitle').textContent = d ? 'Edit doctor' : 'Add doctor';
+        $('doctorForm').reset(); $('doctorError').hidden = true;
+        $('doctorId').value = d ? d.id : '';
+        if (d) { $('doctorName').value = d.name; $('doctorRole').value = d.role; $('doctorImage').value = d.image || ''; }
+        setPreview('doctorImage', 'doctorPreview', $('doctorName').value);
+        openLayer($('doctorLayer'), { focus: '#doctorName' });
+    }
+    $('doctorImage').addEventListener('input', () => setPreview('doctorImage', 'doctorPreview', $('doctorName').value));
+
+    $('doctorForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.currentTarget, err = $('doctorError'), btn = $('doctorSave');
+        err.hidden = true;
+        if (!form.checkValidity()) { err.textContent = 'Please enter a name and a role.'; err.hidden = false; form.reportValidity(); return; }
+        const id = $('doctorId').value;
+        const data = { name: $('doctorName').value.trim(), role: $('doctorRole').value.trim(), image: $('doctorImage').value.trim() || DEFAULT_IMG };
+        btn.disabled = true; btn.textContent = 'Saving...';
+        try {
+            id ? await window.OpticsDB.updateDoctor(id, data) : await window.OpticsDB.addDoctor(data);
+            closeLayer($('doctorLayer'));
+            toast(id ? 'Doctor updated.' : 'Doctor added.', 'success');
+            await load();
+        } catch (ex) { console.error(ex); err.textContent = 'We could not save this doctor. Please try again.'; err.hidden = false; }
+        finally { btn.disabled = false; btn.textContent = 'Save doctor'; }
+    });
+
+    /* CSV export */
+    function csv(rows) {
+        const cell = (v) => { let s = String(v ?? ''); if (/^[=+\-@]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+        return rows.map((r) => r.map(cell).join(',')).join('\r\n');
+    }
+    function download(name, text) {
+        const url = URL.createObjectURL(new Blob(['﻿' + text], { type: 'text/csv;charset=utf-8' }));
+        const a = Object.assign(document.createElement('a'), { href: url, download: name });
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    /* ---------- click + change delegation ---------- */
+    document.addEventListener('click', async (e) => {
+        const go = e.target.closest('[data-go]');
+        if (go) { showPanel(go.dataset.go); return; }
+        const t = e.target.closest('[data-act]');
+        if (!t) return;
+        const id = t.dataset.id;
+        switch (t.dataset.act) {
+            case 'logout': logout(); break;
+            case 'appt-status': setApptStatus(id, t.dataset.status); break;
+            case 'appt-view': openApptDetails(id); break;
+            case 'order-view': openOrderDetails(id); break;
+            case 'product-new': openProduct(null); break;
+            case 'product-edit': openProduct(state.products.find((p) => p.id == id)); break;
+            case 'doctor-new': openDoctor(null); break;
+            case 'doctor-edit': openDoctor(state.doctors.find((d) => d.id == id)); break;
+            case 'product-delete': {
+                const p = state.products.find((x) => x.id == id); if (!p) break;
+                if (await OpticsUI.confirm({ title: 'Delete this product?', message: `"${p.name}" will be removed from the catalog. This cannot be undone.`, confirmText: 'Delete', danger: true })) {
+                    try { await window.OpticsDB.deleteProduct(id); toast('Product deleted.', 'success'); await load(); }
+                    catch (ex) { console.error(ex); toast('Could not delete the product.', 'error'); }
                 }
-
-                renderAppointments(appointments);
-                renderInventory(products);
-                renderDoctors(doctors);
-                if (orders.length >= 0) renderOrders(orders);
-                if (customers.length >= 0) renderCustomers(customers);
-            } catch(e) {
-                console.error("Error loading admin data", e);
+                break;
             }
-        }
-
-        function getStatusClass(status) {
-            switch(status) {
-                case 'Pending': return 'status-pending';
-                case 'Confirmed': return 'status-confirmed';
-                case 'Completed': return 'status-completed';
-                case 'Cancelled': return 'status-cancelled';
-                default: return '';
-            }
-        }
-
-        function renderAppointments(appointments) {
-            const recentTbody = document.getElementById('recent-appointments-table');
-            const allTbody = document.getElementById('all-appointments-table');
-            
-            recentTbody.innerHTML = '';
-            allTbody.innerHTML = '';
-
-            // Sort by newest first
-            const sortedApps = [...appointments].reverse();
-
-            // Recent (top 5)
-            sortedApps.slice(0, 5).forEach(app => {
-                recentTbody.innerHTML += `
-                    <tr>
-                        <td>${app.date} ${app.time}</td>
-                        <td>${app.customerName}</td>
-                        <td>${app.doctorName || 'Not Selected'}</td>
-                        <td>${app.type}</td>
-                        <td><span class="status-badge ${getStatusClass(app.status)}">${app.status}</span></td>
-                    </tr>
-                `;
-            });
-
-            // All Appointments
-            sortedApps.forEach(app => {
-                allTbody.innerHTML += `
-                    <tr>
-                        <td>#${app.id}</td>
-                        <td>
-                            <strong>${app.customerName}</strong><br>
-                            <span style="font-size:0.85rem; color: var(--text-light);">${app.email}</span><br>
-                            <span style="font-size:0.85rem; color: var(--text-light);">${app.contactNumber}</span>
-                        </td>
-                        <td><strong>${app.doctorName || 'Not Selected'}</strong></td>
-                        <td>${app.date}<br><span style="font-size:0.85rem; color: var(--text-light);">${app.time}</span></td>
-                        <td>${app.type}</td>
-                        <td>
-                            <select class="form-control" style="padding: 0.3rem; font-size: 0.85rem; min-width: 100px;" onchange="updateAppStatus(${app.id}, this.value)">
-                                <option value="Pending" ${app.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                                <option value="Confirmed" ${app.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
-                                <option value="Completed" ${app.status === 'Completed' ? 'selected' : ''}>Completed</option>
-                                <option value="Cancelled" ${app.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
-                            </select>
-                        </td>
-                        <td>
-                            <button class="btn btn-act btn-notes" onclick="alert('Notes: ${app.notes || 'None'}')">Notes</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderInventory(products) {
-            const tbody = document.getElementById('inventory-table');
-            tbody.innerHTML = '';
-
-            products.forEach(p => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>#${p.id}</td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <img src="${p.image}" alt="${p.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; background: #fff;">
-                                <strong>${p.name}</strong>
-                            </div>
-                        </td>
-                        <td>${p.type}<br><span style="font-size:0.85rem; color: var(--text-light);">${p.style}</span></td>
-                        <td>₱${p.price.toLocaleString()}</td>
-                        <td>
-                            <span style="color: ${p.availability === 'In Stock' ? '#28a745' : p.availability === 'Low Stock' ? '#f1c40f' : '#dc3545'}">
-                                ${p.availability}
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn btn-act btn-edit" onclick="openProductModal({
-                                id: ${p.id}, name: '${p.name.replace(/'/g, "\\'")}', type: '${p.type}', style: '${p.style || ''}', 
-                                color: '${p.color || ''}', price: ${p.price}, description: '${(p.description || '').replace(/'/g, "\\'").replace(/\n/g, '\\n')}', 
-                                availability: '${p.availability}', stock: ${p.stock || 0}, image: '${p.image || ''}'
-                            })">Edit</button>
-                            <button class="btn btn-act btn-delete" onclick="deleteProd(${p.id})">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderDoctors(doctors) {
-            const tbody = document.getElementById('doctors-table');
-            tbody.innerHTML = '';
-
-            doctors.forEach(d => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>#${d.id}</td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <img src="${d.image}" alt="${d.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; background: #fff;">
-                                <strong>${d.name}</strong>
-                            </div>
-                        </td>
-                        <td>${d.role}</td>
-                        <td>
-                            <button class="btn btn-act btn-edit" onclick="openDoctorModal({id: ${d.id}, name: '${d.name.replace(/'/g, "\\'")}', role: '${d.role.replace(/'/g, "\\'")}', image: '${d.image}'})">Edit</button>
-                            <button class="btn btn-act btn-delete" onclick="deleteDoctorBtn(${d.id})">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function updateAppStatus(id, newStatus) {
-            try {
-                await window.OpticsDB.updateAppointmentStatus(id, newStatus);
-                await loadAdminData(); // Refresh UI
-            } catch(e) { console.error(e); }
-        }
-
-        async function deleteProd(id) {
-            if(confirm('Are you sure you want to delete this product?')) {
-                try {
-                    await window.OpticsDB.deleteProduct(id);
-                    await loadAdminData(); // Refresh UI
-                } catch(e) { console.error(e); }
-            }
-        }
-
-        function renderOrders(orders) {
-            const tbody = document.getElementById('orders-table');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            orders.forEach(o => {
-                let itemsHtml = o.items ? o.items.map(i => `${i.quantity}x ${i.name}`).join(', ') : '';
-                tbody.innerHTML += `
-                    <tr>
-                        <td>#${o.id}</td>
-                        <td>${new Date(o.date).toLocaleString()}</td>
-                        <td>
-                            <strong>${o.customerName}</strong><br>
-                            <span style="font-size:0.85rem; color: var(--text-light);">${o.email} | ${o.contactNumber}</span>
-                        </td>
-                        <td>₱${o.totalAmount.toLocaleString()}<br><span style="font-size:0.85rem; color: var(--text-light);">${itemsHtml}</span></td>
-                        <td>${o.paymentMethod}<br><span style="font-size:0.85rem; color: var(--text-light);">${o.paymentStatus}</span></td>
-                        <td>
-                            <select class="form-control" style="padding: 0.3rem; font-size: 0.85rem;" onchange="updateOrderStatus(${o.id}, this.value)">
-                                <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                                <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''}>Processing</option>
-                                <option value="Completed" ${o.status === 'Completed' ? 'selected' : ''}>Completed</option>
-                                <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
-                            </select>
-                        </td>
-                        <td>
-                            <button class="btn btn-act btn-view" onclick="alert('View details for order #${o.id}')">View</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderCustomers(customers) {
-            const tbody = document.getElementById('customers-table');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            customers.forEach(c => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${c.name}</strong></td>
-                        <td>${c.email || 'N/A'}</td>
-                        <td>${c.contactNumber || 'N/A'}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function updateOrderStatus(id, newStatus) {
-            try {
-                const token = localStorage.getItem('adminToken');
-                await fetch(`api/orders.php/${id}/status`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ status: newStatus })
-                });
-                await loadAdminData();
-            } catch(e) { console.error(e); }
-        }
-
-        // --- Doctor Modal Logic ---
-        function openDoctorModal(doctor = null) {
-            const modal = document.getElementById('doctorModal');
-            const title = document.getElementById('doctorModalTitle');
-            const idInput = document.getElementById('doctorId');
-            const nameInput = document.getElementById('doctorName');
-            const roleInput = document.getElementById('doctorRole');
-            const imageInput = document.getElementById('doctorImage');
-
-            if (doctor) {
-                title.textContent = 'Edit Doctor';
-                idInput.value = doctor.id;
-                nameInput.value = doctor.name;
-                roleInput.value = doctor.role;
-                imageInput.value = doctor.image;
-            } else {
-                title.textContent = 'Add Doctor';
-                idInput.value = '';
-                document.getElementById('doctorForm').reset();
-            }
-            modal.style.display = 'block';
-        }
-
-        function closeDoctorModal() {
-            document.getElementById('doctorModal').style.display = 'none';
-        }
-
-        async function saveDoctor(event) {
-            event.preventDefault();
-            const id = document.getElementById('doctorId').value;
-            let imageVal = document.getElementById('doctorImage').value;
-            
-            if (!imageVal) {
-                const name = document.getElementById('doctorName').value;
-                const encodedName = encodeURIComponent(name);
-                imageVal = `https://via.placeholder.com/150/f8f9fa/333333?text=${encodedName}`;
-            }
-
-            const docData = {
-                name: document.getElementById('doctorName').value,
-                role: document.getElementById('doctorRole').value,
-                image: imageVal
-            };
-
-            try {
-                if (id) {
-                    await window.OpticsDB.updateDoctor(id, docData);
-                } else {
-                    await window.OpticsDB.addDoctor(docData);
+            case 'doctor-delete': {
+                const d = state.doctors.find((x) => x.id == id); if (!d) break;
+                if (await OpticsUI.confirm({ title: 'Delete this doctor?', message: `${d.name} will no longer be available for booking.`, confirmText: 'Delete', danger: true })) {
+                    try { await window.OpticsDB.deleteDoctor(id); toast('Doctor deleted.', 'success'); await load(); }
+                    catch (ex) { console.error(ex); toast('Could not delete the doctor.', 'error'); }
                 }
-                closeDoctorModal();
-                await loadAdminData(); // Refresh UI
-            } catch(e) {
-                console.error("Error saving doctor:", e);
-                alert("Failed to save doctor.");
+                break;
             }
+            case 'export-appts':
+                download('appointments.csv', csv([['ID', 'Customer', 'Email', 'Contact', 'Doctor', 'Date', 'Time', 'Type', 'Status', 'Notes'], ...apptSorted().map((a) => [a.id, a.customerName, a.email, a.contactNumber, a.doctorName, a.date, a.time, a.type, a.status, a.notes])]));
+                toast('Appointments exported.', 'success'); break;
+            case 'export-orders':
+                download('orders.csv', csv([['ID', 'Date', 'Customer', 'Email', 'Contact', 'Total', 'Payment', 'Payment status', 'Status', 'Items'], ...state.orders.map((o) => [o.id, o.date, o.customerName, o.email, o.contactNumber, o.totalAmount, o.paymentMethod, o.paymentStatus, o.status, (o.items || []).map((i) => `${i.quantity}x ${i.name}`).join('; ')])]));
+                toast('Orders exported.', 'success'); break;
         }
+    });
 
-        async function deleteDoctorBtn(id) {
-            if (confirm("Are you sure you want to delete this doctor?")) {
-                try {
-                    await window.OpticsDB.deleteDoctor(id);
-                    await loadAdminData(); // Refresh UI
-                } catch(e) {
-                    console.error("Error deleting doctor:", e);
-                    alert("Failed to delete doctor.");
-                }
-            }
-        }
+    document.addEventListener('change', (e) => {
+        const s = e.target.closest('select[data-act]');
+        if (!s) return;
+        if (s.dataset.act === 'appt-select') setApptStatus(s.dataset.id, s.value);
+        if (s.dataset.act === 'order-select') setOrderStatus(s.dataset.id, s.value);
+    });
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const docModal = document.getElementById('doctorModal');
-            const prodModal = document.getElementById('productModal');
-            if (event.target === docModal) closeDoctorModal();
-            if (event.target === prodModal) closeProductModal();
-        }
-
-        // --- Product Modal Logic ---
-        function openProductModal(product = null) {
-            const modal = document.getElementById('productModal');
-            const title = document.getElementById('productModalTitle');
-            
-            if (product) {
-                title.textContent = 'Edit Product';
-                document.getElementById('productId').value = product.id;
-                document.getElementById('productName').value = product.name;
-                document.getElementById('productType').value = product.type;
-                document.getElementById('productStyle').value = product.style || '';
-                document.getElementById('productColor').value = product.color || '';
-                document.getElementById('productPrice').value = product.price;
-                document.getElementById('productStock').value = product.stock || 0;
-                document.getElementById('productDescription').value = product.description || '';
-                document.getElementById('productImage').value = product.image || '';
-            } else {
-                title.textContent = 'Add Product';
-                document.getElementById('productId').value = '';
-                document.getElementById('productForm').reset();
-                document.getElementById('productType').value = 'Eyeglasses';
-            }
-            modal.style.display = 'block';
-        }
-
-        function closeProductModal() {
-            document.getElementById('productModal').style.display = 'none';
-        }
-
-        async function saveProduct(event) {
-            event.preventDefault();
-            const id = document.getElementById('productId').value;
-            let imageVal = document.getElementById('productImage').value;
-            
-            if (!imageVal) {
-                const name = document.getElementById('productName').value;
-                const encodedName = encodeURIComponent(name);
-                imageVal = `https://via.placeholder.com/200/f8f9fa/333333?text=${encodedName}`;
-            }
-
-            const prodData = {
-                name: document.getElementById('productName').value,
-                type: document.getElementById('productType').value,
-                style: document.getElementById('productStyle').value,
-                color: document.getElementById('productColor').value,
-                price: parseFloat(document.getElementById('productPrice').value),
-                stock: parseInt(document.getElementById('productStock').value, 10),
-                description: document.getElementById('productDescription').value,
-                image: imageVal
-            };
-
-            try {
-                if (id) {
-                    await window.OpticsDB.updateProduct(id, prodData);
-                } else {
-                    await window.OpticsDB.addProduct(prodData);
-                }
-                closeProductModal();
-                await loadAdminData(); // Refresh UI
-            } catch(e) {
-                console.error("Error saving product:", e);
-                alert("Failed to save product.");
-            }
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', loadAdminData);
-    </script>
+    /* ---------- init ---------- */
+    showPanel(location.hash.slice(1) || 'dashboard');
+    window.addEventListener('hashchange', () => showPanel(location.hash.slice(1)));
+    document.addEventListener('DOMContentLoaded', load);
+</script>
 </body>
 </html>

@@ -4,550 +4,403 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eyewear Catalog | One Optics Clinic</title>
+    <meta name="description" content="Browse premium eyeglass frames at One Optics Clinic in Malate, Manila. Filter by style, frame type and availability.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="css/style.css?v=16">
     <script>
         if (localStorage.getItem('oneOpticsTheme') === 'dark') {
             document.documentElement.classList.add('dark-mode');
             document.addEventListener('DOMContentLoaded', () => document.body.classList.add('dark-mode'));
         }
     </script>
-    <style>
-        .catalog-layout {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        @media (max-width: 768px) {
-            .catalog-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-        .filter-sidebar {
-            background: var(--bg-light);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            height: fit-content;
-            border: 1px solid var(--border-color);
-        }
-        .filter-group {
-            margin-bottom: 1.5rem;
-        }
-        .filter-group h4 {
-            font-size: 1rem;
-            margin-bottom: 0.8rem;
-            color: var(--primary-color);
-        }
-        .filter-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-dark);
-            cursor: pointer;
-        }
-        .filter-label input {
-            margin-right: 0.5rem;
-        }
-        .catalog-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-        .search-bar {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            margin-bottom: 1.5rem;
-            background: var(--bg-color);
-            color: var(--text-dark);
-        }
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            background: var(--bg-color);
-            padding: 2rem;
-            border-radius: var(--border-radius);
-            max-width: 800px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            border: 1px solid var(--border-color);
-        }
-        @media (max-width: 768px) {
-            .modal-content {
-                grid-template-columns: 1fr;
-            }
-        }
-        .close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-light);
-        }
-        .modal-img {
-            width: 100%;
-            border-radius: var(--border-radius);
-            background: #fff;
-        }
-        .empty-state {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-light);
-            background: var(--bg-light);
-            border-radius: var(--border-radius);
-        }
-    </style>
 </head>
 <body>
 
     <!-- Navigation -->
-    <header>
-        <div class="container navbar">
-            <div class="logo">
-                <a href="index.html" style="color: inherit; text-decoration: none;">ONE OPTICS Clinic</a>
-                <span class="tagline">Clear Vision • Brighter Tomorrow</span>
+    <header id="site-header"></header>
+    <script src="js/ui-core.js?v=16"></script>
+
+    <main id="main-content">
+        <section class="page-head">
+            <div class="container">
+                <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span>Eyewear</span></nav>
+                <h1>Eyewear catalog</h1>
+                <p>Find frames that fit your face and your style. Pick one up at the clinic, or book an eye exam first.</p>
             </div>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="catalog.html" class="active">Eyewear</a></li>
-                    <li><a href="appointment.html">Appointments</a></li>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                    <li><a href="#" onclick="openCart(event)" style="color: var(--accent-color); font-weight: 600;">🛒 Cart (<span id="cartCount">0</span>)</a></li>
-                    <li><a href="admin-login.html">Admin</a></li>
-                    <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">🌙</button></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+        </section>
 
-    <div class="container" style="padding-top: 2rem; margin-bottom: 4rem;">
-        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--primary-color);">Eyewear Catalog</h1>
-        <p style="color: var(--text-light);">Find the perfect frames to match your style.</p>
-
-        <div class="catalog-layout">
-            <!-- Sidebar Filters -->
-            <aside class="filter-sidebar">
-                <input type="text" id="searchInput" class="search-bar" placeholder="Search products..." oninput="filterProducts()">
-                
-                <div class="filter-group">
-                    <h4>Sort By</h4>
-                    <select id="sortSelect" class="form-control" onchange="filterProducts()" style="padding: 0.5rem;">
-                        <option value="name">Product Name (A-Z)</option>
-                        <option value="price-asc">Price: Low to High</option>
-                        <option value="price-desc">Price: High to Low</option>
+        <div class="container" style="padding-bottom: 5rem;">
+            <!-- Toolbar -->
+            <div class="toolbar" role="search">
+                <div class="toolbar-row">
+                    <label class="search-field">
+                        <span class="sr-only">Search frames</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                        <input type="search" id="searchInput" placeholder="Search frames by name or color" autocomplete="off">
+                    </label>
+                    <label class="sr-only" for="sortSelect">Sort by</label>
+                    <select id="sortSelect" class="select-pill">
+                        <option value="name">Name (A to Z)</option>
+                        <option value="price-asc">Price: low to high</option>
+                        <option value="price-desc">Price: high to low</option>
                     </select>
                 </div>
-
-                <div class="filter-group">
-                    <h4>Frame Type</h4>
-                    <label class="filter-label"><input type="checkbox" value="Full Rim" class="type-filter" onchange="filterProducts()"> Full Rim</label>
-                    <label class="filter-label"><input type="checkbox" value="Half Rim" class="type-filter" onchange="filterProducts()"> Half Rim</label>
-                    <label class="filter-label"><input type="checkbox" value="Rimless" class="type-filter" onchange="filterProducts()"> Rimless</label>
+                <div class="toolbar-row" id="chipRows">
+                    <div class="chip-group" id="typeChips" role="group" aria-label="Frame type"><span class="chip-label">Type</span></div>
+                    <div class="chip-group" id="styleChips" role="group" aria-label="Frame style"><span class="chip-label">Style</span></div>
                 </div>
-
-                <div class="filter-group">
-                    <h4>Frame Style</h4>
-                    <label class="filter-label"><input type="checkbox" value="Round" class="style-filter" onchange="filterProducts()"> Round</label>
-                    <label class="filter-label"><input type="checkbox" value="Square" class="style-filter" onchange="filterProducts()"> Square</label>
-                    <label class="filter-label"><input type="checkbox" value="Rectangle" class="style-filter" onchange="filterProducts()"> Rectangle</label>
-                    <label class="filter-label"><input type="checkbox" value="Cat-Eye" class="style-filter" onchange="filterProducts()"> Cat-Eye</label>
-                    <label class="filter-label"><input type="checkbox" value="Aviator" class="style-filter" onchange="filterProducts()"> Aviator</label>
+                <div class="toolbar-meta">
+                    <span id="resultCount" aria-live="polite">Loading frames...</span>
+                    <div style="display:flex; gap:1.25rem; align-items:center; flex-wrap:wrap;">
+                        <label class="switch"><input type="checkbox" id="stockOnly"><span class="track"></span>In stock only</label>
+                        <button type="button" class="btn btn-ghost btn-sm" id="clearFilters" hidden>Clear filters</button>
+                    </div>
                 </div>
+            </div>
 
-                <div class="filter-group">
-                    <h4>Availability</h4>
-                    <label class="filter-label"><input type="checkbox" value="In Stock" class="stock-filter" onchange="filterProducts()"> In Stock</label>
-                </div>
-            </aside>
+            <!-- Grid -->
+            <div class="product-grid" id="catalog-grid" aria-busy="true">
+                <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line"></div><div class="sk sk-line w60"></div><div class="sk sk-line w40"></div><div class="sk sk-btn"></div></div></div>
+                <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line"></div><div class="sk sk-line w60"></div><div class="sk sk-line w40"></div><div class="sk sk-btn"></div></div></div>
+                <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line"></div><div class="sk sk-line w60"></div><div class="sk sk-line w40"></div><div class="sk sk-btn"></div></div></div>
+                <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line"></div><div class="sk sk-line w60"></div><div class="sk sk-line w40"></div><div class="sk sk-btn"></div></div></div>
+            </div>
+        </div>
+    </main>
 
-            <!-- Product Grid -->
-            <div>
-                <div class="catalog-header">
-                    <span id="resultCount" style="color: var(--text-light); font-weight: 500;">0 Results</span>
-                </div>
-                <div class="product-grid" id="catalog-grid">
-                    <!-- Products will be injected here -->
+    <!-- Quick view -->
+    <div id="productLayer" class="ui-layer" hidden role="dialog" aria-modal="true" aria-labelledby="qvTitle">
+        <div class="ui-backdrop" data-close-layer></div>
+        <div class="ui-dialog">
+            <button type="button" class="ui-close" data-close-layer aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            <div class="qv">
+                <div class="qv-media"><img id="qvImg" alt="" class="product-img"></div>
+                <div class="qv-body">
+                    <h2 id="qvTitle"></h2>
+                    <div class="qv-price" id="qvPrice"></div>
+                    <p class="qv-desc" id="qvDesc"></p>
+                    <dl class="spec-grid">
+                        <div><dt>Style</dt><dd id="qvStyle"></dd></div>
+                        <div><dt>Frame type</dt><dd id="qvType"></dd></div>
+                        <div><dt>Color</dt><dd id="qvColor"></dd></div>
+                        <div><dt>Availability</dt><dd id="qvStock"></dd></div>
+                    </dl>
+                    <div class="qv-actions">
+                        <button type="button" class="btn btn-primary" id="qvAdd" data-autofocus>Add to cart</button>
+                        <a href="appointment.html" class="btn btn-outline">Book an eye exam first</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Product Details Modal -->
-    <div id="productModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <div>
-                <img id="modalImg" src="" alt="Product" class="modal-img">
-            </div>
-            <div>
-                <h2 id="modalTitle" style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--primary-color);"></h2>
-                <div id="modalPrice" style="font-size: 1.5rem; font-weight: 600; color: var(--accent-color); margin-bottom: 1rem;"></div>
-                
-                <p id="modalDesc" style="color: var(--text-light); margin-bottom: 1.5rem;"></p>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
-                    <div>
-                        <strong style="display: block; font-size: 0.85rem; color: var(--text-light);">Frame Style</strong>
-                        <span id="modalStyle" style="color: var(--text-dark);"></span>
-                    </div>
-                    <div>
-                        <strong style="display: block; font-size: 0.85rem; color: var(--text-light);">Frame Type</strong>
-                        <span id="modalType" style="color: var(--text-dark);"></span>
-                    </div>
-                    <div>
-                        <strong style="display: block; font-size: 0.85rem; color: var(--text-light);">Color</strong>
-                        <span id="modalColor" style="color: var(--text-dark);"></span>
-                    </div>
-                    <div>
-                        <strong style="display: block; font-size: 0.85rem; color: var(--text-light);">Availability</strong>
-                        <span id="modalStock"></span>
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                    <button class="btn btn-outline" style="flex: 1;" onclick="addToCartFromModal()">Add to Cart</button>
-                    <a href="appointment.html" class="btn btn-primary" style="flex: 1; text-align: center;">Book an Exam</a>
-                </div>
-                <button class="btn btn-outline" style="width: 100%; border: none;" onclick="closeModal()">Back to Catalog</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Shopping Cart Modal -->
-    <div id="cartModal" class="modal">
-        <div class="modal-content" style="max-width: 500px; display: block;">
-            <span class="close-btn" onclick="closeCart()">&times;</span>
-            <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--primary-color);">Your Cart</h2>
-            
-            <div id="cartItems" style="margin-bottom: 2rem;">
-                <!-- Cart items populated by JS -->
-            </div>
-            
-            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-bottom: 1.5rem;">
-                <span>Total:</span>
-                <span id="cartTotal">₱0</span>
+    <!-- Cart drawer -->
+    <div id="cartLayer" class="ui-layer" hidden role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+        <div class="ui-backdrop" data-close-layer></div>
+        <aside class="ui-drawer">
+            <div class="drawer-head">
+                <h2 id="cartTitle">Your cart</h2>
+                <button type="button" class="ui-close" data-close-layer aria-label="Close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
             </div>
 
-            <form id="checkoutForm" onsubmit="handleCheckout(event)" style="display: none; background: var(--bg-light); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                <h3 style="margin-bottom: 1rem;">Checkout Details</h3>
-                <div class="form-group"><input type="text" id="coName" class="form-control" placeholder="Full Name" required></div>
-                <div class="form-group"><input type="email" id="coEmail" class="form-control" placeholder="Email" required></div>
-                <div class="form-group"><input type="tel" id="coPhone" class="form-control" placeholder="Contact Number" required></div>
-                <div class="form-group">
-                    <select id="coPayment" class="form-control" required>
-                        <option value="Cash on Pickup">Cash on Pickup</option>
-                        <option value="GCash">GCash (Pending Verification)</option>
-                    </select>
+            <!-- step: items -->
+            <div id="stepItems" style="display:contents">
+                <div class="drawer-body" id="cartItems"></div>
+                <div class="drawer-foot" id="cartFoot">
+                    <div class="cart-total"><span>Total</span><strong id="cartTotal">₱0</strong></div>
+                    <button type="button" class="btn btn-primary btn-block" id="toCheckout">Continue to checkout <span class="arr" aria-hidden="true">&rarr;</span></button>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm Order</button>
+            </div>
+
+            <!-- step: checkout -->
+            <form id="checkoutForm" hidden novalidate style="display:contents">
+                <div class="drawer-body">
+                    <button type="button" class="btn btn-ghost btn-sm" id="backToItems" style="margin-bottom:1rem;">&larr; Back to cart</button>
+                    <div class="form-group"><label for="coName">Full name</label><input type="text" id="coName" class="form-control" autocomplete="name" required></div>
+                    <div class="form-group"><label for="coEmail">Email</label><input type="email" id="coEmail" class="form-control" autocomplete="email" required></div>
+                    <div class="form-group"><label for="coPhone">Contact number</label><input type="tel" id="coPhone" class="form-control" autocomplete="tel" required></div>
+                    <div class="form-group">
+                        <label for="coPayment">Payment</label>
+                        <select id="coPayment" class="form-control" required>
+                            <option value="Cash on Pickup">Cash on pickup</option>
+                            <option value="GCash">GCash (pending verification)</option>
+                        </select>
+                    </div>
+                    <p class="field-error" id="coError" role="alert" hidden></p>
+                </div>
+                <div class="drawer-foot">
+                    <div class="cart-total"><span>Total</span><strong id="coTotal">₱0</strong></div>
+                    <button type="submit" class="btn btn-primary btn-block" id="placeOrder">Place order</button>
+                </div>
             </form>
 
-            <button id="checkoutBtn" class="btn btn-primary" style="width: 100%;" onclick="showCheckoutForm()">Proceed to Checkout</button>
-        </div>
+            <!-- step: success -->
+            <div id="stepDone" hidden style="display:contents">
+                <div class="drawer-body">
+                    <div class="success-pane">
+                        <svg class="tick" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27"/><path d="M20 33l8 8 17-18"/></svg>
+                        <h3>Order received</h3>
+                        <p style="color:var(--text-light)">Thank you. We will contact you shortly to confirm your order and pickup.</p>
+                    </div>
+                </div>
+                <div class="drawer-foot"><button type="button" class="btn btn-outline btn-block" data-close-layer>Keep browsing</button></div>
+            </div>
+        </aside>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-col">
-                    <h3>ONE OPTICS Clinic</h3>
-                    <p style="font-style: italic; color: var(--accent-color); margin-bottom: 1rem;">Clear Vision • Brighter Tomorrow</p>
-                    <p>Your trusted partner for professional eye care and premium eyewear in Manila.</p>
-                </div>
-                <div class="footer-col">
-                    <h3>Quick Links</h3>
-                    <a href="index.html">Home</a>
-                    <a href="catalog.html">Eyewear Catalog</a>
-                    <a href="appointment.html">Book Appointment</a>
-                    <a href="about.html">About Us</a>
-                </div>
-                <div class="footer-col">
-                    <h3>Contact Us</h3>
-                    <p>2598 Singalong Street<br>Vito Cruz, Malate, Manila</p>
-                    <p>0956 127 7149</p>
-                    <p>one_optics@yahoo.com</p>
-                </div>
-                <div class="footer-col">
-                    <h3>Operating Hours</h3>
-                    <p>Clinic hours to be confirmed.</p>
-                    <p><em>(Closed · Opens 10 AM based on initial listing)</em></p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                &copy; <span id="currentYear"></span> One Optics Clinic. All rights reserved. | Developed by Luis Agastine Lozada, BSIT
-            </div>
-        </div>
-    </footer>
+    <footer id="site-footer"></footer>
 
-    <!-- Database Script -->
     <script src="js/database.js"></script>
-    <script src="js/theme.js?v=4"></script>
-    <script src="js/ui.js?v=4"></script>
-    
-    <!-- Page Script -->
+    <script src="js/theme.js?v=16"></script>
+    <script src="js/ui.js?v=16"></script>
+
     <script>
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const { toast, openLayer, closeLayer, esc } = window.OpticsUI;
+        const $ = (id) => document.getElementById(id);
+        const peso = (n) => '₱' + Number(n).toLocaleString('en-PH', { maximumFractionDigits: 0 });
+        const COLORS = { black: '#1f1a1a', gold: '#d4a52c', silver: '#b8bcc4', brown: '#7a4b2a', tortoise: '#8a5a2b', red: '#a8121f', blue: '#2f5fa8', green: '#2f7a52', pink: '#e58fa7', clear: '#e4e8ec', gray: '#8b8b8b', grey: '#8b8b8b', white: '#f4f4f4' };
+        const colorDot = (c) => COLORS[String(c || '').toLowerCase()] || 'var(--text-light)';
 
         let allProducts = [];
+        let current = null;
+        const filters = { q: '', types: new Set(), styles: new Set(), stock: false, sort: 'name' };
+        let cart = [];
+        try { cart = JSON.parse(localStorage.getItem('opticsCart') || '[]'); } catch (e) { cart = []; }
 
+        /* ---------- load ---------- */
         document.addEventListener('DOMContentLoaded', async () => {
             try {
                 allProducts = await window.OpticsDB.getProducts();
-                
-                // Check for URL parameters (if navigating from featured product)
-                const urlParams = new URLSearchParams(window.location.search);
-                const productId = urlParams.get('id');
-                if (productId) {
-                    const product = await window.OpticsDB.getProductById(productId);
-                    if (product) openModal(product);
-                }
-
-                renderProducts(allProducts);
-            } catch (error) {
-                console.error("Error loading products:", error);
-                document.getElementById('catalog-grid').innerHTML = '<div class="empty-state"><h3>Error loading products.</h3><p>Ensure the backend is running on port 3000.</p></div>';
+                buildChips();
+                render();
+                const id = new URLSearchParams(location.search).get('id');
+                if (id) { const p = allProducts.find((x) => String(x.id) === id); if (p) openQuickView(p); }
+            } catch (err) {
+                console.error(err);
+                $('catalog-grid').setAttribute('aria-busy', 'false');
+                $('catalog-grid').innerHTML = emptyState('We could not load the catalog', 'Please check your connection and try again.', 'Try again', 'location.reload()');
+                $('resultCount').textContent = '';
             }
+            updateCartUI();
+            if (location.hash === '#cart') openCart();
         });
 
-        function renderProducts(products) {
-            const grid = document.getElementById('catalog-grid');
-            document.getElementById('resultCount').textContent = `${products.length} Results`;
-            grid.innerHTML = '';
+        function buildChips() {
+            const uniq = (key) => [...new Set(allProducts.map((p) => p[key]).filter(Boolean))].sort();
+            const make = (host, values, set) => values.forEach((v) => {
+                const b = document.createElement('button');
+                b.type = 'button'; b.className = 'chip'; b.textContent = v; b.setAttribute('aria-pressed', 'false');
+                b.addEventListener('click', () => {
+                    set.has(v) ? set.delete(v) : set.add(v);
+                    b.setAttribute('aria-pressed', String(set.has(v)));
+                    render();
+                });
+                host.appendChild(b);
+            });
+            make($('typeChips'), uniq('type'), filters.types);
+            make($('styleChips'), uniq('style'), filters.styles);
+        }
 
-            if (products.length === 0) {
-                grid.innerHTML = `<div class="empty-state"><h3>No products found.</h3><p>Try adjusting your search or filters.</p></div>`;
+        $('searchInput').addEventListener('input', (e) => { filters.q = e.target.value.trim().toLowerCase(); render(); });
+        $('sortSelect').addEventListener('change', (e) => { filters.sort = e.target.value; render(); });
+        $('stockOnly').addEventListener('change', (e) => { filters.stock = e.target.checked; render(); });
+        $('clearFilters').addEventListener('click', clearFilters);
+
+        function clearFilters() {
+            filters.q = ''; filters.types.clear(); filters.styles.clear(); filters.stock = false;
+            $('searchInput').value = ''; $('stockOnly').checked = false;
+            document.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
+            render();
+        }
+
+        /* ---------- render ---------- */
+        function emptyState(title, text, btnText, onclick) {
+            return `<div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/><path d="M14 15a2 2 0 0 0-4 0M2.5 13 5 7M21.5 13 19 7"/></svg>
+                <h3>${esc(title)}</h3><p>${esc(text)}</p>
+                ${btnText ? `<button type="button" class="btn btn-outline" onclick="${onclick}">${esc(btnText)}</button>` : ''}
+            </div>`;
+        }
+
+        function visibleProducts() {
+            const out = allProducts.filter((p) => {
+                const hay = `${p.name} ${p.color || ''} ${p.style || ''}`.toLowerCase();
+                return (!filters.q || hay.includes(filters.q))
+                    && (!filters.types.size || filters.types.has(p.type))
+                    && (!filters.styles.size || filters.styles.has(p.style))
+                    && (!filters.stock || p.availability === 'In Stock');
+            });
+            out.sort((a, b) => filters.sort === 'price-asc' ? a.price - b.price : filters.sort === 'price-desc' ? b.price - a.price : a.name.localeCompare(b.name));
+            return out;
+        }
+
+        function render() {
+            const grid = $('catalog-grid');
+            const list = visibleProducts();
+            const active = filters.q || filters.types.size || filters.styles.size || filters.stock;
+            $('clearFilters').hidden = !active;
+            $('resultCount').textContent = `${list.length} ${list.length === 1 ? 'frame' : 'frames'}`;
+            grid.setAttribute('aria-busy', 'false');
+
+            if (!list.length) {
+                grid.innerHTML = emptyState('No frames match those filters', 'Try removing a filter or searching for something else.', 'Clear filters', 'clearFilters()');
                 return;
             }
-
-            products.forEach(product => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <img src="${product.image}" alt="${product.name}" class="product-img">
-                    <div class="product-info">
-                        <h3 class="product-title">${product.name}</h3>
-                        <div class="product-meta">${product.style} | ${product.type}</div>
-                        <div class="product-price">₱${product.price.toLocaleString()}</div>
-                        <div style="font-size: 0.8rem; color: ${product.availability === 'In Stock' ? '#28a745' : product.availability === 'Low Stock' ? '#f1c40f' : '#dc3545'}; margin-bottom: 1rem;">
-                            ${product.availability}
-                        </div>
-                        <button class="btn btn-outline" onclick='openModalById(${product.id})'>View Details</button>
+            grid.innerHTML = list.map((p) => {
+                const out = p.availability === 'Out of Stock';
+                const cls = p.availability === 'In Stock' ? 'badge-in' : p.availability === 'Low Stock' ? 'badge-low' : 'badge-out';
+                return `<article class="product-card" data-id="${esc(p.id)}">
+                    <div class="product-media">
+                        <span class="badge ${cls}">${esc(p.availability)}</span>
+                        <img src="${esc(p.image)}" alt="${esc(p.name)}" class="product-img" loading="lazy">
+                        <button type="button" class="quick-add" data-add="${esc(p.id)}" aria-label="Add ${esc(p.name)} to cart" ${out ? 'disabled' : ''}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                        </button>
                     </div>
-                `;
-                grid.appendChild(card);
-            });
+                    <div class="product-info">
+                        <h3 class="product-title">${esc(p.name)}</h3>
+                        <div class="product-meta">${esc(p.style)} &middot; ${esc(p.type)}</div>
+                        <div class="product-row">
+                            <div class="product-price">${peso(p.price)}</div>
+                            <span class="swatch"><i style="--c:${colorDot(p.color)}"></i>${esc(p.color || '')}</span>
+                        </div>
+                        <button type="button" class="btn btn-outline" data-view="${esc(p.id)}">Quick view <span class="arr" aria-hidden="true">&rarr;</span></button>
+                    </div>
+                </article>`;
+            }).join('');
         }
 
-        function filterProducts() {
-            const searchTerms = document.getElementById('searchInput').value.toLowerCase();
-            const sortVal = document.getElementById('sortSelect').value;
-            
-            const typeFilters = Array.from(document.querySelectorAll('.type-filter:checked')).map(cb => cb.value);
-            const styleFilters = Array.from(document.querySelectorAll('.style-filter:checked')).map(cb => cb.value);
-            const inStockOnly = document.querySelector('.stock-filter:checked') !== null;
+        $('catalog-grid').addEventListener('click', (e) => {
+            const add = e.target.closest('[data-add]');
+            const view = e.target.closest('[data-view]');
+            if (add) { const p = allProducts.find((x) => String(x.id) === add.dataset.add); if (p) addToCart(p); }
+            else if (view) { const p = allProducts.find((x) => String(x.id) === view.dataset.view); if (p) openQuickView(p); }
+        });
 
-            let filtered = allProducts.filter(p => {
-                const matchesSearch = p.name.toLowerCase().includes(searchTerms);
-                const matchesType = typeFilters.length === 0 || typeFilters.includes(p.type);
-                const matchesStyle = styleFilters.length === 0 || styleFilters.includes(p.style);
-                const matchesStock = !inStockOnly || p.availability === 'In Stock';
-                
-                return matchesSearch && matchesType && matchesStyle && matchesStock;
-            });
+        /* ---------- quick view ---------- */
+        function openQuickView(p) {
+            current = p;
+            $('qvImg').removeAttribute('data-fallback'); $('qvImg').src = OpticsImg.pick(p.image, p.name); $('qvImg').alt = p.name;
+            $('qvTitle').textContent = p.name;
+            $('qvPrice').textContent = peso(p.price);
+            $('qvDesc').textContent = p.description || '';
+            $('qvStyle').textContent = p.style || '-';
+            $('qvType').textContent = p.type || '-';
+            $('qvColor').textContent = p.color || '-';
+            $('qvStock').textContent = p.availability;
+            const out = p.availability === 'Out of Stock';
+            $('qvAdd').disabled = out;
+            $('qvAdd').textContent = out ? 'Out of stock' : 'Add to cart';
+            openLayer($('productLayer'));
+        }
+        $('qvAdd').addEventListener('click', () => { if (current) { addToCart(current); closeLayer($('productLayer')); } });
 
-            // Sorting
-            filtered.sort((a, b) => {
-                if (sortVal === 'name') return a.name.localeCompare(b.name);
-                if (sortVal === 'price-asc') return a.price - b.price;
-                if (sortVal === 'price-desc') return b.price - a.price;
-                return 0;
-            });
+        /* ---------- cart ---------- */
+        function saveCart() { try { localStorage.setItem('opticsCart', JSON.stringify(cart)); } catch (e) {} }
+        function cartQty() { return cart.reduce((s, i) => s + i.quantity, 0); }
+        function cartSum() { return cart.reduce((s, i) => s + i.price * i.quantity, 0); }
 
-            renderProducts(filtered);
+        function updateCartUI(bump) {
+            const el = $('cartCount');
+            el.textContent = cartQty();
+            if (bump) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+            saveCart();
         }
 
-        async function openModalById(id) {
-            try {
-                const product = await window.OpticsDB.getProductById(id);
-                if (product) openModal(product);
-            } catch(e) {
-                console.error(e);
-            }
+        function addToCart(p) {
+            if (p.availability === 'Out of Stock') { toast('That frame is out of stock.', 'error'); return; }
+            const row = cart.find((i) => i.productId === p.id);
+            row ? row.quantity++ : cart.push({ productId: p.id, name: p.name, price: Number(p.price), image: p.image, quantity: 1 });
+            updateCartUI(true);
+            toast(`${p.name} added to your cart`, 'success');
         }
 
-        function openModal(product) {
-            currentModalProduct = product;
-            document.getElementById('modalImg').src = product.image;
-            document.getElementById('modalTitle').textContent = product.name;
-            document.getElementById('modalPrice').textContent = `₱${product.price.toLocaleString()}`;
-            document.getElementById('modalDesc').textContent = product.description;
-            document.getElementById('modalStyle').textContent = product.style;
-            document.getElementById('modalType').textContent = product.type;
-            document.getElementById('modalColor').textContent = product.color;
-            
-            const stockEl = document.getElementById('modalStock');
-            stockEl.textContent = product.availability;
-            stockEl.style.color = product.availability === 'In Stock' ? '#28a745' : product.availability === 'Low Stock' ? '#f1c40f' : '#dc3545';
-            
-            document.getElementById('productModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('productModal').style.display = 'none';
-        }
-
-        // Close modal if clicked outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('productModal');
-            const cart = document.getElementById('cartModal');
-            if (event.target == modal) closeModal();
-            if (event.target == cart) closeCart();
-        }
-
-        // Cart Logic
-        let cart = JSON.parse(localStorage.getItem('opticsCart') || '[]');
-        let currentModalProduct = null;
-
-        function updateCartCount() {
-            document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
-            localStorage.setItem('opticsCart', JSON.stringify(cart));
-        }
-
-        function addToCart(product) {
-            if (product.availability === 'Out of Stock') {
-                alert('This product is out of stock.');
-                return;
-            }
-            const existing = cart.find(i => i.productId === product.id);
-            if (existing) {
-                existing.quantity++;
-            } else {
-                cart.push({ productId: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 });
-            }
-            updateCartCount();
-            alert(`${product.name} added to cart!`);
-        }
-
-        function addToCartFromModal() {
-            if(currentModalProduct) {
-                addToCart(currentModalProduct);
-                closeModal();
-            }
-        }
-
-        function openCart(e) {
-            e.preventDefault();
-            renderCart();
-            document.getElementById('checkoutForm').style.display = 'none';
-            document.getElementById('checkoutBtn').style.display = cart.length ? 'block' : 'none';
-            document.getElementById('cartModal').style.display = 'flex';
-        }
-
-        function closeCart() {
-            document.getElementById('cartModal').style.display = 'none';
+        function showStep(step) {
+            $('stepItems').hidden = step !== 'items';
+            $('checkoutForm').hidden = step !== 'checkout';
+            $('stepDone').hidden = step !== 'done';
+            $('stepItems').style.display = step === 'items' ? 'contents' : 'none';
+            $('checkoutForm').style.display = step === 'checkout' ? 'contents' : 'none';
+            $('stepDone').style.display = step === 'done' ? 'contents' : 'none';
+            $('cartTitle').textContent = step === 'checkout' ? 'Checkout' : step === 'done' ? 'All done' : 'Your cart';
         }
 
         function renderCart() {
-            const container = document.getElementById('cartItems');
-            container.innerHTML = '';
-            let total = 0;
-
-            if (cart.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-light);">Your cart is empty.</p>';
+            const host = $('cartItems');
+            $('cartFoot').hidden = !cart.length;
+            if (!cart.length) {
+                host.innerHTML = `<div class="cart-empty">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 01-8 0"/></svg>
+                    <h3>Your cart is empty</h3><p>Frames you add will show up here.</p></div>`;
+                return;
             }
-
-            cart.forEach((item, index) => {
-                total += item.price * item.quantity;
-                container.innerHTML += `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
-                        <div style="display: flex; gap: 1rem; align-items: center;">
-                            <img src="${item.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
-                            <div>
-                                <div style="font-weight: 500;">${item.name}</div>
-                                <div style="color: var(--text-light); font-size: 0.9rem;">₱${item.price.toLocaleString()}</div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 1rem;">
-                            <span>Qty: ${item.quantity}</span>
-                            <button class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; color: #dc3545; border-color: #dc3545;" onclick="removeFromCart(${index})">Remove</button>
+            host.innerHTML = cart.map((i, idx) => `
+                <div class="cart-line">
+                    <img src="${esc(OpticsImg.pick(i.image, i.name))}" alt="" class="product-img cart-img">
+                    <div>
+                        <h4>${esc(i.name)}</h4>
+                        <div class="muted">${peso(i.price)} each</div>
+                        <div class="stepper" role="group" aria-label="Quantity for ${esc(i.name)}">
+                            <button type="button" data-dec="${idx}" aria-label="Decrease quantity">&minus;</button>
+                            <span>${i.quantity}</span>
+                            <button type="button" data-inc="${idx}" aria-label="Increase quantity">+</button>
                         </div>
                     </div>
-                `;
-            });
-            document.getElementById('cartTotal').textContent = `₱${total.toLocaleString()}`;
+                    <div>
+                        <div class="line-total">${peso(i.price * i.quantity)}</div>
+                        <button type="button" class="remove" data-rm="${idx}">Remove</button>
+                    </div>
+                </div>`).join('');
+            $('cartTotal').textContent = peso(cartSum());
+            $('coTotal').textContent = peso(cartSum());
         }
 
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            updateCartCount();
-            renderCart();
-            if(cart.length === 0) {
-                document.getElementById('checkoutBtn').style.display = 'none';
-                document.getElementById('checkoutForm').style.display = 'none';
-            }
-        }
+        function openCart() { renderCart(); showStep('items'); openLayer($('cartLayer')); }
+        $('openCartBtn').addEventListener('click', (e) => { e.preventDefault(); openCart(); });
 
-        function showCheckoutForm() {
-            document.getElementById('checkoutBtn').style.display = 'none';
-            document.getElementById('checkoutForm').style.display = 'block';
-        }
+        $('cartItems').addEventListener('click', (e) => {
+            const inc = e.target.closest('[data-inc]'), dec = e.target.closest('[data-dec]'), rm = e.target.closest('[data-rm]');
+            if (inc) cart[+inc.dataset.inc].quantity++;
+            else if (dec) { const r = cart[+dec.dataset.dec]; r.quantity > 1 ? r.quantity-- : cart.splice(+dec.dataset.dec, 1); }
+            else if (rm) cart.splice(+rm.dataset.rm, 1);
+            else return;
+            updateCartUI(); renderCart();
+        });
 
-        async function handleCheckout(e) {
+        $('toCheckout').addEventListener('click', () => { $('coError').hidden = true; showStep('checkout'); $('coName').focus(); });
+        $('backToItems').addEventListener('click', () => showStep('items'));
+
+        $('checkoutForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const orderData = {
-                customerName: document.getElementById('coName').value,
-                email: document.getElementById('coEmail').value,
-                contactNumber: document.getElementById('coPhone').value,
-                paymentMethod: document.getElementById('coPayment').value,
-                totalAmount: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-                items: cart.map(i => ({ productId: i.productId, quantity: i.quantity, price: i.price }))
-            };
-
-            try {
-                const response = await fetch('api/orders.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(orderData)
-                });
-                
-                if(response.ok) {
-                    alert('Order placed successfully! We will contact you shortly.');
-                    cart = [];
-                    updateCartCount();
-                    closeCart();
-                } else {
-                    alert('Error placing order. Please try again.');
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Could not connect to the backend server. Make sure it is running.');
+            const form = e.currentTarget, err = $('coError'), btn = $('placeOrder');
+            err.hidden = true;
+            if (!form.checkValidity()) {
+                err.textContent = 'Please complete your name, a valid email and a contact number.';
+                err.hidden = false; form.reportValidity(); return;
             }
-        }
-
-        // Initialize cart count
-        updateCartCount();
+            const order = {
+                customerName: $('coName').value.trim(),
+                email: $('coEmail').value.trim(),
+                contactNumber: $('coPhone').value.trim(),
+                paymentMethod: $('coPayment').value,
+                totalAmount: cartSum(),
+                items: cart.map((i) => ({ productId: i.productId, quantity: i.quantity, price: i.price }))
+            };
+            btn.disabled = true; btn.textContent = 'Placing order...';
+            try {
+                const res = await fetch('api/orders.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(order) });
+                if (!res.ok) throw new Error('status ' + res.status);
+                cart = []; updateCartUI(); form.reset(); showStep('done');
+            } catch (ex) {
+                console.error(ex);
+                err.textContent = 'We could not place your order. Please try again in a moment.';
+                err.hidden = false;
+            } finally {
+                btn.disabled = false; btn.textContent = 'Place order';
+            }
+        });
     </script>
 </body>
 </html>

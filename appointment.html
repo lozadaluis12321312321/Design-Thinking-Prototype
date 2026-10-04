@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Appointment | One Optics Clinic</title>
+    <meta name="description" content="Book an eye examination or eyewear consultation at One Optics Clinic in Malate, Manila. Choose your doctor, date and time online.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="css/style.css?v=16">
     <script>
         if (localStorage.getItem('oneOpticsTheme') === 'dark') {
             document.documentElement.classList.add('dark-mode');
@@ -15,518 +16,419 @@
         }
     </script>
     <style>
-        .appointment-layout {
-            display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: 4rem;
-            margin-top: 3rem;
-            margin-bottom: 5rem;
-        }
-        @media (max-width: 768px) {
-            .appointment-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-        .info-panel {
-            background: linear-gradient(160deg, #a8121f, #6e0a16);
-            color: #fff;
-            padding: 3rem 2rem;
-            border-radius: var(--radius-lg);
-            height: fit-content;
-            position: sticky;
-            top: 110px;
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-        }
-        .info-panel::after {
-            content: '';
-            position: absolute;
-            right: -80px; bottom: -80px;
-            width: 260px; height: 260px;
-            border-radius: 50%;
-            border: 1.5px solid rgba(255,255,255,0.18);
-            box-shadow: 0 0 0 40px rgba(255,255,255,0.04), 0 0 0 80px rgba(255,255,255,0.03);
-            pointer-events: none;
-        }
-        .info-panel li { transition: transform 0.3s var(--ease); }
-        .info-panel li:hover { transform: translateX(6px); }
-        .info-panel li::marker { color: var(--accent-color); }
-        .info-panel h3 {
-            color: #fff;
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
-        }
-        .info-panel p {
-            color: #ffe6e6;
-            margin-bottom: 1.5rem;
-        }
-        .form-panel {
-            background: var(--bg-color);
-            padding: 3rem;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border-color);
-        }
-        .notice {
-            background-color: color-mix(in srgb, var(--accent-color) 12%, transparent);
-            color: var(--text-dark);
-            padding: 1rem 1.1rem;
-            border-radius: var(--radius-sm);
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-            border-left: 4px solid var(--accent-color);
-        }
-        .section-label {
-            font-size: 1.05rem;
-            color: var(--text-dark);
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.6rem;
-            border-bottom: 1px solid var(--border-color);
-            position: relative;
-        }
-        .section-label::after {
-            content: '';
-            position: absolute;
-            left: 0; bottom: -1px;
-            width: 44px; height: 2px;
-            background: var(--primary-color);
-            transition: width 0.5s var(--ease);
-        }
-        .form-panel:hover .section-label::after { width: 88px; }
-        .review-panel {
-            background: var(--bg-light);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border-color);
-            border-left: 4px solid var(--primary-color);
-            display: none; /* Shown before submit */
-            animation: pop-in 0.4s var(--ease);
-        }
-        .review-panel p { margin-bottom: 0.35rem; }
-        #submitBtn { animation: pop-in 0.4s var(--ease); }
+        .booking { display: grid; grid-template-columns: 0.8fr 1.6fr; gap: 3rem; align-items: start; padding-bottom: 5rem; }
+        .info-panel { position: sticky; top: 100px; padding: 2.5rem 2rem; border-radius: var(--radius-lg); background: var(--brand-gradient); color: #fff; overflow: hidden; }
+        .info-panel::after { content: ''; position: absolute; right: -80px; bottom: -80px; width: 260px; height: 260px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.18); box-shadow: 0 0 0 40px rgba(255,255,255,0.04), 0 0 0 80px rgba(255,255,255,0.03); pointer-events: none; }
+        .info-panel h2 { color: #fff; font-size: 1.7rem; margin-bottom: 1rem; }
+        .info-panel p { color: #f6dcdc; margin-bottom: 1.5rem; }
+        .info-panel h3 { color: #fff; font-size: 1rem; margin: 1.75rem 0 0.9rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.2); }
+        .info-panel ul { display: grid; gap: 0.7rem; }
+        .info-panel li { position: relative; padding-left: 1.6rem; color: #fff; font-size: 0.95rem; }
+        .info-panel li::before { content: ''; position: absolute; left: 0; top: 0.35em; width: 14px; height: 14px; background: #fff; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / contain no-repeat; }
+
+        .form-panel { padding: 2.5rem; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border-color); box-shadow: var(--shadow-md); }
+        .form-panel > h1 { font-size: 2rem; margin-bottom: 0.5rem; letter-spacing: -0.03em; }
+        .notice { margin-bottom: 1.75rem; padding: 0.9rem 1.1rem; border-radius: var(--radius-sm); background: var(--bg-light); border-left: 4px solid var(--primary-color); font-size: 0.9rem; }
+
+        .progress { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 2rem; list-style: none; }
+        .pstep { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.2rem; border: none; background: none; font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--text-light); text-align: left; cursor: pointer; border-top: 3px solid var(--border-color); transition: border-color 0.25s ease, color 0.25s ease; }
+        .pstep .n { width: 24px; height: 24px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--bg-light); border: 1.5px solid var(--border-color); font-size: 0.75rem; transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
+        .pstep.is-current { color: var(--text-dark); border-color: var(--primary-color); }
+        .pstep.is-current .n { border-color: var(--primary-color); color: var(--primary-color); }
+        .pstep.is-done { color: var(--text-dark); border-color: var(--primary-color); }
+        .pstep.is-done .n { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
+
+        .section-label { display: flex; align-items: center; gap: 0.6rem; font-size: 1.05rem; margin: 2rem 0 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-color); scroll-margin-top: 100px; }
+        .section-label:first-of-type { margin-top: 0; }
+        .section-label small { font-weight: 500; color: var(--text-light); font-size: 0.82rem; }
+
+        button.doctor-card { width: 100%; text-align: left; font: inherit; color: inherit; }
+        .doctor-cta { display: inline-block; margin-top: 0.3rem; padding: 0.2rem 0.75rem; border-radius: 999px; border: 1.5px solid var(--border-color); font-size: 0.78rem; font-weight: 600; color: var(--text-light); }
+        .doctor-card.selected .doctor-cta { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
+        .doctor-skel { height: 96px; border-radius: var(--border-radius); background: var(--bg-light); margin-bottom: 1rem; position: relative; overflow: hidden; }
+        .doctor-skel::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--surface) 80%, transparent) 50%, transparent 80%); transform: translateX(-100%); animation: shimmer 1.4s infinite; }
+
+        .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 0.6rem; }
+        .slot { flex-direction: column; gap: 0; padding: 0.6rem 0.4rem; justify-content: center; border-radius: 12px; }
+        .slot small { font-size: 0.7rem; font-weight: 500; color: var(--text-light); }
+        .slot:disabled { opacity: 0.5; cursor: not-allowed; }
+        .slot[data-state] strong { text-decoration: line-through; }
+        .slot:disabled:hover { border-color: var(--border-color); }
+        .slot-hint { color: var(--text-light); font-size: 0.9rem; margin-top: 0.6rem; }
+
+        .review-panel { margin-bottom: 1.5rem; padding: 1.5rem; border-radius: var(--border-radius); background: var(--bg-light); border: 1px solid var(--border-color); border-left: 4px solid var(--primary-color); animation: pop-in 0.3s var(--ease); }
+        .review-panel h3 { font-size: 1.05rem; margin-bottom: 1rem; }
+        .summary { display: grid; grid-template-columns: auto 1fr; gap: 0.5rem 1.25rem; margin: 0; }
+        .summary dt { color: var(--text-light); font-size: 0.88rem; }
+        .summary dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+        .form-actions { display: flex; gap: 0.8rem; margin-top: 2rem; flex-wrap: wrap; }
+        .form-actions .btn { flex: 1; }
+
+        #bookingSuccess { text-align: center; padding: 1.5rem 0; }
+        #bookingSuccess > * { animation: rise 0.5s var(--ease) both; }
+        #bookingSuccess > :nth-child(3) { animation-delay: 0.12s; }
         .tick { width: 84px; height: 84px; margin: 0 auto 1.25rem; display: block; }
-        .tick circle { stroke: var(--success); stroke-width: 3; fill: color-mix(in srgb, var(--success) 12%, transparent); stroke-dasharray: 170; stroke-dashoffset: 170; animation: draw 0.7s var(--ease) forwards; }
-        .tick path { stroke: var(--success); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; fill: none; stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw 0.45s var(--ease) 0.5s forwards; }
-        @keyframes draw { to { stroke-dashoffset: 0; } }
-        #bookingSuccess > * { animation: rise 0.6s var(--ease) both; }
-        #bookingSuccess > :nth-child(3) { animation-delay: 0.15s; }
-        @media (max-width: 768px) {
+        #bookingSuccess h2 { margin-bottom: 0.4rem; }
+        #bookingSuccess .summary-card { text-align: left; margin: 1.75rem 0; padding: 1.5rem; border-radius: var(--border-radius); background: var(--bg-light); border: 1px solid var(--border-color); }
+        .success-actions { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; }
+
+        @media (max-width: 960px) {
+            .booking { grid-template-columns: 1fr; gap: 2rem; }
             .info-panel { position: static; }
-            .form-panel { padding: 1.75rem 1.25rem; }
-            #appointmentForm div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; gap: 0 !important; }
+        }
+        @media (max-width: 600px) {
+            .form-panel { padding: 1.5rem 1.15rem; }
+            .progress { grid-template-columns: repeat(2, 1fr); }
+            .pstep { font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation -->
-    <header>
-        <div class="container navbar">
-            <div class="logo">
-                <a href="index.html" style="color: inherit; text-decoration: none;">ONE OPTICS Clinic</a>
-                <span class="tagline">Clear Vision • Brighter Tomorrow</span>
-            </div>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="catalog.html">Eyewear</a></li>
-                    <li><a href="appointment.html" class="active">Appointments</a></li>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                    <li><a href="admin-login.html">Admin</a></li>
-                    <li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">🌙</button></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+    <header id="site-header"></header>
+    <script src="js/ui-core.js?v=16"></script>
 
-    <div class="container">
-        <div class="appointment-layout">
-            
-            <div class="info-panel">
-                <h3>Schedule Your Visit</h3>
+    <main id="main-content">
+        <section class="page-head">
+            <div class="container">
+                <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span>Book appointment</span></nav>
+                <h1>Schedule your visit</h1>
+                <p>Pick a doctor, a date and a time. The clinic confirms your request and updates your status.</p>
+            </div>
+        </section>
+
+        <div class="container booking">
+            <aside class="info-panel" aria-label="What to expect">
+                <h2>What to expect</h2>
                 <p>Book a comprehensive eye examination or a consultation for optical services with our experienced professionals.</p>
-                
-                <hr style="border-color: rgba(255,255,255,0.2); margin: 2rem 0;">
-                
-                <h4 style="color: #fff; margin-bottom: 1rem;">What to expect:</h4>
-                <ul style="color: #ffe6e6; padding-left: 1.2rem; line-height: 1.8;">
+                <h3>At your visit</h3>
+                <ul>
                     <li>Professional visual acuity tests</li>
                     <li>Detailed eye health screening</li>
                     <li>Prescription updates</li>
                     <li>Personalized eyewear recommendations</li>
                 </ul>
-            </div>
+                <h3>Need help?</h3>
+                <p style="margin:0">Call <a href="tel:+639561277149" style="color:#fff; font-weight:700; text-decoration:underline;">0956 127 7149</a> and we will book you in.</p>
+            </aside>
 
             <div class="form-panel">
-                <h2 style="font-size: 2rem; margin-bottom: 1rem; color: var(--primary-color);">Book an Appointment</h2>
-                
-                <div class="notice">
-                    <strong>Please Note:</strong> Appointments requested online are subject to clinic confirmation. You will receive a status update from our admin team.
-                </div>
+                <h1>Book an appointment</h1>
+                <div class="notice"><strong>Please note:</strong> online requests are subject to clinic confirmation. You will receive a status update from our team.</div>
 
-                <form id="appointmentForm" onsubmit="handleAppointmentSubmit(event)">
-                    
-                    <h3 class="section-label">1. Customer Information</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <ol class="progress" id="progress" aria-label="Booking progress">
+                    <li><button type="button" class="pstep is-current" data-step="s1"><span class="n">1</span>Your details</button></li>
+                    <li><button type="button" class="pstep" data-step="s2"><span class="n">2</span>Doctor</button></li>
+                    <li><button type="button" class="pstep" data-step="s3"><span class="n">3</span>Date &amp; time</button></li>
+                    <li><button type="button" class="pstep" data-step="s4"><span class="n">4</span>Review</button></li>
+                </ol>
+
+                <form id="appointmentForm" novalidate>
+                    <h2 class="section-label" id="s1">Your details</h2>
+                    <div class="form-row">
                         <div class="form-group">
-                            <label for="fullName">Full Name *</label>
-                            <input type="text" id="fullName" class="form-control" required>
+                            <label for="fullName">Full name *</label>
+                            <input type="text" id="fullName" class="form-control" autocomplete="name" required>
+                            <p class="field-error" hidden></p>
                         </div>
                         <div class="form-group">
-                            <label for="contactNumber">Contact Number *</label>
-                            <input type="tel" id="contactNumber" class="form-control" required>
+                            <label for="contactNumber">Contact number *</label>
+                            <input type="tel" id="contactNumber" class="form-control" autocomplete="tel" inputmode="tel" required>
+                            <p class="field-error" hidden></p>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="email">Email Address *</label>
-                        <input type="email" id="email" class="form-control" required>
+                        <label for="email">Email address *</label>
+                        <input type="email" id="email" class="form-control" autocomplete="email" required>
+                        <p class="field-error" hidden></p>
                     </div>
 
-                    <h3 class="section-label">2. Choose Your Doctor</h3>
-                    <div id="doctor-list">
-                        <!-- Populated by JS -->
+                    <h2 class="section-label" id="s2">Choose your doctor</h2>
+                    <div id="doctor-list" role="radiogroup" aria-label="Doctors">
+                        <div class="doctor-skel"></div><div class="doctor-skel"></div>
                     </div>
-                    <input type="hidden" id="selectedDoctorId" required>
+                    <input type="hidden" id="selectedDoctorId">
+                    <p class="field-error" id="doctorError" role="alert" hidden>Please choose a doctor.</p>
 
-                    <h3 class="section-label">3. Appointment Type</h3>
+                    <h2 class="section-label" id="s3">Appointment details</h2>
                     <div class="form-group">
+                        <label for="type">Appointment type</label>
                         <select id="type" class="form-control" required>
                             <option value="" disabled selected>Select an appointment type</option>
                             <option value="Eye Examination">Eye Examination</option>
                             <option value="Eyewear Fitting/Consultation">Eyewear Fitting/Consultation</option>
                             <option value="Repair/Adjustment">Repair/Adjustment</option>
                         </select>
+                        <p class="field-error" hidden></p>
                     </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                        <div>
-                            <h3 class="section-label">4. Choose Date</h3>
-                            <div class="form-group">
-                                <input type="date" id="date" class="form-control" required>
-                            </div>
-                        </div>
-                        <div>
-                            <h3 class="section-label">5. Choose Time</h3>
-                            <div class="form-group">
-                                <select id="time" class="form-control" required>
-                                    <option value="" disabled selected>Select a time</option>
-                                    <option value="10:00 AM">10:00 AM</option>
-                                    <option value="11:00 AM">11:00 AM</option>
-                                    <option value="1:00 PM">1:00 PM</option>
-                                    <option value="2:00 PM">2:00 PM</option>
-                                    <option value="3:00 PM">3:00 PM</option>
-                                    <option value="4:00 PM">4:00 PM</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h3 class="section-label">6. Additional Notes</h3>
                     <div class="form-group">
-                        <textarea id="notes" class="form-control" rows="3" placeholder="Tell us if you have specific concerns or are looking for a specific product."></textarea>
+                        <label for="date">Date</label>
+                        <input type="date" id="date" class="form-control" required>
+                        <p class="field-error" hidden></p>
+                    </div>
+                    <div class="form-group">
+                        <label id="timeLabel">Time</label>
+                        <div class="slots" id="slots" role="radiogroup" aria-labelledby="timeLabel"></div>
+                        <input type="hidden" id="time">
+                        <p class="slot-hint" id="slotHint">Choose a doctor and a date to see open times.</p>
+                        <p class="field-error" id="timeError" role="alert" hidden>Please choose a time.</p>
                     </div>
 
-                    <div class="review-panel" id="reviewPanel">
-                        <h4 style="margin-bottom: 1rem; color: var(--primary-color);">7. Review Appointment</h4>
-                        <p><strong>Name:</strong> <span id="revName"></span></p>
-                        <p><strong>Doctor:</strong> <span id="revDoctor"></span></p>
-                        <p><strong>Type:</strong> <span id="revType"></span></p>
-                        <p><strong>Date & Time:</strong> <span id="revDateTime"></span></p>
+                    <div class="form-group">
+                        <label for="notes">Notes <small style="font-weight:500;color:var(--text-light)">(optional)</small></label>
+                        <textarea id="notes" class="form-control" rows="3" placeholder="Tell us about any concerns or the product you are interested in."></textarea>
                     </div>
 
-                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                        <button type="button" class="btn btn-outline" id="reviewBtn" onclick="showReview()" style="flex: 1;">Review Details</button>
-                        <button type="submit" class="btn btn-primary" id="submitBtn" style="flex: 1; display: none;">8. Confirm Booking</button>
+                    <div class="review-panel" id="reviewPanel" hidden>
+                        <h3 id="s4">Review your appointment</h3>
+                        <dl class="summary">
+                            <dt>Name</dt><dd id="revName"></dd>
+                            <dt>Contact</dt><dd id="revContact"></dd>
+                            <dt>Doctor</dt><dd id="revDoctor"></dd>
+                            <dt>Type</dt><dd id="revType"></dd>
+                            <dt>When</dt><dd id="revWhen"></dd>
+                        </dl>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="reviewBtn">Review details <span class="arr" aria-hidden="true">&rarr;</span></button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn" hidden>Confirm booking</button>
                     </div>
                 </form>
 
-                <div id="bookingSuccess" style="display: none; text-align: center; padding: 3rem 0;">
+                <div id="bookingSuccess" hidden>
                     <svg class="tick" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27"/><path d="M20 33l8 8 17-18"/></svg>
-                    <h2 style="margin-bottom: 1rem; color: var(--primary-color);">Request submitted</h2>
-                    
-                    <div style="background: var(--bg-light); padding: 2rem; border-radius: var(--border-radius); text-align: left; margin-bottom: 2rem; border: 1px solid var(--border-color);">
-                        <h4 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Appointment Summary</h4>
-                        <p><strong>Customer Name:</strong> <span id="confName"></span></p>
-                        <p><strong>Doctor:</strong> <span id="confDoctor"></span></p>
-                        <p><strong>Appointment Type:</strong> <span id="confType"></span></p>
-                        <p><strong>Date:</strong> <span id="confDate"></span></p>
-                        <p><strong>Time:</strong> <span id="confTime"></span></p>
-                        <p><strong>Status:</strong> <span style="color: #f1c40f; font-weight: bold;">Pending</span></p>
-                        
-                        <hr style="border: 0; border-top: 1px dashed var(--border-color); margin: 1rem 0;">
-                        
-                        <p><strong>Clinic:</strong> ONE OPTICS Clinic</p>
-                        <p><strong>Contact:</strong> 0956 127 7149</p>
+                    <h2>Request submitted</h2>
+                    <div class="summary-card">
+                        <dl class="summary">
+                            <dt>Name</dt><dd id="confName"></dd>
+                            <dt>Doctor</dt><dd id="confDoctor"></dd>
+                            <dt>Type</dt><dd id="confType"></dd>
+                            <dt>When</dt><dd id="confWhen"></dd>
+                            <dt>Status</dt><dd>Pending confirmation</dd>
+                            <dt>Clinic</dt><dd>One Optics Clinic &middot; 0956 127 7149</dd>
+                        </dl>
                     </div>
-
-                    <p style="color: var(--text-light); margin-bottom: 2rem;">Your appointment request has been submitted. Please wait for confirmation from One Optics Clinic.</p>
-                    <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Home</button>
-                    <button class="btn btn-outline" onclick="resetForm()" style="margin-left: 1rem;">Book Another</button>
+                    <p style="color:var(--text-light); margin-bottom:1.75rem;">We will confirm your request shortly. Keep this time free in your calendar.</p>
+                    <div class="success-actions">
+                        <button type="button" class="btn btn-primary" id="icsBtn">Add to calendar</button>
+                        <button type="button" class="btn btn-outline" id="againBtn">Book another</button>
+                        <a href="index.html" class="btn btn-ghost">Back to home</a>
+                    </div>
                 </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-col">
-                    <h3>ONE OPTICS Clinic</h3>
-                    <p style="font-style: italic; color: var(--accent-color); margin-bottom: 1rem;">Clear Vision • Brighter Tomorrow</p>
-                    <p>Your trusted partner for professional eye care and premium eyewear in Manila.</p>
-                </div>
-                <div class="footer-col">
-                    <h3>Quick Links</h3>
-                    <a href="index.html">Home</a>
-                    <a href="catalog.html">Eyewear Catalog</a>
-                    <a href="appointment.html">Book Appointment</a>
-                    <a href="about.html">About Us</a>
-                </div>
-                <div class="footer-col">
-                    <h3>Contact Us</h3>
-                    <p>2598 Singalong Street<br>Vito Cruz, Malate, Manila</p>
-                    <p>0956 127 7149</p>
-                    <p>one_optics@yahoo.com</p>
-                </div>
-                <div class="footer-col">
-                    <h3>Operating Hours</h3>
-                    <p>Clinic hours to be confirmed.</p>
-                    <p><em>(Closed · Opens 10 AM based on initial listing)</em></p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                &copy; <span id="currentYear"></span> One Optics Clinic. All rights reserved. | Developed by Luis Agastine Lozada, BSIT
             </div>
         </div>
-    </footer>
+    </main>
 
-    <!-- Error Modal -->
-    <div id="errorModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 400px; text-align: center; padding: 2rem; margin: auto;">
-            <div style="margin-bottom: 1rem;">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-color);">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                  <line x1="3" y1="10" x2="21" y2="10"></line>
-                  <line x1="10" y1="14" x2="14" y2="18"></line>
-                  <line x1="14" y1="14" x2="10" y2="18"></line>
-                </svg>
-            </div>
-            <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--primary-color);">Oh oh!</h2>
-            <p id="errorModalText" style="color: var(--text-light); margin-bottom: 1.5rem;">The doctor is not available in this time period.</p>
-            <button class="btn" style="width: 100%;" onclick="document.getElementById('errorModal').style.display='none'">Pick Another Time</button>
-        </div>
-    </div>
+    <footer id="site-footer"></footer>
 
     <script src="js/database.js"></script>
-    <script src="js/theme.js?v=4"></script>
-    <script src="js/ui.js?v=4"></script>
-    
+    <script src="js/theme.js?v=16"></script>
+    <script src="js/ui.js?v=16"></script>
+
     <script>
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const { toast, esc } = window.OpticsUI;
+        const $ = (id) => document.getElementById(id);
+        const SLOTS = ['10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'];
+        const pad = (n) => String(n).padStart(2, '0');
+        const localISO = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        const to24 = (t) => { const m = /(\d+):(\d+)\s*(AM|PM)/i.exec(t); let h = (+m[1]) % 12; if (/pm/i.test(m[3])) h += 12; return [h, +m[2]]; };
+        const prettyDate = (iso) => new Date(iso + 'T00:00:00').toLocaleDateString('en-PH', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
-        // Prevent selecting past dates
-        const dateInput = document.getElementById('date');
-        const today = new Date().toISOString().split('T')[0];
-        dateInput.setAttribute('min', today);
+        let doctors = [];
+        let booked = [];
+        let last = null;
 
-        // Load Doctors
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const doctors = await window.OpticsDB.getDoctors();
-                const doctorList = document.getElementById('doctor-list');
-                
-                if (doctors.length === 0) {
-                    doctorList.innerHTML = '<p style="color: var(--text-light);">No doctors available at the moment.</p>';
-                    return;
-                }
+        $('date').min = localISO(new Date());
 
-                doctors.forEach(doc => {
-                    const card = document.createElement('div');
-                    card.className = 'doctor-card';
-                    card.onclick = () => selectDoctor(doc.id, card);
-                    card.innerHTML = `
-                        <img src="${doc.image}" alt="${doc.name}" class="doctor-img">
-                        <div class="doctor-info">
-                            <h4>${doc.name}</h4>
-                            <p>${doc.role}</p>
-                            <button type="button" class="btn btn-outline" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;">Select Doctor</button>
-                        </div>
-                    `;
-                    doctorList.appendChild(card);
-                });
-            } catch(e) {
-                console.error(e);
-                document.getElementById('doctor-list').innerHTML = '<p>Error loading doctors. Ensure backend is running.</p>';
-            }
+        /* ---------- inline validation ---------- */
+        const rules = {
+            fullName: (v) => v.trim().length >= 2 || 'Please enter your full name.',
+            contactNumber: (v) => /^[+0-9()\-\s]{7,20}$/.test(v.trim()) || 'Please enter a valid contact number.',
+            email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) || 'Please enter a valid email address.',
+            type: (v) => !!v || 'Please choose an appointment type.',
+            date: (v) => (!!v && v >= localISO(new Date())) || 'Please choose today or a future date.'
+        };
+        function check(id) {
+            const el = $(id), res = rules[id](el.value), ok = res === true;
+            const err = el.parentElement.querySelector('.field-error');
+            el.setAttribute('aria-invalid', String(!ok));
+            err.textContent = ok ? '' : res; err.hidden = ok;
+            return ok;
+        }
+        Object.keys(rules).forEach((id) => {
+            $(id).addEventListener('blur', () => check(id));
+            $(id).addEventListener('input', () => { if ($(id).getAttribute('aria-invalid') === 'true') check(id); progress(); invalidateReview(); });
+            $(id).addEventListener('change', () => { progress(); invalidateReview(); });
         });
 
-        function selectDoctor(id, element) {
-            // Remove selected class from all
-            document.querySelectorAll('.doctor-card').forEach(el => {
-                el.classList.remove('selected');
-                el.querySelector('.btn').textContent = 'Select Doctor';
-                el.querySelector('.btn').className = 'btn btn-outline';
+        /* ---------- progress ---------- */
+        const valid = (id) => rules[id]($(id).value) === true;
+        function progress() {
+            const done = [
+                valid('fullName') && valid('contactNumber') && valid('email'),
+                !!$('selectedDoctorId').value,
+                valid('type') && valid('date') && !!$('time').value,
+                !$('reviewPanel').hidden
+            ];
+            const firstOpen = done.indexOf(false);
+            document.querySelectorAll('.pstep').forEach((b, i) => {
+                b.classList.toggle('is-done', done[i]);
+                b.classList.toggle('is-current', i === firstOpen);
+                if (i === firstOpen) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
             });
-            // Add to clicked
-            element.classList.add('selected');
-            element.querySelector('.btn').textContent = 'Selected';
-            element.querySelector('.btn').className = 'btn btn-primary';
-            document.getElementById('selectedDoctorId').value = id;
-            
-            // Hide review panel if it was open to force re-review
-            document.getElementById('reviewPanel').style.display = 'none';
-            document.getElementById('submitBtn').style.display = 'none';
-            document.getElementById('reviewBtn').style.display = 'block';
-            
-            updateAvailableTimes();
         }
+        document.querySelectorAll('.pstep').forEach((b) => b.addEventListener('click', () => {
+            const t = $(b.dataset.step); if (t) { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        }));
 
-        async function updateAvailableTimes() {
-            const docId = document.getElementById('selectedDoctorId').value;
-            const date = document.getElementById('date').value;
-            const timeSelect = document.getElementById('time');
-            
-            // Reset all options first
-            Array.from(timeSelect.options).forEach(opt => {
-                if (opt.value !== "") {
-                    opt.disabled = false;
-                    opt.text = opt.value;
-                }
-            });
-
-            if (docId && date) {
-                try {
-                    const unavailableTimes = await window.OpticsDB.getUnavailableTimes(docId, date);
-                    let selectedIsNowDisabled = false;
-                    
-                    Array.from(timeSelect.options).forEach(opt => {
-                        if (unavailableTimes.includes(opt.value)) {
-                            opt.disabled = true;
-                            opt.text = `${opt.value} (Booked)`;
-                            if (timeSelect.value === opt.value) {
-                                selectedIsNowDisabled = true;
-                            }
-                        }
-                    });
-                    
-                    if (selectedIsNowDisabled) {
-                        timeSelect.value = ""; // Reset if selected is now booked
-                    }
-                } catch (e) {
-                    console.error("Error fetching available times", e);
-                }
-            }
-        }
-
-        document.getElementById('date').addEventListener('change', updateAvailableTimes);
-
-        async function showReview() {
-            // Basic validation
-            const form = document.getElementById('appointmentForm');
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-            if (!document.getElementById('selectedDoctorId').value) {
-                alert("Please select a doctor.");
-                return;
-            }
-
-            // Populate Review
-            document.getElementById('revName').textContent = document.getElementById('fullName').value;
-            const docId = document.getElementById('selectedDoctorId').value;
-            const doctor = await window.OpticsDB.getDoctorById(docId);
-            document.getElementById('revDoctor').textContent = doctor ? doctor.name : 'Unknown';
-            document.getElementById('revType').textContent = document.getElementById('type').value;
-            document.getElementById('revDateTime').textContent = `${document.getElementById('date').value} at ${document.getElementById('time').value}`;
-
-            document.getElementById('reviewPanel').style.display = 'block';
-            document.getElementById('reviewBtn').style.display = 'none';
-            document.getElementById('submitBtn').style.display = 'block';
-        }
-
-        async function handleAppointmentSubmit(event) {
-            event.preventDefault();
-            
-            if (!document.getElementById('selectedDoctorId').value) {
-                alert("Please select a doctor.");
-                return;
-            }
-
-            const docId = document.getElementById('selectedDoctorId').value;
-            const doctor = await window.OpticsDB.getDoctorById(docId);
-
-            const appointment = {
-                customerName: document.getElementById('fullName').value,
-                contactNumber: document.getElementById('contactNumber').value,
-                email: document.getElementById('email').value,
-                doctorId: docId,
-                doctorName: doctor ? doctor.name : 'Unknown',
-                date: document.getElementById('date').value,
-                time: document.getElementById('time').value,
-                type: document.getElementById('type').value,
-                notes: document.getElementById('notes').value
-            };
-
-            // Save to Backend
+        /* ---------- doctors ---------- */
+        document.addEventListener('DOMContentLoaded', async () => {
+            const list = $('doctor-list');
             try {
-                await window.OpticsDB.bookAppointment(appointment);
-            } catch (error) {
-                document.getElementById('errorModalText').textContent = error.message || "The doctor is not available in this time period. Please try a different time or doctor.";
-                document.getElementById('errorModal').style.display = 'flex';
-                return; // Stop execution if booking fails
+                doctors = await window.OpticsDB.getDoctors();
+                if (!doctors.length) { list.innerHTML = '<p style="color:var(--text-light)">No doctors are available at the moment. Please call the clinic to book.</p>'; return; }
+                list.innerHTML = doctors.map((d) => `
+                    <button type="button" class="doctor-card" role="radio" aria-checked="false" data-id="${esc(d.id)}">
+                        <img src="${esc(d.image)}" alt="" class="doctor-img">
+                        <span class="doctor-info"><h4>${esc(d.name)}</h4><p>${esc(d.role)}</p><span class="doctor-cta">Select</span></span>
+                    </button>`).join('');
+            } catch (e) {
+                console.error(e);
+                list.innerHTML = '<p style="color:var(--danger)">We could not load the doctors. Please refresh, or call the clinic to book.</p>';
             }
+            progress();
+        });
 
-            // Populate Confirmation screen
-            document.getElementById('confName').textContent = appointment.customerName;
-            document.getElementById('confDoctor').textContent = appointment.doctorName;
-            document.getElementById('confType').textContent = appointment.type;
-            document.getElementById('confDate').textContent = appointment.date;
-            document.getElementById('confTime').textContent = appointment.time;
+        $('doctor-list').addEventListener('click', (e) => {
+            const card = e.target.closest('.doctor-card'); if (!card) return;
+            document.querySelectorAll('.doctor-card').forEach((c) => {
+                const on = c === card;
+                c.classList.toggle('selected', on);
+                c.setAttribute('aria-checked', String(on));
+                c.querySelector('.doctor-cta').textContent = on ? 'Selected' : 'Select';
+            });
+            $('selectedDoctorId').value = card.dataset.id;
+            $('doctorError').hidden = true;
+            invalidateReview(); loadSlots(); progress();
+        });
 
-            // Show success message
-            document.getElementById('appointmentForm').style.display = 'none';
-            document.querySelector('.notice').style.display = 'none';
-            document.getElementById('bookingSuccess').style.display = 'block';
-            window.scrollTo(0, 0);
+        /* ---------- time slots ---------- */
+        async function loadSlots() {
+            const docId = $('selectedDoctorId').value, date = $('date').value;
+            booked = [];
+            if (docId && date && date >= localISO(new Date())) {
+                try { booked = await window.OpticsDB.getUnavailableTimes(docId, date); }
+                catch (e) { console.error(e); toast('Could not check available times. Please try again.', 'error'); }
+            }
+            if (booked.includes($('time').value)) $('time').value = '';
+            renderSlots();
         }
 
-        function resetForm() {
-            document.getElementById('appointmentForm').reset();
-            
-            // reset UI state
-            document.querySelectorAll('.doctor-card').forEach(el => {
-                el.classList.remove('selected');
-                el.querySelector('.btn').textContent = 'Select Doctor';
-                el.querySelector('.btn').className = 'btn btn-outline';
-            });
-            document.getElementById('selectedDoctorId').value = '';
-            document.getElementById('reviewPanel').style.display = 'none';
-            document.getElementById('submitBtn').style.display = 'none';
-            document.getElementById('reviewBtn').style.display = 'block';
-
-            document.getElementById('appointmentForm').style.display = 'block';
-            document.querySelector('.notice').style.display = 'block';
-            document.getElementById('bookingSuccess').style.display = 'none';
-            window.scrollTo(0, 0);
+        function renderSlots() {
+            const docId = $('selectedDoctorId').value, date = $('date').value;
+            const ready = !!(docId && date && date >= localISO(new Date()));
+            const now = new Date(), isToday = date === localISO(now), nowMin = now.getHours() * 60 + now.getMinutes();
+            const current = $('time').value;
+            $('slots').innerHTML = SLOTS.map((t) => {
+                const [h, m] = to24(t);
+                const taken = booked.includes(t), passed = isToday && h * 60 + m <= nowMin;
+                const off = !ready || taken || passed;
+                const note = taken ? 'Booked' : passed ? 'Passed' : 'Open';
+                return `<button type="button" class="chip slot" role="radio" aria-checked="${current === t}" aria-pressed="${current === t}" data-time="${t}" ${taken ? 'data-state="taken"' : passed ? 'data-state="passed"' : ''} ${off ? 'disabled' : ''}><strong>${t}</strong><small>${ready ? note : '-'}</small></button>`;
+            }).join('');
+            const open = SLOTS.filter((t) => { const [h, m] = to24(t); return !booked.includes(t) && !(isToday && h * 60 + m <= nowMin); }).length;
+            $('slotHint').textContent = !docId ? 'Choose a doctor to see open times.' : !date ? 'Choose a date to see open times.'
+                : open ? `${open} ${open === 1 ? 'time is' : 'times are'} open on ${prettyDate(date)}.` : 'No times are open on that day. Please try another date or doctor.';
+            progress();
         }
 
-        // if form fields change after review, require review again
-        document.querySelectorAll('#appointmentForm input, #appointmentForm select, #appointmentForm textarea').forEach(el => {
-            el.addEventListener('change', () => {
-                if (document.getElementById('reviewPanel').style.display === 'block') {
-                    document.getElementById('reviewPanel').style.display = 'none';
-                    document.getElementById('submitBtn').style.display = 'none';
-                    document.getElementById('reviewBtn').style.display = 'block';
-                }
-            });
+        $('slots').addEventListener('click', (e) => {
+            const b = e.target.closest('.slot'); if (!b || b.disabled) return;
+            $('time').value = b.dataset.time; $('timeError').hidden = true;
+            invalidateReview(); renderSlots();
+        });
+        $('date').addEventListener('change', () => { loadSlots(); });
+        renderSlots();
+
+        /* ---------- review + submit ---------- */
+        function invalidateReview() {
+            if ($('reviewPanel').hidden) return;
+            $('reviewPanel').hidden = true; $('submitBtn').hidden = true; $('reviewBtn').hidden = false; progress();
+        }
+
+        function validateAll() {
+            const bad = Object.keys(rules).filter((id) => !check(id));
+            const noDoc = !$('selectedDoctorId').value; $('doctorError').hidden = !noDoc;
+            const noTime = !$('time').value; $('timeError').hidden = !noTime;
+            if (bad.length) { $(bad[0]).focus(); }
+            else if (noDoc) { $('s2').scrollIntoView({ behavior: 'smooth' }); }
+            else if (noTime) { $('slots').scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+            if (bad.length || noDoc || noTime) { toast('Please complete the highlighted fields.', 'error'); return false; }
+            return true;
+        }
+
+        $('reviewBtn').addEventListener('click', () => {
+            if (!validateAll()) return;
+            const doc = doctors.find((d) => String(d.id) === $('selectedDoctorId').value);
+            $('revName').textContent = $('fullName').value.trim();
+            $('revContact').textContent = `${$('contactNumber').value.trim()} / ${$('email').value.trim()}`;
+            $('revDoctor').textContent = doc ? doc.name : 'Unknown';
+            $('revType').textContent = $('type').value;
+            $('revWhen').textContent = `${prettyDate($('date').value)}, ${$('time').value}`;
+            $('reviewPanel').hidden = false; $('reviewBtn').hidden = true; $('submitBtn').hidden = false;
+            progress(); $('reviewPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+
+        $('appointmentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!validateAll()) return;
+            const doc = doctors.find((d) => String(d.id) === $('selectedDoctorId').value);
+            const a = {
+                customerName: $('fullName').value.trim(), contactNumber: $('contactNumber').value.trim(), email: $('email').value.trim(),
+                doctorId: $('selectedDoctorId').value, doctorName: doc ? doc.name : 'Unknown',
+                date: $('date').value, time: $('time').value, type: $('type').value, notes: $('notes').value.trim()
+            };
+            const btn = $('submitBtn'); btn.disabled = true; btn.textContent = 'Booking...';
+            try {
+                await window.OpticsDB.bookAppointment(a);
+            } catch (err) {
+                toast(err.message || 'That time is no longer available. Please pick another time.', 'error', 5000);
+                $('time').value = ''; invalidateReview(); await loadSlots();
+                btn.disabled = false; btn.textContent = 'Confirm booking';
+                return;
+            }
+            last = a;
+            $('confName').textContent = a.customerName; $('confDoctor').textContent = a.doctorName; $('confType').textContent = a.type;
+            $('confWhen').textContent = `${prettyDate(a.date)}, ${a.time}`;
+            $('appointmentForm').hidden = true; $('progress').hidden = true; document.querySelector('.notice').hidden = true;
+            $('bookingSuccess').hidden = false;
+            btn.disabled = false; btn.textContent = 'Confirm booking';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        /* ---------- success actions ---------- */
+        $('againBtn').addEventListener('click', () => {
+            $('appointmentForm').reset();
+            document.querySelectorAll('.doctor-card').forEach((c) => { c.classList.remove('selected'); c.setAttribute('aria-checked', 'false'); c.querySelector('.doctor-cta').textContent = 'Select'; });
+            $('selectedDoctorId').value = ''; $('time').value = ''; booked = [];
+            $('reviewPanel').hidden = true; $('submitBtn').hidden = true; $('reviewBtn').hidden = false;
+            $('appointmentForm').hidden = false; $('progress').hidden = false; document.querySelector('.notice').hidden = false; $('bookingSuccess').hidden = true;
+            document.querySelectorAll('.form-control').forEach((el) => el.removeAttribute('aria-invalid'));
+            renderSlots(); window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        $('icsBtn').addEventListener('click', () => {
+            if (!last) return;
+            const [h, m] = to24(last.time), d = last.date.replace(/-/g, '');
+            const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//One Optics Clinic//Booking//EN', 'BEGIN:VEVENT',
+                `UID:${Date.now()}@oneoptics`, `DTSTAMP:${new Date().toISOString().replace(/[-:]|\.\d{3}/g, '')}`,
+                `DTSTART:${d}T${pad(h)}${pad(m)}00`, `DTEND:${d}T${pad(h + 1)}${pad(m)}00`,
+                `SUMMARY:${last.type} at One Optics Clinic`, `DESCRIPTION:With ${last.doctorName}. Request pending clinic confirmation.`,
+                'LOCATION:2598 Singalong Street\\, Vito Cruz\\, Malate\\, Manila', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+            const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+            const a = Object.assign(document.createElement('a'), { href: url, download: 'one-optics-appointment.ics' });
+            document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
         });
     </script>
 </body>
