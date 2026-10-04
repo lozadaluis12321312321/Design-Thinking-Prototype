@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=4">
     <script>
         if (localStorage.getItem('oneOpticsTheme') === 'dark') {
             document.documentElement.classList.add('dark-mode');
@@ -28,13 +28,29 @@
             }
         }
         .info-panel {
-            background: var(--primary-color);
+            background: linear-gradient(160deg, #a8121f, #6e0a16);
             color: #fff;
             padding: 3rem 2rem;
-            border-radius: var(--border-radius);
+            border-radius: var(--radius-lg);
             height: fit-content;
-            border-top: 4px solid var(--accent-color);
+            position: sticky;
+            top: 110px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
         }
+        .info-panel::after {
+            content: '';
+            position: absolute;
+            right: -80px; bottom: -80px;
+            width: 260px; height: 260px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255,255,255,0.18);
+            box-shadow: 0 0 0 40px rgba(255,255,255,0.04), 0 0 0 80px rgba(255,255,255,0.03);
+            pointer-events: none;
+        }
+        .info-panel li { transition: transform 0.3s var(--ease); }
+        .info-panel li:hover { transform: translateX(6px); }
+        .info-panel li::marker { color: var(--accent-color); }
         .info-panel h3 {
             color: #fff;
             margin-bottom: 1.5rem;
@@ -47,34 +63,59 @@
         .form-panel {
             background: var(--bg-color);
             padding: 3rem;
-            border-radius: var(--border-radius);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
             border: 1px solid var(--border-color);
         }
         .notice {
-            background-color: rgba(241, 196, 15, 0.1);
+            background-color: color-mix(in srgb, var(--accent-color) 12%, transparent);
             color: var(--text-dark);
-            padding: 1rem;
-            border-radius: 4px;
+            padding: 1rem 1.1rem;
+            border-radius: var(--radius-sm);
             margin-bottom: 2rem;
             font-size: 0.9rem;
-            border: 1px solid var(--accent-color);
+            border-left: 4px solid var(--accent-color);
         }
         .section-label {
-            font-size: 1.2rem;
-            color: var(--primary-color);
-            margin-top: 1.5rem;
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            margin-top: 2rem;
             margin-bottom: 1rem;
+            padding-bottom: 0.6rem;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.5rem;
+            position: relative;
         }
+        .section-label::after {
+            content: '';
+            position: absolute;
+            left: 0; bottom: -1px;
+            width: 44px; height: 2px;
+            background: var(--primary-color);
+            transition: width 0.5s var(--ease);
+        }
+        .form-panel:hover .section-label::after { width: 88px; }
         .review-panel {
             background: var(--bg-light);
             padding: 1.5rem;
             border-radius: var(--border-radius);
             margin-bottom: 1.5rem;
             border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary-color);
             display: none; /* Shown before submit */
+            animation: pop-in 0.4s var(--ease);
+        }
+        .review-panel p { margin-bottom: 0.35rem; }
+        #submitBtn { animation: pop-in 0.4s var(--ease); }
+        .tick { width: 84px; height: 84px; margin: 0 auto 1.25rem; display: block; }
+        .tick circle { stroke: var(--success); stroke-width: 3; fill: color-mix(in srgb, var(--success) 12%, transparent); stroke-dasharray: 170; stroke-dashoffset: 170; animation: draw 0.7s var(--ease) forwards; }
+        .tick path { stroke: var(--success); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; fill: none; stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw 0.45s var(--ease) 0.5s forwards; }
+        @keyframes draw { to { stroke-dashoffset: 0; } }
+        #bookingSuccess > * { animation: rise 0.6s var(--ease) both; }
+        #bookingSuccess > :nth-child(3) { animation-delay: 0.15s; }
+        @media (max-width: 768px) {
+            .info-panel { position: static; }
+            .form-panel { padding: 1.75rem 1.25rem; }
+            #appointmentForm div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; gap: 0 !important; }
         }
     </style>
 </head>
@@ -203,8 +244,8 @@
                 </form>
 
                 <div id="bookingSuccess" style="display: none; text-align: center; padding: 3rem 0;">
-                    <div style="font-size: 4rem; color: #28a745; margin-bottom: 1rem;">✓</div>
-                    <h2 style="margin-bottom: 1rem; color: var(--primary-color);">Request Submitted!</h2>
+                    <svg class="tick" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27"/><path d="M20 33l8 8 17-18"/></svg>
+                    <h2 style="margin-bottom: 1rem; color: var(--primary-color);">Request submitted</h2>
                     
                     <div style="background: var(--bg-light); padding: 2rem; border-radius: var(--border-radius); text-align: left; margin-bottom: 2rem; border: 1px solid var(--border-color);">
                         <h4 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Appointment Summary</h4>
@@ -284,7 +325,8 @@
     </div>
 
     <script src="js/database.js"></script>
-    <script src="js/theme.js"></script>
+    <script src="js/theme.js?v=4"></script>
+    <script src="js/ui.js?v=4"></script>
     
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();

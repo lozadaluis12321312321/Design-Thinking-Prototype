@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Main Stylesheet -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=5">
     <!-- Theme Toggle Script to avoid flicker -->
     <script>
         if (localStorage.getItem('oneOpticsTheme') === 'dark') {
@@ -43,14 +43,50 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <h1>ONE OPTICS Clinic</h1>
-            <h2 class="tagline">Clear Vision • Brighter Tomorrow</h2>
-            <p>Welcome to One Optics Clinic. Explore our premium collection of modern eyewear and schedule your professional eye examination today.</p>
-            <div class="hero-btns">
-                <a href="catalog.html" class="btn btn-primary">Browse Eyewear</a>
-                <a href="appointment.html" class="btn btn-outline">Book an Appointment</a>
+    <section class="hero" id="main-content">
+        <div class="container hero-grid">
+            <div class="hero-copy">
+                <h1>Eye exams and frames, <span class="accent">under one roof.</span></h1>
+                <p>Clear Vision &bull; Brighter Tomorrow. Book a professional eye examination online, then browse premium eyewear fitted by our opticians.</p>
+                <div class="hero-btns">
+                    <a href="appointment.html" class="btn btn-primary">Book an Appointment <span class="arr" aria-hidden="true">&rarr;</span></a>
+                    <a href="catalog.html" class="btn btn-outline">Browse Eyewear</a>
+                </div>
+                <ul class="trust-row">
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Professional optometrists</li>
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Frame &amp; lens fitting</li>
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Online booking</li>
+                </ul>
+            </div>
+
+            <div class="hero-visual" aria-hidden="true">
+                <div class="hv-orb"><div class="hv-ring"></div></div>
+                <div class="hv-glasses">
+                    <svg viewBox="0 0 400 200" fill="none">
+                        <defs>
+                            <linearGradient id="lens" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stop-color="#fff" stop-opacity=".75"/>
+                                <stop offset="1" stop-color="#c4162a" stop-opacity=".16"/>
+                            </linearGradient>
+                            <clipPath id="clipL"><circle cx="105" cy="112" r="72"/></clipPath>
+                            <clipPath id="clipR"><circle cx="295" cy="112" r="72"/></clipPath>
+                        </defs>
+                        <path d="M33 100L10 38M367 100L390 38" stroke="#6e0a16" stroke-width="9" stroke-linecap="round"/>
+                        <path d="M177 100q23-26 46 0" stroke="#6e0a16" stroke-width="9" stroke-linecap="round"/>
+                        <circle cx="105" cy="112" r="72" fill="url(#lens)" stroke="#c4162a" stroke-width="10"/>
+                        <circle cx="295" cy="112" r="72" fill="url(#lens)" stroke="#c4162a" stroke-width="10"/>
+                        <g font-family="Plus Jakarta Sans, sans-serif" font-weight="800" fill="#1f1a1a" fill-opacity=".82" text-anchor="middle">
+                            <text x="105" y="140" font-size="92">E</text>
+                            <text x="295" y="108" font-size="40" letter-spacing="6">F P</text>
+                            <text x="295" y="140" font-size="26" letter-spacing="5">T O Z</text>
+                        </g>
+                        <g clip-path="url(#clipL)"><rect class="glare" x="70" y="30" width="26" height="170" fill="#fff" fill-opacity=".75" transform="rotate(20 83 115)"/></g>
+                        <g clip-path="url(#clipR)"><rect class="glare" x="260" y="30" width="26" height="170" fill="#fff" fill-opacity=".75" transform="rotate(20 273 115)"/></g>
+                    </svg>
+                </div>
+                <div class="hv-chip c1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Professional eye exams</div>
+                <div class="hv-chip c2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Opens 10 AM</div>
+                <div class="hv-chip c3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17l-6.1 3.6 1.4-6.8L2.2 9.1l6.9-.8z"/></svg>Premium frames</div>
             </div>
         </div>
     </section>
@@ -58,65 +94,75 @@
     <!-- Featured Eyewear -->
     <section class="section">
         <div class="container">
-            <h2 class="section-title">Featured Eyewear</h2>
-            <div class="product-grid" id="featured-products">
-                <!-- Products will be injected here via JavaScript -->
+            <div class="section-head">
+                <div>
+                    <h2>Featured eyewear</h2>
+                    <p>A few frames from our collection. See the full range in the catalog.</p>
+                </div>
+                <a href="catalog.html" class="link-arrow">View full catalog <span class="arr" aria-hidden="true">&rarr;</span></a>
             </div>
-            <div style="text-align: center; margin-top: 3rem;">
-                <a href="catalog.html" class="btn btn-outline">View Full Catalog</a>
+            <div class="product-grid" id="featured-products">
+                <!-- Skeletons shown until products load -->
+                <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line"></div><div class="sk sk-line w60"></div><div class="sk sk-line w40"></div><div class="sk sk-btn"></div></div></div>
+                <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line"></div><div class="sk sk-line w60"></div><div class="sk sk-line w40"></div><div class="sk sk-btn"></div></div></div>
+                <div class="skeleton-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk sk-line"></div><div class="sk sk-line w60"></div><div class="sk sk-line w40"></div><div class="sk sk-btn"></div></div></div>
             </div>
         </div>
     </section>
 
-    <!-- Clinic Services -->
-    <section class="section" style="background-color: var(--bg-light);">
+    <!-- Clinic Services (bento) -->
+    <section class="section section-alt">
         <div class="container">
-            <h2 class="section-title">Our Services</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
-                
-                <div style="background: var(--bg-color); padding: 2rem; border-radius: var(--border-radius); box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; border: 1px solid var(--border-color);">
-                    <div style="margin-bottom: 1rem;">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-color);">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                    </div>
-                    <h3 style="font-size: 1.25rem;">Eye Examination</h3>
-                    <p style="color: var(--text-light);">Comprehensive eye check-ups performed by our professional optometrists to ensure your visual health.</p>
+            <div class="section-head">
+                <div>
+                    <h2>Care for your eyes, start to finish</h2>
+                    <p>From the first exam to the final fitting, everything happens at our Malate clinic.</p>
                 </div>
-                
-                <div style="background: var(--bg-color); padding: 2rem; border-radius: var(--border-radius); box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; border: 1px solid var(--border-color);">
-                    <div style="margin-bottom: 1rem;">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-color);">
-                            <circle cx="6" cy="15" r="4"></circle>
-                            <circle cx="18" cy="15" r="4"></circle>
-                            <path d="M14 15a2 2 0 0 0-4 0"></path>
-                            <path d="M2.5 13 5 7c.7-1.4 1.4-2 3-2"></path>
-                            <path d="M21.5 13 19 7c-.7-1.4-1.5-2-3-2"></path>
-                        </svg>
-                    </div>
-                    <h3 style="font-size: 1.25rem;">Eyewear Catalog</h3>
-                    <p style="color: var(--text-light);">Browse our wide selection of premium frames and lenses designed for style and comfort.</p>
-                </div>
+            </div>
+            <div class="bento">
+                <a href="appointment.html" class="bento-card bento-lg">
+                    <span class="bento-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+                    <h3>Eye examination</h3>
+                    <p>Comprehensive check-ups by our professional optometrists: visual acuity, eye health screening and prescription updates.</p>
+                    <span class="link-arrow">Book an exam <span class="arr" aria-hidden="true">&rarr;</span></span>
+                </a>
+                <a href="catalog.html" class="bento-card">
+                    <span class="bento-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/><path d="M14 15a2 2 0 0 0-4 0"/><path d="M2.5 13 5 7c.7-1.4 1.4-2 3-2"/><path d="M21.5 13 19 7c-.7-1.4-1.5-2-3-2"/></svg></span>
+                    <h3>Eyewear catalog</h3>
+                    <p>Premium frames and lenses designed for style and comfort.</p>
+                    <span class="link-arrow">Browse frames <span class="arr" aria-hidden="true">&rarr;</span></span>
+                </a>
+                <a href="contact.html" class="bento-card">
+                    <span class="bento-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+                    <h3>Optical services</h3>
+                    <p>Frame adjustments, lens fitting and repairs by experienced opticians.</p>
+                    <span class="link-arrow">Ask us <span class="arr" aria-hidden="true">&rarr;</span></span>
+                </a>
+            </div>
+        </div>
+    </section>
 
-                <div style="background: var(--bg-color); padding: 2rem; border-radius: var(--border-radius); box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; border: 1px solid var(--border-color);">
-                    <div style="margin-bottom: 1rem;">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-color);">
-                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-                        </svg>
-                    </div>
-                    <h3 style="font-size: 1.25rem;">Optical Services</h3>
-                    <p style="color: var(--text-light);">Expert frame adjustments, lens fitting, and repairs provided by our experienced opticians.</p>
+    <!-- How booking works -->
+    <section class="section">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <h2>Booking takes three steps</h2>
+                    <p>No account needed. Pick a doctor and a time, and we handle the rest.</p>
                 </div>
-
+            </div>
+            <div class="steps">
+                <div class="step-card"><span class="num">01</span><h3>Choose a doctor and time</h3><p>Slots already taken are marked, so you only see what is open.</p></div>
+                <div class="step-card"><span class="num">02</span><h3>We confirm your request</h3><p>The clinic reviews it and updates your appointment status.</p></div>
+                <div class="step-card"><span class="num">03</span><h3>Visit us in Vito Cruz</h3><p>Come to 2598 Singalong Street for your exam or fitting.</p></div>
             </div>
         </div>
     </section>
 
     <!-- About & Contact Preview -->
-    <section class="section">
+    <section class="section section-alt">
         <div class="container">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 4rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 4rem; align-items: center;">
                 
                 <!-- About Preview -->
                 <div>
@@ -126,12 +172,12 @@
                 </div>
 
                 <!-- Contact Preview -->
-                <div style="background: var(--bg-light); padding: 2.5rem; border-radius: var(--border-radius); border-left: 4px solid var(--accent-color);">
+                <div class="contact-card">
                     <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Visit Our Clinic</h2>
-                    <p style="margin-bottom: 0.5rem; color: var(--text-dark);"><strong>Address:</strong> 2598 Singalong Street, Vito Cruz, Malate, Manila</p>
-                    <p style="margin-bottom: 0.5rem; color: var(--text-dark);"><strong>Phone:</strong> 0956 127 7149</p>
-                    <p style="margin-bottom: 0.5rem; color: var(--text-dark);"><strong>Email:</strong> one_optics@yahoo.com</p>
-                    <a href="appointment.html" class="btn btn-primary" style="margin-top: 1rem;">Book an Appointment</a>
+                    <p><strong>Address:</strong> 2598 Singalong Street, Vito Cruz, Malate, Manila</p>
+                    <p><strong>Phone:</strong> 0956 127 7149</p>
+                    <p><strong>Email:</strong> one_optics@yahoo.com</p>
+                    <a href="appointment.html" class="btn btn-primary">Book an Appointment <span class="arr" aria-hidden="true">&rarr;</span></a>
                 </div>
 
             </div>
@@ -174,7 +220,8 @@
 
     <!-- Database Script -->
     <script src="js/database.js"></script>
-    <script src="js/theme.js"></script>
+    <script src="js/theme.js?v=5"></script>
+    <script src="js/ui.js?v=5"></script>
     
     <!-- Page Specific Script -->
     <script>
@@ -188,6 +235,7 @@
                 const featuredProducts = allProducts.slice(0, 3);
                 
                 const grid = document.getElementById('featured-products');
+                grid.innerHTML = '';
                 
                 featuredProducts.forEach(product => {
                     const card = document.createElement('div');
@@ -198,14 +246,14 @@
                             <h3 class="product-title">${product.name}</h3>
                             <div class="product-meta">${product.style} | ${product.type}</div>
                             <div class="product-price">₱${product.price.toLocaleString()}</div>
-                            <a href="catalog.html?id=${product.id}" class="btn btn-outline">View Details</a>
+                            <a href="catalog.html?id=${product.id}" class="btn btn-outline">View Details <span class="arr" aria-hidden="true">&rarr;</span></a>
                         </div>
                     `;
                     grid.appendChild(card);
                 });
             } catch (error) {
                 console.error("Error loading featured products:", error);
-                document.getElementById('featured-products').innerHTML = '<p>Ensure backend is running on port 3000.</p>';
+                document.getElementById('featured-products').innerHTML = '<p>We could not load products right now. Please refresh in a moment.</p>';
             }
         });
     </script>
