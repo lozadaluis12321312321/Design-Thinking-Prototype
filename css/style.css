@@ -272,8 +272,8 @@ header.nav-open .nav-toggle span:nth-child(3) { top: 20px; transform: rotate(-45
 
 /* ---------- Home: bento, steps, contact card ---------- */
 .bento { display: grid; grid-template-columns: 1.3fr 1fr; grid-template-rows: auto auto; gap: 1.25rem; }
-.bento-card { display: flex; flex-direction: column; gap: 0.6rem; padding: 2rem; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); color: var(--text-dark); transition: transform 0.2s var(--ease), box-shadow 0.2s ease; }
-.bento-card:hover { color: var(--text-dark); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.bento-card { display: flex; flex-direction: column; gap: 0.6rem; padding: 2rem; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); color: var(--text-dark); transition: transform 0.35s var(--ease), box-shadow 0.35s ease; }
+.bento-card:hover { color: var(--text-dark); transform: translateY(-5px); box-shadow: var(--shadow-lg); }
 .bento-card h3 { font-size: 1.35rem; margin-bottom: 0; }
 .bento-card p { color: var(--text-light); margin: 0; max-width: 40ch; }
 .bento-card .link-arrow { margin-top: auto; padding-top: 1rem; }
@@ -579,3 +579,10 @@ html.dark-mode .map-frame iframe, body.dark-mode .map-frame iframe { filter: inv
   .nav-links a.btn { display: flex; padding: 0.95rem 1rem; font-size: 1rem; }
   .theme-fab { right: 16px; bottom: 16px; }
 }
+
+/* ---------- Care section: icon tiles + rings react on hover (transform only) ---------- */
+.bento-ico { transition: transform 0.5s var(--ease), background-color 0.3s ease, color 0.3s ease; }
+.bento-card:hover .bento-ico { transform: rotate(-8deg) scale(1.08); background: var(--primary-color); color: #fff; }
+.bento-lg:hover .bento-ico { background: #fff; color: var(--primary-deep); }
+.bento-lg::after { transition: transform 0.9s var(--ease); }
+.bento-lg:hover::after { transform: scale(1.12) rotate(12deg); }

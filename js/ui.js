@@ -58,17 +58,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ---- Reveal section headings on scroll (only hides what is below the fold) ----
-  const targets = Array.from(document.querySelectorAll('.section-title, .section-head, .step-card, [data-reveal]'));
+  const targets = Array.from(document.querySelectorAll('.section-title, .section-head, .step-card, .bento-card, [data-reveal]'));
   if (!reduceMotion && 'IntersectionObserver' in window) {
     const io = new IntersectionObserver((entries) => {
       entries.forEach((en) => {
-        if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); }
+        if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); setTimeout(() => en.target.classList.remove('will-reveal'), 1400); }
       });
     }, { threshold: 0.1 });
 
     targets.forEach((el) => {
       if (el.getBoundingClientRect().top < window.innerHeight * 0.95) { el.classList.add('is-in'); return; }
-      if (el.classList.contains('step-card')) el.style.setProperty('--d', (Array.from(el.parentElement.children).indexOf(el) * 0.14).toFixed(2) + 's');
+      if (el.classList.contains('step-card') || el.classList.contains('bento-card')) el.style.setProperty('--d', (Array.from(el.parentElement.children).indexOf(el) * 0.14).toFixed(2) + 's');
       el.classList.add('will-reveal');
       io.observe(el);
     });
