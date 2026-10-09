@@ -153,8 +153,10 @@
   function renderHeader() {
     const h = document.getElementById('site-header');
     if (!h || h.childElementCount) return;
-    const pages = [['index.html', 'Home'], ['catalog.html', 'Eyewear'], ['appointment.html', 'Appointments'], ['about.html', 'About Us'], ['contact.html', 'Contact'], ['admin-login.html', 'Admin']];
+    const pages = [['index.html', 'Home'], ['catalog.html', 'Eyewear'], ['appointment.html', 'Appointments'], ['about.html', 'About Us'], ['contact.html', 'Contact']];
     const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    let signedIn = false;
+    try { signedIn = localStorage.getItem('adminAuth') === 'true' && !!localStorage.getItem('adminToken'); } catch (e) { /* storage unavailable */ }
     h.innerHTML = `
       <div class="container navbar">
         <div class="logo">
@@ -164,10 +166,26 @@
         <nav aria-label="Main">
           <ul class="nav-links">
             ${pages.map(([href, label]) => `<li><a href="${href}"${here === href ? ' class="active"' : ''}>${label}</a></li>`).join('')}
-            <li><button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode"></button></li>
+            <li><a href="catalog.html#cart" id="openCartBtn" class="nav-cart" aria-label="Open cart">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 01-8 0"/></svg>
+              Cart <span class="count" id="cartCount">0</span></a></li>
+            <li class="nav-signin"><a href="${signedIn ? 'admin-dashboard.html' : 'admin-login.html'}" class="btn btn-primary btn-sm">${signedIn ? 'Dashboard' : 'Sign in'}</a></li>
           </ul>
         </nav>
       </div>`;
+    if (!document.getElementById('theme-toggle')) {
+      const fab = document.createElement('button');
+      fab.id = 'theme-toggle';
+      fab.type = 'button';
+      fab.className = 'theme-toggle theme-fab';
+      fab.setAttribute('aria-label', 'Toggle dark mode');
+      h.after(fab);
+    }
+    // the cart count is the same on every page
+    try {
+      const cart = JSON.parse(localStorage.getItem('opticsCart') || '[]');
+      document.getElementById('cartCount').textContent = cart.reduce((s, i) => s + (i.quantity || 0), 0);
+    } catch (e) { /* storage unavailable: leave at 0 */ }
   }
   renderHeader();
 
