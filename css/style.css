@@ -260,7 +260,8 @@ header.nav-open .nav-toggle span:nth-child(3) { top: 20px; transform: rotate(-45
 .trust-row svg { width: 16px; height: 16px; color: var(--primary-color); flex: none; }
 
 .hero-visual { --px: 0; --py: 0; position: relative; width: 100%; max-width: 520px; aspect-ratio: 1 / 1; margin-inline: auto; animation: pop-in 0.7s var(--ease) 0.1s both; }
-.hv-orb { position: absolute; inset: 6%; transform: translate(calc(var(--px) * -12px), calc(var(--py) * -12px)); will-change: transform; border-radius: 50%; background: radial-gradient(circle at 30% 24%, color-mix(in srgb, var(--primary-color) 14%, var(--surface)), transparent 58%), var(--bg-light); box-shadow: inset 0 0 0 1px var(--border-color); }
+.hv-orb { position: absolute; inset: 6%; transform: translate(calc(var(--px) * -12px), calc(var(--py) * -12px)); will-change: transform; border-radius: 50%; background: radial-gradient(circle at 30% 24%, #c9913a, #8b5e2a 40%, #4a2c14 70%, #1c1210 90%); box-shadow: inset 0 0 0 1px rgba(201, 145, 58, 0.25); }
+.hv-orb::before { content: ''; position: absolute; top: 16%; left: 52%; width: 10px; height: 10px; border-radius: 50%; background: #f0c040; box-shadow: 0 0 14px 6px rgba(240, 192, 64, 0.6), 0 0 30px 12px rgba(240, 192, 64, 0.25); }
 .hv-ring { position: absolute; inset: 0; border-radius: 50%; border: 1.5px dashed color-mix(in srgb, var(--primary-color) 35%, transparent); }
 .hv-glasses { position: absolute; left: 50%; top: 50%; width: 92%; transform: translate(calc(-50% + var(--px) * 20px), calc(-50% + var(--py) * 20px)); will-change: transform; }
 .hv-glasses svg { display: block; width: 100%; height: auto; animation: float 8s ease-in-out infinite; }
@@ -567,17 +568,10 @@ html.dark-mode .map-frame iframe, body.dark-mode .map-frame iframe { filter: inv
   .facts li { flex: 1 1 100%; }
 }
 
-/* ---------- Sign in button + floating theme switch ---------- */
-.nav-links .nav-signin { margin-left: 0.6rem; }
-.nav-links a.btn { padding: 0.55rem 1.25rem; font-size: 0.88rem; }
-.nav-links a.btn::after { display: none; }
-.nav-links a.btn:hover { color: #fff; }
-.theme-fab { position: fixed; right: 24px; bottom: 24px; z-index: 150; width: 48px; height: 48px; background: var(--surface); box-shadow: var(--shadow-lg); }
-.theme-fab svg { width: 22px; height: 22px; }
+/* ---------- Theme toggle in nav ---------- */
+.nav-links .theme-toggle { margin-left: 0.2rem; }
 @media (max-width: 900px) {
-  .nav-links .nav-signin { margin-left: 0; }
-  .nav-links a.btn { display: flex; padding: 0.95rem 1rem; font-size: 1rem; }
-  .theme-fab { right: 16px; bottom: 16px; }
+  .nav-links .theme-toggle { margin-left: 0; }
 }
 
 /* ---------- Care section: icon tiles + rings react on hover (transform only) ---------- */
