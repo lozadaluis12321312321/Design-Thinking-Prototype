@@ -1,5 +1,9 @@
 -- phpMyAdmin SQL Dump
 -- Database: `one_optics`
+-- Works on MySQL/MariaDB (XAMPP) and TiDB Cloud (MySQL-compatible).
+
+CREATE DATABASE IF NOT EXISTS `one_optics` DEFAULT CHARACTER SET utf8mb4;
+USE `one_optics`;
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

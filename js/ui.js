@@ -1,7 +1,7 @@
 /**
  * One Optics Clinic - UI enhancements (public pages)
  * Progressive enhancement only: every page still works if this file fails.
- * Kept deliberately small: no scroll or pointer-move handlers.
+ * Pointer effects (parallax, tilt) only run on mouse devices and respect prefers-reduced-motion.
  */
 document.addEventListener('DOMContentLoaded', () => {
   const header = document.querySelector('header');
@@ -97,5 +97,34 @@ document.addEventListener('DOMContentLoaded', () => {
       kick();
     }, { passive: true });
     hero.addEventListener('pointerleave', () => { tx = 0; ty = 0; kick(); });
+  }
+
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  // ---- Cards: product cards tilt in 3D, bento cards get a spotlight that follows the pointer ----
+  if (finePointer && !reduceMotion) {
+    document.addEventListener('pointermove', (e) => {
+      const card = e.target.closest('.product-card, .bento-card');
+      if (!card) return;
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width;
+      const py = (e.clientY - r.top) / r.height;
+      if (card.classList.contains('bento-card')) {
+        card.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+        card.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+      } else {
+        card.classList.add('is-tilting');
+        card.style.setProperty('--ry', ((px - 0.5) * 10).toFixed(2) + 'deg');
+        card.style.setProperty('--rx', ((0.5 - py) * 10).toFixed(2) + 'deg');
+      }
+    }, { passive: true });
+    document.addEventListener('pointerout', (e) => {
+      const card = e.target.closest('.product-card');
+      if (card && !card.contains(e.relatedTarget)) {
+        card.classList.remove('is-tilting');
+        card.style.setProperty('--rx', '0deg');
+        card.style.setProperty('--ry', '0deg');
+      }
+    });
   }
 });
