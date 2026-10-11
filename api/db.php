@@ -44,8 +44,9 @@ try {
 }
 
 function checkAuth() {
-    $headers = getallheaders();
-    $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+    // Header names are case-insensitive and some hosts (e.g. Vercel) lowercase them; also fall back to $_SERVER.
+    $headers = array_change_key_case(function_exists('getallheaders') ? getallheaders() : [], CASE_LOWER);
+    $authHeader = $headers['authorization'] ?? $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
     if (strpos($authHeader, 'Bearer php_admin_token_123') === false) {
         http_response_code(401);
         echo json_encode(["error" => "Unauthorized"]);
