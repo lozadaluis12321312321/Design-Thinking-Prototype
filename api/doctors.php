@@ -14,7 +14,7 @@ if ($method === 'GET') {
     echo json_encode(["id" => $pdo->lastInsertId()]);
 } elseif ($method === 'PUT') {
     checkAuth();
-    preg_match('/doctors\.php\/(\d+)/', $_SERVER['REQUEST_URI'], $matches);
+    preg_match('#^/(\d+)#', requestPath(), $matches);
     if(isset($matches[1])) {
         $id = intval($matches[1]);
         $data = json_decode(file_get_contents("php://input"), true);
@@ -24,7 +24,7 @@ if ($method === 'GET') {
     }
 } elseif ($method === 'DELETE') {
     checkAuth();
-    preg_match('/doctors\.php\/(\d+)/', $_SERVER['REQUEST_URI'], $matches);
+    preg_match('#^/(\d+)#', requestPath(), $matches);
     if(isset($matches[1])) {
         $id = intval($matches[1]);
         $stmt = $pdo->prepare("DELETE FROM doctors WHERE id = ?");

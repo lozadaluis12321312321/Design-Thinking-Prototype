@@ -5,6 +5,7 @@
     }
   },
   "rewrites": [
-    { "source": "/", "destination": "/index.html" }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/api/:file.php/:path*", "destination": "/api/:file.php?_path=/:path*" }
   ]
 }

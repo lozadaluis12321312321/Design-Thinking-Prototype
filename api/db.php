@@ -43,6 +43,15 @@ try {
     exit();
 }
 
+// Extra path after the script name, e.g. "/9/status" for api/orders.php/9/status.
+// Apache exposes it as PATH_INFO; on Vercel a rewrite in vercel.json passes it as ?_path=.
+function requestPath() {
+    if (!empty($_SERVER['PATH_INFO'])) return $_SERVER['PATH_INFO'];
+    if (!empty($_GET['_path'])) return $_GET['_path'];
+    $uri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '';
+    return preg_match('/\.php(\/.*)$/', $uri, $m) ? $m[1] : '';
+}
+
 function checkAuth() {
     // Header names are case-insensitive and some hosts (e.g. Vercel) lowercase them; also fall back to $_SERVER.
     $headers = array_change_key_case(function_exists('getallheaders') ? getallheaders() : [], CASE_LOWER);

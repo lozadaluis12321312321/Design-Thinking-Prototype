@@ -39,7 +39,7 @@ if ($method === 'GET') {
     echo json_encode(["id" => $pdo->lastInsertId(), "message" => "Appointment booked"]);
 } elseif ($method === 'PUT') {
     checkAuth();
-    preg_match('/appointments\.php\/(\d+)\/status/', $_SERVER['REQUEST_URI'], $matches);
+    preg_match('#^/(\d+)/status#', requestPath(), $matches);
     if(isset($matches[1])) {
         $id = intval($matches[1]);
         $data = json_decode(file_get_contents("php://input"), true);
