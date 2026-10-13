@@ -155,8 +155,12 @@
     if (!h || h.childElementCount) return;
     const pages = [['index.html', 'Home'], ['catalog.html', 'Eyewear'], ['appointment.html', 'Appointments'], ['about.html', 'About Us'], ['contact.html', 'Contact']];
     const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
-    let signedIn = false;
-    try { signedIn = localStorage.getItem('adminAuth') === 'true' && !!localStorage.getItem('adminToken'); } catch (e) { /* storage unavailable */ }
+    let signedIn = false, custSignedIn = false;
+    try {
+      signedIn = localStorage.getItem('adminAuth') === 'true' && !!localStorage.getItem('adminToken');
+      custSignedIn = !!localStorage.getItem('custToken');
+    } catch (e) { /* storage unavailable */ }
+    if (custSignedIn) pages.push(['my-record.html', 'My record']);
     h.innerHTML = `
       <div class="container navbar">
         <div class="logo">
@@ -169,10 +173,18 @@
             <li><a href="catalog.html#cart" id="openCartBtn" class="nav-cart" aria-label="Open cart">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 01-8 0"/></svg>
               Cart <span class="count" id="cartCount">0</span></a></li>
-            <li class="nav-signin"><a href="${signedIn ? 'admin-dashboard.html' : 'admin-login.html'}" class="btn btn-primary btn-sm">${signedIn ? 'Dashboard' : 'Sign in'}</a></li>
+            ${custSignedIn ? '<li><a href="#" id="custSignOut" role="button">Sign out</a></li>' : ''}
+            <li class="nav-signin"><a href="${signedIn ? 'admin-dashboard.html' : custSignedIn ? 'my-record.html' : 'account.html'}" class="btn btn-primary btn-sm">${signedIn ? 'Dashboard' : custSignedIn ? 'My record' : 'Sign in'}</a></li>
           </ul>
         </nav>
       </div>`;
+    // OpticsDB may not be loaded yet on this page, so resolve it when the link is clicked.
+    const signOut = h.querySelector('#custSignOut');
+    if (signOut) signOut.addEventListener('click', async (e) => {
+      e.preventDefault();
+      try { if (window.OpticsDB) await window.OpticsDB.customerLogout(); else { localStorage.removeItem('custToken'); localStorage.removeItem('custUser'); } }
+      finally { location.reload(); }
+    });
     if (!document.getElementById('theme-toggle')) {
       const fab = document.createElement('button');
       fab.id = 'theme-toggle';

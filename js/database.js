@@ -101,6 +101,97 @@ async function updateAppointmentStatus(id, status) {
   return await apiRequest(`/appointments.php/${id}/status`, 'PUT', { status }, true);
 }
 
+// --- Customer account + patient record API ---
+function getCustToken() {
+  return localStorage.getItem('custToken');
+}
+
+function getCustUser() {
+  try { return JSON.parse(localStorage.getItem('custUser')); } catch (e) { return null; }
+}
+
+// Like apiRequest, but authenticates as the signed-in customer instead of admin.
+async function custRequest(endpoint, method = 'GET', data = null) {
+  const headers = {};
+  const token = getCustToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (data) headers['Content-Type'] = 'application/json';
+  try {
+    const response = await fetch(`${API_BASE}${endpoint}`, { method, headers, body: data ? JSON.stringify(data) : undefined });
+    if (!response.ok) {
+      let err = { error: `API Error: ${response.status}` };
+      try { err = await response.json(); } catch (e) {}
+      const e = new Error(err.error || `API Error: ${response.status}`);
+      e.status = response.status;
+      e.field = err.field;
+      if (response.status === 401) { localStorage.removeItem('custToken'); localStorage.removeItem('custUser'); }
+      throw e;
+    }
+    return await response.json();
+  } catch (error) {
+    console.error(`Error with ${method} ${endpoint}:`, error);
+    throw error;
+  }
+}
+
+function storeCustSession(res) {
+  if (res && res.token) {
+    localStorage.setItem('custToken', res.token);
+    localStorage.setItem('custUser', JSON.stringify(res.customer));
+  }
+}
+
+async function customerRegister(payload) {
+  const res = await apiRequest('/customer_auth.php?action=register', 'POST', payload);
+  storeCustSession(res);
+  return res;
+}
+
+async function customerLogin(email, password) {
+  const res = await apiRequest('/customer_auth.php?action=login', 'POST', { email, password });
+  storeCustSession(res);
+  return res;
+}
+
+async function customerMe() {
+  return await custRequest('/customer_auth.php?action=me');
+}
+
+async function customerLogout() {
+  try { await custRequest('/customer_auth.php?action=logout', 'POST'); } catch (e) { /* already invalid */ }
+  localStorage.removeItem('custToken');
+  localStorage.removeItem('custUser');
+}
+
+async function getMyRecord() {
+  return await custRequest('/patient_records.php');
+}
+
+async function updateMyRecord(data) {
+  const rec = await custRequest('/patient_records.php', 'PUT', data);
+  // Keep the cached display name/contact in sync.
+  const c = getCustUser();
+  if (c) localStorage.setItem('custUser', JSON.stringify({ ...c, fullName: rec.fullName, contactNumber: rec.contactNumber }));
+  return rec;
+}
+
+// --- Patient records (admin) ---
+async function getPatientRecords(q) {
+  return await apiRequest(`/patient_records.php${q ? `?q=${encodeURIComponent(q)}` : ''}`, 'GET', null, true);
+}
+
+async function getPatientRecord(id) {
+  return await apiRequest(`/patient_records.php/${id}`, 'GET', null, true);
+}
+
+async function updatePatientRecord(id, data) {
+  return await apiRequest(`/patient_records.php/${id}`, 'PUT', data, true);
+}
+
+async function deletePatientRecord(id) {
+  return await apiRequest(`/patient_records.php/${id}`, 'DELETE', null, true);
+}
+
 // --- Auth API ---
 async function login(username, password) {
   const res = await apiRequest('/auth.php', 'POST', { username, password });
@@ -133,5 +224,17 @@ window.OpticsDB = {
   bookAppointment,
   updateAppointmentStatus,
   login,
-  logout
+  logout,
+  getCustToken,
+  getCustUser,
+  customerRegister,
+  customerLogin,
+  customerMe,
+  customerLogout,
+  getMyRecord,
+  updateMyRecord,
+  getPatientRecords,
+  getPatientRecord,
+  updatePatientRecord,
+  deletePatientRecord
 };

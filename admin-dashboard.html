@@ -60,7 +60,7 @@
             <li><button type="button" data-panel="appointments"><svg class="i"><use href="#i-cal"/></svg>Appointments <span class="badge-count" id="navPending" hidden>0</span></button></li>
             <li><button type="button" data-panel="inventory"><svg class="i"><use href="#i-glasses"/></svg>Eyewear inventory</button></li>
             <li><button type="button" data-panel="orders"><svg class="i"><use href="#i-bag"/></svg>Orders</button></li>
-            <li><button type="button" data-panel="customers"><svg class="i"><use href="#i-users"/></svg>Customers</button></li>
+            <li><button type="button" data-panel="patients"><svg class="i"><use href="#i-users"/></svg>Patient records</button></li>
             <li><button type="button" data-panel="doctors"><svg class="i"><use href="#i-doc"/></svg>Doctors</button></li>
             <li><button type="button" data-panel="reports"><svg class="i"><use href="#i-chart"/></svg>Reports</button></li>
         </ul>
@@ -155,17 +155,17 @@
             </div>
         </section>
 
-        <!-- Customers -->
-        <section id="panel-customers" class="adm-panel">
+        <!-- Patient records -->
+        <section id="panel-patients" class="adm-panel">
             <div class="adm-card">
                 <div class="adm-card-head">
-                    <h2>Customer records</h2>
-                    <div class="adm-tools"><label class="adm-search"><span class="sr-only">Search customers</span><svg class="i"><use href="#i-search"/></svg><input type="search" id="custSearch" placeholder="Search customers"></label></div>
+                    <h2>Patient records</h2>
+                    <div class="adm-tools"><label class="adm-search"><span class="sr-only">Search patients</span><svg class="i"><use href="#i-search"/></svg><input type="search" id="patSearch" placeholder="Search name, email, contact"></label></div>
                 </div>
                 <div class="adm-table-wrap">
                     <table class="adm-table">
-                        <thead><tr><th>Name</th><th>Email</th><th>Contact number</th></tr></thead>
-                        <tbody id="cust-body"></tbody>
+                        <thead><tr><th>Patient</th><th>DOB</th><th>Sex</th><th>Blood type</th><th>Last updated</th><th></th></tr></thead>
+                        <tbody id="pat-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -261,6 +261,50 @@
     </aside>
 </div>
 
+<!-- Patient record drawer -->
+<div id="patientLayer" class="ui-layer" hidden role="dialog" aria-modal="true" aria-labelledby="patientTitle">
+    <div class="ui-backdrop" data-close-layer></div>
+    <aside class="ui-drawer">
+        <div class="drawer-head"><h2 id="patientTitle">Patient record</h2><button type="button" class="ui-close" data-close-layer aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button></div>
+        <form id="patientForm" novalidate style="display:contents">
+            <div class="drawer-body">
+                <input type="hidden" id="patId">
+                <div class="adm-form-grid">
+                    <div class="form-group"><label for="patFullName">Full name</label><input type="text" id="patFullName" class="form-control" required maxlength="255"></div>
+                    <div class="form-group"><label for="patContactNumber">Contact number</label><input type="tel" id="patContactNumber" class="form-control" maxlength="100"></div>
+                    <div class="form-group full"><label for="patEmail">Email <small style="color:var(--text-light); font-weight:400">(sign-in email — cannot be changed here)</small></label><input type="email" id="patEmail" class="form-control" disabled></div>
+                    <div class="form-group"><label for="patDob">Date of birth</label><input type="date" id="patDob" class="form-control"></div>
+                    <div class="form-group"><label for="patSex">Sex</label>
+                        <select id="patSex" class="form-control"><option value="">Select</option><option>Female</option><option>Male</option><option>Other</option><option>Prefer not to say</option></select>
+                    </div>
+                    <div class="form-group"><label for="patBloodType">Blood type</label>
+                        <select id="patBloodType" class="form-control"><option value="">Unknown</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
+                    </div>
+                    <div class="form-group"><label for="patCorrection">Wears</label>
+                        <select id="patCorrection" class="form-control"><option value="">Select</option><option>None</option><option>Glasses</option><option>Contact lenses</option><option>Both</option></select>
+                    </div>
+                    <div class="form-group"><label for="patLastExam">Last eye exam</label><input type="date" id="patLastExam" class="form-control"></div>
+                    <div class="form-group"><label for="patEmergName">Emergency contact</label><input type="text" id="patEmergName" class="form-control" maxlength="255"></div>
+                    <div class="form-group"><label for="patEmergPhone">Emergency contact phone</label><input type="tel" id="patEmergPhone" class="form-control" maxlength="100"></div>
+                    <div class="form-group full"><label for="patAddress">Address</label><input type="text" id="patAddress" class="form-control" maxlength="500"></div>
+                    <div class="form-group full"><label for="patEyeConditions">Eye conditions</label><textarea id="patEyeConditions" class="form-control" rows="2" maxlength="2000"></textarea></div>
+                    <div class="form-group full"><label for="patPrescription">Latest prescription</label><textarea id="patPrescription" class="form-control" rows="2" maxlength="2000"></textarea></div>
+                    <div class="form-group full"><label for="patAllergies">Allergies</label><textarea id="patAllergies" class="form-control" rows="2" maxlength="2000"></textarea></div>
+                    <div class="form-group full"><label for="patConditions">Medical conditions</label><textarea id="patConditions" class="form-control" rows="2" maxlength="2000"></textarea></div>
+                    <div class="form-group full"><label for="patMedications">Current medications</label><textarea id="patMedications" class="form-control" rows="2" maxlength="2000"></textarea></div>
+                    <div class="form-group full"><label for="patNotes">Patient notes</label><textarea id="patNotes" class="form-control" rows="2" maxlength="5000" placeholder="Notes the customer wrote"></textarea></div>
+                    <div class="form-group full"><label for="patClinicalNotes">Clinical notes <small style="color:var(--text-light); font-weight:400">(staff only — never shown to the customer)</small></label><textarea id="patClinicalNotes" class="form-control" rows="3" maxlength="10000" style="border-color:var(--warning)"></textarea></div>
+                </div>
+                <p class="field-error" id="patientError" role="alert" hidden></p>
+            </div>
+            <div class="drawer-foot" style="display:flex; gap:0.75rem; justify-content:flex-end;">
+                <button type="button" class="btn btn-outline" data-close-layer>Cancel</button>
+                <button type="submit" class="btn btn-primary" id="patientSave">Save record</button>
+            </div>
+        </form>
+    </aside>
+</div>
+
 <!-- Details drawer -->
 <div id="detailLayer" class="ui-layer" hidden role="dialog" aria-modal="true" aria-labelledby="detailTitle">
     <div class="ui-backdrop" data-close-layer></div>
@@ -285,8 +329,8 @@
     const img = (url, name, cls = '') => `<img class="adm-img ${cls}" src="${esc(OpticsImg.pick(url, name))}" alt="" loading="lazy">`;
     const token = () => localStorage.getItem('adminToken');
 
-    const state = { products: [], appointments: [], doctors: [], orders: [], customers: [], reports: {} };
-    const ui = { apptStatus: 'All', apptQ: '', invQ: '', custQ: '' };
+    const state = { products: [], appointments: [], doctors: [], orders: [], patients: [], reports: {} };
+    const ui = { apptStatus: 'All', apptQ: '', invQ: '', patQ: '' };
     const APPT_STATUSES = ['Pending', 'Confirmed', 'Completed', 'Cancelled'];
     const ORDER_STATUSES = ['Pending', 'Processing', 'Completed', 'Cancelled'];
 
@@ -305,7 +349,7 @@
         appointments: ['Appointments', 'Review requests, confirm visits and update statuses.'],
         inventory: ['Eyewear inventory', 'Add, edit and remove frames from the catalog.'],
         orders: ['Orders', 'Track customer orders and payments.'],
-        customers: ['Customers', 'People who booked or ordered.'],
+        patients: ['Patient records', 'Registered customers and their medical details.'],
         doctors: ['Doctors', 'The team customers can book with.'],
         reports: ['Reports', 'Sales and appointment summaries.']
     };
@@ -334,11 +378,11 @@
         $('appt-body').innerHTML = skeletonRows(7);
         $('inv-body').innerHTML = skeletonRows(6);
         $('orders-body').innerHTML = skeletonRows(7);
-        $('cust-body').innerHTML = skeletonRows(3);
+        $('pat-body').innerHTML = skeletonRows(6);
         try {
             const [products, appointments, doctors] = await Promise.all([window.OpticsDB.getProducts(), window.OpticsDB.getAppointments(), window.OpticsDB.getDoctors()]);
-            const extra = await Promise.all(['orders', 'customers', 'reports'].map((n) => authed(`api/${n}.php`).then((r) => (r.ok ? r.json() : null)).catch(() => null)));
-            Object.assign(state, { products, appointments, doctors, orders: extra[0] || [], customers: extra[1] || [], reports: extra[2] || {} });
+            const extra = await Promise.all(['orders', 'patient_records', 'reports'].map((n) => authed(`api/${n}.php`).then((r) => (r.ok ? r.json() : null)).catch(() => null)));
+            Object.assign(state, { products, appointments, doctors, orders: extra[0] || [], patients: extra[1] || [], reports: extra[2] || {} });
         } catch (e) {
             console.error(e);
             if (/unauthorized/i.test(e.message)) { logout(); return; }
@@ -354,7 +398,7 @@
     }
 
     function renderAll() {
-        renderDashboard(); renderAppointments(); renderInventory(); renderOrders(); renderCustomers(); renderDoctors(); renderReports();
+        renderDashboard(); renderAppointments(); renderInventory(); renderOrders(); renderPatients(); renderDoctors(); renderReports();
     }
 
     function apptSorted() { return [...state.appointments].sort((a, b) => b.id - a.id); }
@@ -440,10 +484,22 @@
         }).join('') : empty('No orders yet', 'Orders placed from the catalog will appear here.', 7);
     }
 
-    function renderCustomers() {
-        const q = ui.custQ;
-        const rows = state.customers.filter((c) => !q || `${c.name} ${c.email} ${c.contactNumber}`.toLowerCase().includes(q));
-        $('cust-body').innerHTML = rows.length ? rows.map((c) => `<tr><td><strong>${esc(c.name)}</strong></td><td>${esc(c.email || 'N/A')}</td><td>${esc(c.contactNumber || 'N/A')}</td></tr>`).join('') : empty('No customers found', q ? 'Try a different search.' : 'Customers appear after a booking or order.', 3);
+    const fmtDT = (d) => { const x = new Date(String(d || '').replace(' ', 'T')); return isNaN(x) ? '—' : x.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }); };
+
+    function renderPatients() {
+        const q = ui.patQ;
+        const rows = state.patients.filter((r) => !q || `${r.fullName} ${r.email} ${r.contactNumber}`.toLowerCase().includes(q));
+        $('pat-body').innerHTML = rows.length ? rows.map((r) => `<tr>
+            <td><strong>${esc(r.fullName)}</strong><span class="sub">${esc(r.email)}</span><span class="sub">${esc(r.contactNumber || 'No contact number')}</span></td>
+            <td>${r.dateOfBirth ? fmtDate(r.dateOfBirth) : '—'}</td>
+            <td>${esc(r.sex || '—')}</td>
+            <td>${esc(r.bloodType || '—')}</td>
+            <td>${fmtDT(r.updatedAt)}</td>
+            <td><div class="adm-actions">
+                <button type="button" class="btn-icon" data-act="patient-view" data-id="${r.id}">${ico('eye')}View / Edit</button>
+                <button type="button" class="btn-icon danger" data-act="patient-delete" data-id="${r.id}" aria-label="Delete record for ${esc(r.fullName)}">${ico('trash')}</button>
+            </div></td>
+        </tr>`).join('') : empty('No patient records', q ? 'Try a different search.' : 'Records appear here once a customer creates an account.', 6);
     }
 
     function renderDoctors() {
@@ -477,7 +533,7 @@
     /* ---------- search + filters ---------- */
     $('apptSearch').addEventListener('input', (e) => { ui.apptQ = e.target.value.trim().toLowerCase(); renderAppointments(); });
     $('invSearch').addEventListener('input', (e) => { ui.invQ = e.target.value.trim().toLowerCase(); renderInventory(); });
-    $('custSearch').addEventListener('input', (e) => { ui.custQ = e.target.value.trim().toLowerCase(); renderCustomers(); });
+    $('patSearch').addEventListener('input', (e) => { ui.patQ = e.target.value.trim().toLowerCase(); renderPatients(); });
     $('apptChips').addEventListener('click', (e) => { const c = e.target.closest('[data-filter]'); if (c) { ui.apptStatus = c.dataset.filter; renderAppointments(); } });
 
     /* ---------- actions ---------- */
@@ -608,6 +664,42 @@
         finally { btn.disabled = false; btn.textContent = 'Save doctor'; }
     });
 
+    /* patient records */
+    const PAT_MAP = { fullName: 'patFullName', contactNumber: 'patContactNumber', email: 'patEmail', dateOfBirth: 'patDob', sex: 'patSex', bloodType: 'patBloodType', address: 'patAddress', wearsCorrection: 'patCorrection', lastEyeExam: 'patLastExam', eyeConditions: 'patEyeConditions', prescription: 'patPrescription', allergies: 'patAllergies', conditions: 'patConditions', medications: 'patMedications', emergencyContactName: 'patEmergName', emergencyContactPhone: 'patEmergPhone', notes: 'patNotes', clinicalNotes: 'patClinicalNotes' };
+
+    function openPatient(id) {
+        const r = state.patients.find((x) => x.id == id); if (!r) return;
+        $('patientTitle').textContent = `Patient record — ${r.fullName}`;
+        $('patientForm').reset(); $('patientError').hidden = true;
+        $('patId').value = r.id;
+        for (const [field, el] of Object.entries(PAT_MAP)) $(el).value = r[field] ?? '';
+        openLayer($('patientLayer'), { focus: '#patFullName' });
+    }
+
+    $('patientForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.currentTarget, err = $('patientError'), btn = $('patientSave');
+        err.hidden = true;
+        if (!form.checkValidity()) { err.textContent = 'Please enter the patient\'s full name.'; err.hidden = false; form.reportValidity(); return; }
+        const id = $('patId').value;
+        const data = {};
+        for (const [field, el] of Object.entries(PAT_MAP)) {
+            if (field === 'email') continue; // sign-in email is not editable here
+            const v = $(el).value.trim();
+            data[field] = v === '' ? null : v;
+        }
+        btn.disabled = true; btn.textContent = 'Saving...';
+        try {
+            const saved = await window.OpticsDB.updatePatientRecord(id, data);
+            const i = state.patients.findIndex((x) => x.id == saved.id);
+            if (i > -1) state.patients[i] = saved; else state.patients.unshift(saved);
+            closeLayer($('patientLayer'));
+            toast('Patient record saved.', 'success');
+            renderPatients();
+        } catch (ex) { console.error(ex); err.textContent = ex.message || 'We could not save this record. Please try again.'; err.hidden = false; }
+        finally { btn.disabled = false; btn.textContent = 'Save record'; }
+    });
+
     /* CSV export */
     function csv(rows) {
         const cell = (v) => { let s = String(v ?? ''); if (/^[=+\-@]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
@@ -631,6 +723,19 @@
             case 'appt-status': setApptStatus(id, t.dataset.status); break;
             case 'appt-view': openApptDetails(id); break;
             case 'order-view': openOrderDetails(id); break;
+            case 'patient-view': openPatient(id); break;
+            case 'patient-delete': {
+                const r = state.patients.find((x) => x.id == id); if (!r) break;
+                if (await OpticsUI.confirm({ title: 'Delete this patient record?', message: `"${r.fullName}" and their account will be permanently removed. This cannot be undone.`, confirmText: 'Delete', danger: true })) {
+                    try {
+                        await window.OpticsDB.deletePatientRecord(id);
+                        state.patients = state.patients.filter((x) => x.id != id);
+                        toast('Patient record deleted.', 'success');
+                        renderPatients();
+                    } catch (ex) { console.error(ex); toast(ex.message || 'Could not delete the record.', 'error'); }
+                }
+                break;
+            }
             case 'product-new': openProduct(null); break;
             case 'product-edit': openProduct(state.products.find((p) => p.id == id)); break;
             case 'doctor-new': openDoctor(null); break;

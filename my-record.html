@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Patient Record | One Optics Clinic</title>
+    <meta name="description" content="View and update your patient record at One Optics Clinic.">
+    <meta name="robots" content="noindex">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=23">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23a8121f'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round'%3E%3Ccircle cx='20' cy='36' r='10'/%3E%3Ccircle cx='44' cy='36' r='10'/%3E%3Cpath d='M30 34q2-3 4 0'/%3E%3C/g%3E%3C/svg%3E">
+    <script>
+        if (!localStorage.getItem('custToken')) { location.replace('account.html'); }
+        if (localStorage.getItem('oneOpticsTheme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+            document.addEventListener('DOMContentLoaded', () => document.body.classList.add('dark-mode'));
+        }
+    </script>
+    <style>
+        .record-layout { display: grid; grid-template-columns: minmax(280px, 0.9fr) minmax(0, 2fr); gap: 2rem; padding-bottom: 5rem; align-items: start; }
+        .record-panel { padding: 2.5rem; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border-color); box-shadow: var(--shadow-md); }
+        .record-panel > h1 { font-size: 1.8rem; margin-bottom: 0.4rem; letter-spacing: -0.03em; }
+        .record-panel > .sub { color: var(--text-light); font-size: 0.95rem; margin-bottom: 1.75rem; }
+        .acct-card { position: sticky; top: 100px; padding: 2rem; border-radius: var(--radius-lg); background: var(--brand-gradient); color: #fff; overflow: hidden; }
+        .acct-card::after { content: ''; position: absolute; right: -70px; bottom: -70px; width: 220px; height: 220px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.18); box-shadow: 0 0 0 40px rgba(255,255,255,0.04); pointer-events: none; }
+        .acct-card h2 { color: #fff; font-size: 1.3rem; margin-bottom: 0.35rem; overflow-wrap: anywhere; }
+        .acct-card p { color: #f6dcdc; font-size: 0.92rem; margin-bottom: 0.25rem; overflow-wrap: anywhere; }
+        .acct-card .meta { margin-top: 1.1rem; padding-top: 1.1rem; border-top: 1px solid rgba(255,255,255,0.2); font-size: 0.85rem; color: #f6dcdc; }
+        .acct-card .btn { margin-top: 1.4rem; }
+        .section-label { display: flex; align-items: center; gap: 0.6rem; font-size: 1.05rem; margin: 2rem 0 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-color); }
+        .section-label:first-of-type { margin-top: 0; }
+        .section-label small { font-weight: 500; color: var(--text-light); font-size: 0.82rem; }
+        .record-actions { display: flex; align-items: center; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
+        .record-actions .stamp { color: var(--text-light); font-size: 0.85rem; }
+        .record-error { margin-bottom: 1.25rem; padding: 0.8rem 1rem; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--danger) 10%, transparent); border-left: 4px solid var(--danger); color: var(--danger); font-size: 0.9rem; font-weight: 500; }
+        .record-skel { display: grid; gap: 1rem; }
+        .record-skel div { height: 52px; border-radius: var(--radius-sm); background: var(--bg-light); }
+        @media (max-width: 960px) { .record-layout { grid-template-columns: 1fr; } .acct-card { position: static; } }
+        @media (max-width: 600px) { .record-panel { padding: 1.5rem 1.15rem; } }
+    </style>
+</head>
+<body>
+
+    <header id="site-header"></header>
+    <script src="js/ui-core.js?v=23"></script>
+
+    <main id="main-content">
+        <section class="page-head">
+            <div class="container">
+                <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span>My record</span></nav>
+                <h1>My patient record</h1>
+                <p>Keep your details current so the clinic can give you the right care. You can update any field at any time.</p>
+            </div>
+        </section>
+
+        <div class="container record-layout">
+            <aside class="acct-card" aria-label="Your account">
+                <h2 id="acctName">…</h2>
+                <p id="acctEmail">…</p>
+                <p id="acctContact">…</p>
+                <p class="meta" id="acctSince"></p>
+                <button type="button" class="btn btn-light btn-sm" id="signOut">Sign out</button>
+            </aside>
+
+            <div class="record-panel">
+                <h1>Your record</h1>
+                <p class="sub">Fields marked * are required. Everything else is optional — fill in what applies to you.</p>
+
+                <div class="record-error" id="recordError" role="alert" hidden></div>
+
+                <form id="recordForm" novalidate>
+                    <h2 class="section-label">Personal details</h2>
+                    <div class="form-row">
+                        <div class="form-group"><label for="fullName">Full name *</label><input type="text" id="fullName" class="form-control" required maxlength="255"></div>
+                        <div class="form-group"><label for="contactNumber">Contact number</label><input type="tel" id="contactNumber" class="form-control" maxlength="100"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label for="dateOfBirth">Date of birth</label><input type="date" id="dateOfBirth" class="form-control" max="2100-01-01"></div>
+                        <div class="form-group"><label for="sex">Sex</label>
+                            <select id="sex" class="form-control">
+                                <option value="">Select</option><option>Female</option><option>Male</option><option>Other</option><option>Prefer not to say</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label for="bloodType">Blood type</label>
+                            <select id="bloodType" class="form-control">
+                                <option value="">Unknown</option>
+                                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                                <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label for="address">Address</label><input type="text" id="address" class="form-control" maxlength="500"></div>
+                    </div>
+
+                    <h2 class="section-label">Eye health <small>helps the optometrist prepare for your visit</small></h2>
+                    <div class="form-row">
+                        <div class="form-group"><label for="wearsCorrection">I currently wear</label>
+                            <select id="wearsCorrection" class="form-control">
+                                <option value="">Select</option><option>None</option><option>Glasses</option><option>Contact lenses</option><option>Both</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label for="lastEyeExam">Last eye exam</label><input type="date" id="lastEyeExam" class="form-control" max="2100-01-01"></div>
+                    </div>
+                    <div class="form-group"><label for="eyeConditions">Eye conditions</label><textarea id="eyeConditions" class="form-control" rows="2" placeholder="e.g. astigmatism, dry eyes, glaucoma" maxlength="2000"></textarea></div>
+                    <div class="form-group"><label for="prescription">Latest prescription</label><textarea id="prescription" class="form-control" rows="2" placeholder="e.g. OD -1.50 / OS -1.75, +0.25 CYL" maxlength="2000"></textarea></div>
+
+                    <h2 class="section-label">Medical history</h2>
+                    <div class="form-group"><label for="allergies">Allergies</label><textarea id="allergies" class="form-control" rows="2" placeholder="e.g. penicillin, latex" maxlength="2000"></textarea></div>
+                    <div class="form-group"><label for="conditions">Medical conditions</label><textarea id="conditions" class="form-control" rows="2" placeholder="e.g. diabetes, hypertension" maxlength="2000"></textarea></div>
+                    <div class="form-group"><label for="medications">Current medications</label><textarea id="medications" class="form-control" rows="2" maxlength="2000"></textarea></div>
+                    <div class="form-row">
+                        <div class="form-group"><label for="emergencyContactName">Emergency contact</label><input type="text" id="emergencyContactName" class="form-control" maxlength="255"></div>
+                        <div class="form-group"><label for="emergencyContactPhone">Emergency contact phone</label><input type="tel" id="emergencyContactPhone" class="form-control" maxlength="100"></div>
+                    </div>
+
+                    <h2 class="section-label">Anything else</h2>
+                    <div class="form-group"><label for="notes">Notes for the clinic</label><textarea id="notes" class="form-control" rows="3" placeholder="Anything else we should know" maxlength="5000"></textarea></div>
+
+                    <div class="record-actions">
+                        <button type="submit" class="btn btn-primary" id="saveBtn"><span>Save record</span></button>
+                        <span class="stamp" id="savedStamp"></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+
+    <script src="js/database.js"></script>
+    <script src="js/theme.js?v=23"></script>
+    <script>
+        const $ = (id) => document.getElementById(id);
+        const { toast } = window.OpticsUI || {};
+        const SPIN = '<span class="spin" aria-hidden="true"></span>';
+        const FIELDS = ['fullName','contactNumber','dateOfBirth','sex','address','bloodType','wearsCorrection','lastEyeExam',
+                        'eyeConditions','prescription','allergies','conditions','medications',
+                        'emergencyContactName','emergencyContactPhone','notes'];
+
+        const fmtDateTime = (d) => { const x = new Date(String(d).replace(' ', 'T')); return isNaN(x) ? '' : x.toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' }); };
+
+        $('signOut').addEventListener('click', async () => {
+            await window.OpticsDB.customerLogout();
+            location.href = 'index.html';
+        });
+
+        function fill(rec) {
+            $('acctName').textContent = rec.fullName || 'My account';
+            $('acctEmail').textContent = rec.email || '';
+            $('acctContact').textContent = rec.contactNumber || 'No contact number on file';
+            $('acctSince').textContent = rec.accountCreatedAt ? `Member since ${new Date(String(rec.accountCreatedAt).replace(' ', 'T')).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' })}` : '';
+            for (const f of FIELDS) if ($(f)) $(f).value = rec[f] ?? '';
+            $('savedStamp').textContent = rec.updatedAt ? `Last updated ${fmtDateTime(rec.updatedAt)}` : '';
+        }
+
+        async function load() {
+            try {
+                fill(await window.OpticsDB.getMyRecord());
+            } catch (e) {
+                if (e.status === 401) { location.replace('account.html'); return; }
+                $('recordError').textContent = 'We could not load your record. Check your connection and refresh.';
+                $('recordError').hidden = false;
+            }
+        }
+
+        $('recordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const err = $('recordError'), btn = $('saveBtn');
+            err.hidden = true;
+            if (!$('fullName').value.trim()) { err.textContent = 'Please enter your full name.'; err.hidden = false; $('fullName').focus(); return; }
+            const data = {};
+            for (const f of FIELDS) {
+                const v = $(f).value.trim();
+                data[f] = v === '' ? null : v;
+            }
+            btn.disabled = true; btn.firstElementChild.innerHTML = `${SPIN}Saving...`;
+            try {
+                fill(await window.OpticsDB.updateMyRecord(data));
+                toast && toast('Your record was saved.', 'success');
+            } catch (ex) {
+                err.textContent = ex.message || 'Could not save your record. Please try again.';
+                err.hidden = false;
+            } finally {
+                btn.disabled = false; btn.firstElementChild.textContent = 'Save record';
+            }
+        });
+
+        load();
+    </script>
+</body>
+</html>

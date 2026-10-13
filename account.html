@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in | One Optics Clinic</title>
+    <meta name="description" content="Sign in or create a free One Optics Clinic account to keep your patient record and book faster.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=23">
+    <link rel="stylesheet" href="css/admin.css?v=23">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23a8121f'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round'%3E%3Ccircle cx='20' cy='36' r='10'/%3E%3Ccircle cx='44' cy='36' r='10'/%3E%3Cpath d='M30 34q2-3 4 0'/%3E%3C/g%3E%3C/svg%3E">
+    <script>
+        if (localStorage.getItem('custToken')) { location.replace('my-record.html'); }
+        if (localStorage.getItem('oneOpticsTheme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+            document.addEventListener('DOMContentLoaded', () => document.body.classList.add('dark-mode'));
+        }
+    </script>
+</head>
+<body class="adm-body">
+
+    <div class="login-shell">
+        <!-- Brand panel -->
+        <aside class="login-brand">
+            <a href="index.html" class="lb-logo" aria-label="One Optics Clinic home">
+                <span class="lb-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/><path d="M10 15h4M2 15l2-8M22 15l-2-8"/></svg></span>
+                <span>ONE OPTICS<small>Clinic</small></span>
+            </a>
+
+            <div class="lb-body">
+                <h2>Your eye care, on your account.</h2>
+                <p>Create a free account to keep your patient record up to date and make every visit smoother.</p>
+                <ul class="lb-list">
+                    <li>
+                        <span class="lb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></span>
+                        <span><strong>Patient record</strong>Keep your details, prescriptions and history in one place</span>
+                    </li>
+                    <li>
+                        <span class="lb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+                        <span><strong>Faster booking</strong>Your details pre-fill the appointment form</span>
+                    </li>
+                    <li>
+                        <span class="lb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+                        <span><strong>Better care</strong>The clinic sees your eye history before you arrive</span>
+                    </li>
+                </ul>
+            </div>
+
+            <p class="lb-foot">Staff member? <a href="admin-login.html" style="color:#fff; font-weight:600; text-decoration:underline;">Use the staff login</a>.</p>
+        </aside>
+
+        <!-- Forms -->
+        <main class="login-main" id="main-content">
+            <div class="login-card">
+                <a href="index.html" class="login-mobile-logo">
+                    <span class="lb-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/><path d="M10 15h4M2 15l2-8M22 15l-2-8"/></svg></span>
+                    <span>ONE OPTICS Clinic</span>
+                </a>
+
+                <a href="index.html" class="login-back">&larr; Back to website</a>
+                <h1 id="formTitle">Welcome back</h1>
+                <p class="login-sub" id="formSub">Sign in to view and update your patient record.</p>
+
+                <div id="errorMsg" class="login-error" role="alert" hidden>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+                    <span id="errorText"></span>
+                </div>
+
+                <!-- Sign in -->
+                <form id="signinForm" novalidate>
+                    <div class="form-group">
+                        <label for="si-email">Email address</label>
+                        <div class="field">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M4 6l8 6 8-6"/></svg>
+                            <input type="email" id="si-email" class="form-control" placeholder="you@example.com" autocomplete="email" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="si-password">Password</label>
+                        <div class="field">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                            <input type="password" id="si-password" class="form-control" placeholder="Password" autocomplete="current-password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block login-btn"><span>Sign in</span></button>
+                </form>
+
+                <!-- Create account -->
+                <form id="registerForm" novalidate hidden>
+                    <div class="form-group">
+                        <label for="rg-name">Full name</label>
+                        <input type="text" id="rg-name" class="form-control" autocomplete="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rg-email">Email address</label>
+                        <input type="email" id="rg-email" class="form-control" autocomplete="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rg-contact">Contact number <small style="color:var(--text-light); font-weight:400">(optional)</small></label>
+                        <input type="tel" id="rg-contact" class="form-control" autocomplete="tel" inputmode="tel">
+                    </div>
+                    <div class="form-group">
+                        <label for="rg-password">Password <small style="color:var(--text-light); font-weight:400">(8+ characters)</small></label>
+                        <input type="password" id="rg-password" class="form-control" autocomplete="new-password" minlength="8" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rg-confirm">Confirm password</label>
+                        <input type="password" id="rg-confirm" class="form-control" autocomplete="new-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block login-btn"><span>Create account</span></button>
+                </form>
+
+                <p class="login-help" id="switchLine">New to One Optics? <a href="#" id="switchMode" style="color:var(--primary-color); font-weight:600;">Create an account</a></p>
+            </div>
+        </main>
+    </div>
+
+    <button type="button" id="theme-toggle" class="theme-toggle theme-fab" aria-label="Toggle dark mode"></button>
+
+    <script src="js/database.js"></script>
+    <script src="js/theme.js?v=23"></script>
+    <script>
+        const $ = (id) => document.getElementById(id);
+        const box = $('errorMsg');
+        const SPIN = '<span class="spin" aria-hidden="true"></span>';
+
+        let mode = 'signin';
+        function setMode(next) {
+            mode = next;
+            const registering = mode === 'register';
+            $('signinForm').hidden = registering;
+            $('registerForm').hidden = !registering;
+            $('formTitle').textContent = registering ? 'Create your account' : 'Welcome back';
+            $('formSub').textContent = registering ? 'One quick step and your patient record is ready to fill in.' : 'Sign in to view and update your patient record.';
+            $('switchLine').innerHTML = registering
+                ? 'Already have an account? <a href="#" id="switchMode" style="color:var(--primary-color); font-weight:600;">Sign in</a>'
+                : 'New to One Optics? <a href="#" id="switchMode" style="color:var(--primary-color); font-weight:600;">Create an account</a>';
+            box.hidden = true;
+            (registering ? $('rg-name') : $('si-email')).focus();
+        }
+        document.addEventListener('click', (e) => { if (e.target.closest('#switchMode')) { e.preventDefault(); setMode(mode === 'signin' ? 'register' : 'signin'); } });
+        if (location.hash === '#register') setMode('register');
+
+        function fail(message, field) {
+            $('errorText').textContent = message;
+            box.hidden = false;
+            box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+            if (field && field.id) { field.setAttribute('aria-invalid', 'true'); field.focus(); }
+        }
+        document.addEventListener('input', () => { box.hidden = true; });
+
+        function busy(btn, on, label) {
+            btn.disabled = on;
+            btn.firstElementChild.innerHTML = on ? `${SPIN}${label}` : label;
+        }
+
+        $('signinForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            box.hidden = true;
+            const email = $('si-email').value.trim(), pass = $('si-password').value;
+            if (!email) { fail('Enter your email address.', $('si-email')); return; }
+            if (!pass) { fail('Enter your password.', $('si-password')); return; }
+            const btn = e.target.querySelector('button[type=submit]');
+            busy(btn, true, 'Signing in...');
+            try {
+                await window.OpticsDB.customerLogin(email, pass);
+                location.href = 'my-record.html';
+            } catch (ex) {
+                busy(btn, false, 'Sign in');
+                fail(ex instanceof TypeError ? 'We could not reach the server. Please try again.' : (ex.message || 'Could not sign in.'), $('si-password'));
+            }
+        });
+
+        $('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            box.hidden = true;
+            const f = { fullName: $('rg-name'), email: $('rg-email'), contactNumber: $('rg-contact'), password: $('rg-password'), confirm: $('rg-confirm') };
+            if (!f.fullName.value.trim()) { fail('Enter your full name.', f.fullName); return; }
+            if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.value.trim())) { fail('Enter a valid email address.', f.email); return; }
+            if (f.password.value.length < 8) { fail('Your password must be at least 8 characters.', f.password); return; }
+            if (f.password.value !== f.confirm.value) { fail('Passwords do not match.', f.confirm); return; }
+            const btn = e.target.querySelector('button[type=submit]');
+            busy(btn, true, 'Creating account...');
+            try {
+                await window.OpticsDB.customerRegister({
+                    fullName: f.fullName.value.trim(),
+                    email: f.email.value.trim(),
+                    password: f.password.value,
+                    contactNumber: f.contactNumber.value.trim() || undefined
+                });
+                location.href = 'my-record.html';
+            } catch (ex) {
+                busy(btn, false, 'Create account');
+                const map = { fullName: f.fullName, email: f.email, contactNumber: f.contactNumber, password: f.password };
+                fail(ex instanceof TypeError ? 'We could not reach the server. Please try again.' : (ex.message || 'Could not create the account.'), map[ex.field]);
+            }
+        });
+    </script>
+</body>
+</html>

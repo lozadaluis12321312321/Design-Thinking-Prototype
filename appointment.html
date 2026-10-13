@@ -284,6 +284,16 @@
 
         /* ---------- doctors ---------- */
         document.addEventListener('DOMContentLoaded', async () => {
+            // Signed-in customers get their saved details pre-filled.
+            try {
+                const cust = window.OpticsDB.getCustUser && window.OpticsDB.getCustUser();
+                if (cust) {
+                    if (!$('fullName').value) $('fullName').value = cust.fullName || '';
+                    if (!$('contactNumber').value && cust.contactNumber) $('contactNumber').value = cust.contactNumber;
+                    if (!$('email').value) $('email').value = cust.email || '';
+                    progress();
+                }
+            } catch (e) { /* storage unavailable */ }
             const list = $('doctor-list');
             try {
                 doctors = await window.OpticsDB.getDoctors();
