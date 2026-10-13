@@ -52,13 +52,102 @@ function requestPath() {
     return preg_match('/\.php(\/.*)$/', $uri, $m) ? $m[1] : '';
 }
 
-function checkAuth() {
+const ADMIN_TOKEN = 'php_admin_token_123';
+
+// Raw bearer token from the Authorization header, or '' when absent.
+function bearerToken() {
     // Header names are case-insensitive and some hosts (e.g. Vercel) lowercase them; also fall back to $_SERVER.
     $headers = array_change_key_case(function_exists('getallheaders') ? getallheaders() : [], CASE_LOWER);
     $authHeader = $headers['authorization'] ?? $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-    if (strpos($authHeader, 'Bearer php_admin_token_123') === false) {
+    return preg_match('/Bearer\s+(\S+)/i', $authHeader, $m) ? $m[1] : '';
+}
+
+function isAdmin() {
+    return hash_equals(ADMIN_TOKEN, bearerToken());
+}
+
+function checkAuth() {
+    if (!isAdmin()) {
         http_response_code(401);
         echo json_encode(["error" => "Unauthorized"]);
         exit();
     }
+}
+
+function jsonBody() {
+    return json_decode(file_get_contents("php://input"), true) ?: [];
+}
+
+function fail($code, $message, $extra = []) {
+    http_response_code($code);
+    echo json_encode(["error" => $message] + $extra);
+    exit();
+}
+
+// Customer accounts + patient records live in tables that older deployments don't have yet,
+// so create them on demand (mirrors database.sql).
+function ensurePatientTables($pdo) {
+    static $done = false;
+    if ($done) return;
+    $done = true;
+    $pdo->exec("CREATE TABLE IF NOT EXISTS customers (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        fullName varchar(255) NOT NULL,
+        email varchar(255) NOT NULL,
+        password varchar(255) NOT NULL,
+        contactNumber varchar(100) DEFAULT NULL,
+        createdAt datetime NOT NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY email (email)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS customer_tokens (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        customerId int(11) NOT NULL,
+        tokenHash char(64) NOT NULL,
+        expiresAt datetime NOT NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY tokenHash (tokenHash),
+        KEY customerId (customerId)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS patient_records (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        customerId int(11) NOT NULL,
+        dateOfBirth date DEFAULT NULL,
+        sex varchar(20) DEFAULT NULL,
+        address varchar(500) DEFAULT NULL,
+        bloodType varchar(5) DEFAULT NULL,
+        allergies text DEFAULT NULL,
+        medications text DEFAULT NULL,
+        conditions text DEFAULT NULL,
+        eyeConditions text DEFAULT NULL,
+        wearsCorrection varchar(30) DEFAULT NULL,
+        lastEyeExam date DEFAULT NULL,
+        prescription text DEFAULT NULL,
+        emergencyContactName varchar(255) DEFAULT NULL,
+        emergencyContactPhone varchar(100) DEFAULT NULL,
+        notes text DEFAULT NULL,
+        clinicalNotes text DEFAULT NULL,
+        createdAt datetime NOT NULL,
+        updatedAt datetime NOT NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY customerId (customerId)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+// The signed-in customer for the current bearer token, or null.
+function currentCustomer($pdo) {
+    $token = bearerToken();
+    if ($token === '' || strpos($token, 'cust_') !== 0) return null;
+    ensurePatientTables($pdo);
+    $stmt = $pdo->prepare("SELECT c.id, c.fullName, c.email, c.contactNumber, c.createdAt
+                           FROM customer_tokens t JOIN customers c ON c.id = t.customerId
+                           WHERE t.tokenHash = ? AND t.expiresAt > NOW()");
+    $stmt->execute([hash('sha256', $token)]);
+    return $stmt->fetch() ?: null;
+}
+
+function requireCustomer($pdo) {
+    $customer = currentCustomer($pdo);
+    if (!$customer) fail(401, "Please sign in to continue.");
+    return $customer;
 }

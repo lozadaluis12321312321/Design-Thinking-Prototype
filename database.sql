@@ -79,6 +79,54 @@ CREATE TABLE `orders` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Customer accounts (public sign up / sign in). Passwords are bcrypt hashes.
+CREATE TABLE IF NOT EXISTS `customers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `fullName` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `contactNumber` varchar(100) DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Bearer tokens for signed-in customers (sha256 of the token is stored, not the token itself).
+CREATE TABLE IF NOT EXISTS `customer_tokens` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `customerId` int(11) NOT NULL,
+  `tokenHash` char(64) NOT NULL,
+  `expiresAt` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `tokenHash` (`tokenHash`),
+  KEY `customerId` (`customerId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- One patient record per customer. Customers edit their own; admins can see and edit every record.
+CREATE TABLE IF NOT EXISTS `patient_records` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `customerId` int(11) NOT NULL,
+  `dateOfBirth` date DEFAULT NULL,
+  `sex` varchar(20) DEFAULT NULL,
+  `address` varchar(500) DEFAULT NULL,
+  `bloodType` varchar(5) DEFAULT NULL,
+  `allergies` text DEFAULT NULL,
+  `medications` text DEFAULT NULL,
+  `conditions` text DEFAULT NULL,
+  `eyeConditions` text DEFAULT NULL,
+  `wearsCorrection` varchar(30) DEFAULT NULL,
+  `lastEyeExam` date DEFAULT NULL,
+  `prescription` text DEFAULT NULL,
+  `emergencyContactName` varchar(255) DEFAULT NULL,
+  `emergencyContactPhone` varchar(100) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `clinicalNotes` text DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `customerId` (`customerId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE `order_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `orderId` int(11) DEFAULT NULL,
