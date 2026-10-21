@@ -318,7 +318,7 @@
 <script src="js/ui-core.js?v=25"></script>
 <script src="js/theme.js?v=25"></script>
 <script>
-    const { toast, openLayer, closeLayer, esc } = window.OpticsUI;
+    const { toast, openLayer, closeLayer, esc, digitsOnly } = window.OpticsUI;
     const $ = (id) => document.getElementById(id);
     const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { maximumFractionDigits: 2 });
     const fmtDate = (d) => { const x = new Date(String(d) + 'T00:00:00'); return isNaN(x) ? esc(d) : x.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }); };
