@@ -19,6 +19,7 @@ if ($method === 'GET') {
     echo json_encode($stmt->fetchAll());
 } elseif ($method === 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
+    $data['contactNumber'] = cleanPhone($data['contactNumber'] ?? '', 'contactNumber', true);
     
     // Check for existing appointment
     $checkStmt = $pdo->prepare("SELECT id FROM appointments WHERE doctorId = ? AND date = ? AND time = ? AND status NOT IN ('Cancelled', 'Completed')");
@@ -47,4 +48,13 @@ if ($method === 'GET') {
         $stmt->execute([$data['status'], $id]);
         echo json_encode(["message" => "Status updated"]);
     }
+} elseif ($method === 'DELETE') {
+    checkAuth();
+    preg_match('#^/(\d+)#', requestPath(), $matches);
+    $id = isset($matches[1]) ? intval($matches[1]) : intval($_GET['id'] ?? 0);
+    if (!$id) { http_response_code(400); echo json_encode(["error" => "Missing appointment id"]); exit; }
+    $stmt = $pdo->prepare("DELETE FROM appointments WHERE id = ?");
+    $stmt->execute([$id]);
+    if ($stmt->rowCount() === 0) { http_response_code(404); echo json_encode(["error" => "Appointment not found"]); exit; }
+    echo json_encode(["message" => "Appointment deleted"]);
 }

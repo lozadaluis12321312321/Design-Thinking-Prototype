@@ -221,5 +221,13 @@
     if (t && t.tagName === 'IMG' && t.matches('.product-img, .doctor-img, .adm-img, img[class*="product"], img[class*="cart"]')) swap(t);
   }, true);
 
-  window.OpticsUI = { toast, openLayer, closeLayer, confirm: confirmDialog, esc };
+  // ---------- Digits-only inputs: any <input data-digits> only ever holds 0-9 (typing, paste, autofill) ----------
+  const digitsOnly = (el) => { const v = el.value.replace(/\D+/g, ''); if (v !== el.value) el.value = v; return el.value; };
+  document.addEventListener('input', (e) => { if (e.target.matches && e.target.matches('[data-digits]')) digitsOnly(e.target); });
+  document.addEventListener('keydown', (e) => {
+    if (!e.target.matches || !e.target.matches('[data-digits]') || e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
+    if (!/[0-9]/.test(e.key)) e.preventDefault();
+  });
+
+  window.OpticsUI = { toast, openLayer, closeLayer, confirm: confirmDialog, esc, digitsOnly };
 })();

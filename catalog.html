@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=23">
+    <link rel="stylesheet" href="css/style.css?v=24">
     <script>
         if (localStorage.getItem('oneOpticsTheme') === 'dark') {
             document.documentElement.classList.add('dark-mode');
@@ -20,7 +20,7 @@
 
     <!-- Navigation -->
     <header id="site-header"></header>
-    <script src="js/ui-core.js?v=23"></script>
+    <script src="js/ui-core.js?v=24"></script>
 
     <main id="main-content">
         <section class="page-head">
@@ -120,7 +120,7 @@
                     <button type="button" class="btn btn-ghost btn-sm" id="backToItems" style="margin-bottom:1rem;">&larr; Back to cart</button>
                     <div class="form-group"><label for="coName">Full name</label><input type="text" id="coName" class="form-control" autocomplete="name" required></div>
                     <div class="form-group"><label for="coEmail">Email</label><input type="email" id="coEmail" class="form-control" autocomplete="email" required></div>
-                    <div class="form-group"><label for="coPhone">Contact number</label><input type="tel" id="coPhone" class="form-control" autocomplete="tel" required></div>
+                    <div class="form-group"><label for="coPhone">Contact number</label><input type="tel" id="coPhone" class="form-control" autocomplete="tel" inputmode="numeric" pattern="[0-9]{7,15}" minlength="7" maxlength="15" placeholder="09XXXXXXXXX" data-digits required></div>
                     <div class="form-group">
                         <label for="coPayment">Payment</label>
                         <select id="coPayment" class="form-control" required>
@@ -153,8 +153,8 @@
     <footer id="site-footer"></footer>
 
     <script src="js/database.js"></script>
-    <script src="js/theme.js?v=23"></script>
-    <script src="js/ui.js?v=23"></script>
+    <script src="js/theme.js?v=24"></script>
+    <script src="js/ui.js?v=24"></script>
 
     <script>
         const { toast, openLayer, closeLayer, esc } = window.OpticsUI;
@@ -377,7 +377,7 @@
             const form = e.currentTarget, err = $('coError'), btn = $('placeOrder');
             err.hidden = true;
             if (!form.checkValidity()) {
-                err.textContent = 'Please complete your name, a valid email and a contact number.';
+                err.textContent = $('coPhone').validity.valid ? 'Please complete your name, a valid email and a contact number.' : 'Contact number must be 7 to 15 digits (numbers only).';
                 err.hidden = false; form.reportValidity(); return;
             }
             const order = {

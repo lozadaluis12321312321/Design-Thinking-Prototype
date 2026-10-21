@@ -101,6 +101,15 @@ async function updateAppointmentStatus(id, status) {
   return await apiRequest(`/appointments.php/${id}/status`, 'PUT', { status }, true);
 }
 
+async function deleteAppointment(id) {
+  return await apiRequest(`/appointments.php/${id}`, 'DELETE', null, true);
+}
+
+// --- Order API (admin) ---
+async function deleteOrder(id) {
+  return await apiRequest(`/orders.php/${id}`, 'DELETE', null, true);
+}
+
 // --- Customer account + patient record API ---
 function getCustToken() {
   return localStorage.getItem('custToken');
@@ -223,6 +232,8 @@ window.OpticsDB = {
   getUnavailableTimes,
   bookAppointment,
   updateAppointmentStatus,
+  deleteAppointment,
+  deleteOrder,
   login,
   logout,
   getCustToken,

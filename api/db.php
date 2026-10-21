@@ -84,6 +84,18 @@ function fail($code, $message, $extra = []) {
     exit();
 }
 
+// Phone numbers are digits only (7-15). Returns the cleaned string, null when blank and
+// not required, or exits with 422 when invalid.
+function cleanPhone($value, $field = 'contactNumber', $required = false) {
+    $raw = trim((string)($value ?? ''));
+    if ($raw === '') {
+        if ($required) fail(422, "Contact number is required.", ['field' => $field]);
+        return null;
+    }
+    if (!preg_match('/^\d{7,15}$/', $raw)) fail(422, "Phone number must be 7 to 15 digits (numbers only).", ['field' => $field]);
+    return $raw;
+}
+
 // Customer accounts + patient records live in tables that older deployments don't have yet,
 // so create them on demand (mirrors database.sql).
 function ensurePatientTables($pdo) {

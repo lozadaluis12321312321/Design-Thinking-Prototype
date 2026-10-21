@@ -31,12 +31,10 @@ if ($method === 'POST' && $action === 'register') {
     $fullName = trim($data['fullName'] ?? '');
     $email = strtolower(trim($data['email'] ?? ''));
     $password = $data['password'] ?? '';
-    $contact = trim($data['contactNumber'] ?? '') ?: null;
-
     if ($fullName === '' || mb_strlen($fullName) > 255) fail(400, "Please enter your full name.", ['field' => 'fullName']);
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) fail(400, "Please enter a valid email address.", ['field' => 'email']);
     if (strlen($password) < 8) fail(400, "Your password must be at least 8 characters.", ['field' => 'password']);
-    if ($contact !== null && mb_strlen($contact) > 100) fail(400, "That contact number is too long.", ['field' => 'contactNumber']);
+    $contact = cleanPhone($data['contactNumber'] ?? '', 'contactNumber');
 
     $exists = $pdo->prepare("SELECT id FROM customers WHERE email = ?");
     $exists->execute([$email]);

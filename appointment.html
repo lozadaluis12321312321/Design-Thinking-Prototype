@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=23">
+    <link rel="stylesheet" href="css/style.css?v=24">
     <script>
         if (localStorage.getItem('oneOpticsTheme') === 'dark') {
             document.documentElement.classList.add('dark-mode');
@@ -86,7 +86,7 @@
 <body>
 
     <header id="site-header"></header>
-    <script src="js/ui-core.js?v=23"></script>
+    <script src="js/ui-core.js?v=24"></script>
 
     <main id="main-content">
         <section class="page-head">
@@ -133,7 +133,7 @@
                         </div>
                         <div class="form-group">
                             <label for="contactNumber">Contact number *</label>
-                            <input type="tel" id="contactNumber" class="form-control" autocomplete="tel" inputmode="tel" required>
+                            <input type="tel" id="contactNumber" class="form-control" autocomplete="tel" inputmode="numeric" pattern="[0-9]{7,15}" minlength="7" maxlength="15" placeholder="09XXXXXXXXX" data-digits required>
                             <p class="field-error" hidden></p>
                         </div>
                     </div>
@@ -223,8 +223,8 @@
     <footer id="site-footer"></footer>
 
     <script src="js/database.js"></script>
-    <script src="js/theme.js?v=23"></script>
-    <script src="js/ui.js?v=23"></script>
+    <script src="js/theme.js?v=24"></script>
+    <script src="js/ui.js?v=24"></script>
 
     <script>
         const { toast, esc } = window.OpticsUI;
@@ -244,7 +244,7 @@
         /* ---------- inline validation ---------- */
         const rules = {
             fullName: (v) => v.trim().length >= 2 || 'Please enter your full name.',
-            contactNumber: (v) => /^[+0-9()\-\s]{7,20}$/.test(v.trim()) || 'Please enter a valid contact number.',
+            contactNumber: (v) => /^[0-9]{7,15}$/.test(v.trim()) || 'Contact number must be 7 to 15 digits (numbers only).',
             email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) || 'Please enter a valid email address.',
             type: (v) => !!v || 'Please choose an appointment type.',
             date: (v) => (!!v && v >= localISO(new Date())) || 'Please choose today or a future date.'

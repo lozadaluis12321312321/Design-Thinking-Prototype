@@ -16,6 +16,7 @@ if ($method === 'GET') {
     echo json_encode($orders);
 } elseif ($method === 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
+    $data['contactNumber'] = cleanPhone($data['contactNumber'] ?? '', 'contactNumber', true);
     $date = date('Y-m-d H:i:s');
     
     $pdo->beginTransaction();
@@ -49,6 +50,24 @@ if ($method === 'GET') {
         $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
         $stmt->execute([$data['status'], $id]);
         echo json_encode(["message" => "Status updated"]);
+    }
+} elseif ($method === 'DELETE') {
+    checkAuth();
+    preg_match('#^/(\d+)#', requestPath(), $matches);
+    $id = isset($matches[1]) ? intval($matches[1]) : intval($_GET['id'] ?? 0);
+    if (!$id) { http_response_code(400); echo json_encode(["error" => "Missing order id"]); exit; }
+    $pdo->beginTransaction();
+    try {
+        $pdo->prepare("DELETE FROM order_items WHERE orderId = ?")->execute([$id]);
+        $stmt = $pdo->prepare("DELETE FROM orders WHERE id = ?");
+        $stmt->execute([$id]);
+        if ($stmt->rowCount() === 0) { $pdo->rollBack(); http_response_code(404); echo json_encode(["error" => "Order not found"]); exit; }
+        $pdo->commit();
+        echo json_encode(["message" => "Order deleted"]);
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        http_response_code(500);
+        echo json_encode(["error" => $e->getMessage()]);
     }
 }
 ?>

@@ -47,6 +47,7 @@ function cleanRecord($data, $allowed) {
         $v = is_string($v) ? trim($v) : $v;
         if ($v === '' || $v === null) { $out[$field] = null; continue; }
         if (!is_string($v)) fail(400, "Invalid value for $field.", ['field' => $field]);
+        if ($field === 'emergencyContactPhone') { $out[$field] = cleanPhone($v, $field); continue; }
         if ($limit === 'date') {
             if (!validDate($v)) fail(400, "Please enter a valid date (not in the future) for $field.", ['field' => $field]);
         } elseif (mb_strlen($v) > $limit) {
@@ -65,11 +66,7 @@ function cleanProfile($data) {
         if ($name === '' || mb_strlen($name) > 255) fail(400, "Please enter a full name.", ['field' => 'fullName']);
         $out['fullName'] = $name;
     }
-    if (array_key_exists('contactNumber', $data)) {
-        $c = trim((string)$data['contactNumber']);
-        if (mb_strlen($c) > 100) fail(400, "That contact number is too long.", ['field' => 'contactNumber']);
-        $out['contactNumber'] = $c === '' ? null : $c;
-    }
+    if (array_key_exists('contactNumber', $data)) $out['contactNumber'] = cleanPhone($data['contactNumber'], 'contactNumber');
     return $out;
 }
 
