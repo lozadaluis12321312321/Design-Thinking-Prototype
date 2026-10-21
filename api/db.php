@@ -96,6 +96,36 @@ function cleanPhone($value, $field = 'contactNumber', $required = false) {
     return $raw;
 }
 
+// Records are never hard-deleted: admins archive them instead. These tables carry
+// isActive (1 = active, 0 = archived) and archivedAt. Added on demand for older databases.
+const ARCHIVABLE = ['appointments', 'orders', 'doctors', 'customers'];
+
+function ensureArchiveColumns($pdo) {
+    static $done = false;
+    if ($done) return;
+    $done = true;
+    $in = implode(',', array_fill(0, count(ARCHIVABLE), '?'));
+    $stmt = $pdo->prepare("SELECT TABLE_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND COLUMN_NAME = 'isActive' AND TABLE_NAME IN ($in)");
+    $stmt->execute(ARCHIVABLE);
+    $have = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    $exists = $pdo->query("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()")->fetchAll(PDO::FETCH_COLUMN);
+    foreach (ARCHIVABLE as $t) {
+        if (in_array($t, $have) || !in_array($t, $exists)) continue;
+        $pdo->exec("ALTER TABLE `$t` ADD COLUMN isActive tinyint(1) NOT NULL DEFAULT 1, ADD COLUMN archivedAt datetime DEFAULT NULL");
+    }
+}
+
+// Flip isActive for one row and answer JSON. $action is 'archive' or 'restore'.
+function setActive($pdo, $table, $id, $action, $label) {
+    $active = $action === 'restore' ? 1 : 0;
+    $stmt = $pdo->prepare("UPDATE `$table` SET isActive = ?, archivedAt = ? WHERE id = ?");
+    $stmt->execute([$active, $active ? null : date('Y-m-d H:i:s'), $id]);
+    $check = $pdo->prepare("SELECT id FROM `$table` WHERE id = ?");
+    $check->execute([$id]);
+    if (!$check->fetch()) fail(404, "$label not found");
+    echo json_encode(["message" => "$label " . ($active ? "restored" : "archived"), "isActive" => $active]);
+}
+
 // Customer accounts + patient records live in tables that older deployments don't have yet,
 // so create them on demand (mirrors database.sql).
 function ensurePatientTables($pdo) {
@@ -144,16 +174,17 @@ function ensurePatientTables($pdo) {
         PRIMARY KEY (id),
         UNIQUE KEY customerId (customerId)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    ensureArchiveColumns($pdo);
 }
 
-// The signed-in customer for the current bearer token, or null.
+// Inactive (archived) customers cannot use the site until an admin restores them.
 function currentCustomer($pdo) {
     $token = bearerToken();
     if ($token === '' || strpos($token, 'cust_') !== 0) return null;
     ensurePatientTables($pdo);
     $stmt = $pdo->prepare("SELECT c.id, c.fullName, c.email, c.contactNumber, c.createdAt
                            FROM customer_tokens t JOIN customers c ON c.id = t.customerId
-                           WHERE t.tokenHash = ? AND t.expiresAt > NOW()");
+                           WHERE t.tokenHash = ? AND t.expiresAt > NOW() AND c.isActive = 1");
     $stmt->execute([hash('sha256', $token)]);
     return $stmt->fetch() ?: null;
 }

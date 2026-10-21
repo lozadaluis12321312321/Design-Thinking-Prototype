@@ -101,14 +101,17 @@ async function updateAppointmentStatus(id, status) {
   return await apiRequest(`/appointments.php/${id}/status`, 'PUT', { status }, true);
 }
 
-async function deleteAppointment(id) {
-  return await apiRequest(`/appointments.php/${id}`, 'DELETE', null, true);
+// --- Archive / restore (admin): records are never deleted, only set inactive ---
+async function setArchived(resource, id, archive = true) {
+  return await apiRequest(`/${resource}.php/${id}/${archive ? 'archive' : 'restore'}`, 'PUT', null, true);
 }
 
-// --- Order API (admin) ---
-async function deleteOrder(id) {
-  return await apiRequest(`/orders.php/${id}`, 'DELETE', null, true);
-}
+const archiveAppointment = (id) => setArchived('appointments', id, true);
+const restoreAppointment = (id) => setArchived('appointments', id, false);
+const archiveOrder = (id) => setArchived('orders', id, true);
+const restoreOrder = (id) => setArchived('orders', id, false);
+const archiveDoctor = (id) => setArchived('doctors', id, true);
+const restoreDoctor = (id) => setArchived('doctors', id, false);
 
 // --- Customer account + patient record API ---
 function getCustToken() {
@@ -197,9 +200,8 @@ async function updatePatientRecord(id, data) {
   return await apiRequest(`/patient_records.php/${id}`, 'PUT', data, true);
 }
 
-async function deletePatientRecord(id) {
-  return await apiRequest(`/patient_records.php/${id}`, 'DELETE', null, true);
-}
+const archivePatientRecord = (id) => setArchived('patient_records', id, true);
+const restorePatientRecord = (id) => setArchived('patient_records', id, false);
 
 // --- Auth API ---
 async function login(username, password) {
@@ -232,8 +234,14 @@ window.OpticsDB = {
   getUnavailableTimes,
   bookAppointment,
   updateAppointmentStatus,
-  deleteAppointment,
-  deleteOrder,
+  archiveAppointment,
+  restoreAppointment,
+  archiveOrder,
+  restoreOrder,
+  archiveDoctor,
+  restoreDoctor,
+  archivePatientRecord,
+  restorePatientRecord,
   login,
   logout,
   getCustToken,
@@ -246,6 +254,5 @@ window.OpticsDB = {
   updateMyRecord,
   getPatientRecords,
   getPatientRecord,
-  updatePatientRecord,
-  deletePatientRecord
+  updatePatientRecord
 };

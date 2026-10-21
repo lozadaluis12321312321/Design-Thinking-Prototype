@@ -114,6 +114,23 @@ html.dark-mode .adm-side, body.dark-mode .adm-side { background: linear-gradient
 .adm-search input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary-color) 15%, transparent); }
 .adm-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; padding: 1.1rem 1.5rem 1.25rem; border-bottom: 1px solid var(--border-color); }
 
+/* ---------- Active / Archived tabs ---------- */
+.adm-tabs { display: flex; gap: 0.5rem; padding: 1rem 1.5rem 0; }
+.adm-tabs .tab { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.05rem; border-radius: 10px 10px 0 0; border: 1.5px solid transparent; border-bottom: none; background: transparent; color: var(--text-light); font: inherit; font-size: 0.88rem; font-weight: 600; cursor: pointer; position: relative; top: 1.5px; transition: color 0.2s ease, background-color 0.2s ease; }
+.adm-tabs .tab:hover { color: var(--text-dark); }
+.adm-tabs .tab.is-active { background: var(--surface); border-color: var(--border-color); color: var(--primary-color); }
+.adm-tabs .tab.is-active::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1.5px; height: 2.5px; background: var(--surface); }
+.adm-tabs .tab-n { min-width: 22px; height: 20px; padding: 0 6px; display: grid; place-items: center; border-radius: 999px; background: var(--bg-light); color: var(--text-light); font-size: 0.72rem; font-weight: 800; }
+.adm-tabs .tab.is-active .tab-n { background: color-mix(in srgb, var(--primary-color) 14%, transparent); color: var(--primary-color); }
+.adm-tabs + .adm-chips { border-top: 1px solid var(--border-color); }
+.adm-tabs:not(:has(+ .adm-chips)), .adm-tabs:empty { padding-bottom: 0; }
+.adm-tabs:empty { display: none; }
+.adm-tabs:has(+ .adm-chips:empty) { padding-bottom: 1rem; }
+.adm-tabs + .adm-table-wrap, .adm-tabs + .adm-doctors { border-top: 1px solid var(--border-color); }
+.adm-table tr.row-archived td { opacity: 0.55; }
+.adm-doc.is-inactive { opacity: 0.6; filter: saturate(0.6); }
+.pill-inactive { --tone: var(--text-light); }
+
 /* ---------- Tables ---------- */
 .adm-table-wrap { overflow-x: auto; }
 .adm-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.92rem; }

@@ -22,6 +22,8 @@ CREATE TABLE `doctors` (
   `name` varchar(255) NOT NULL,
   `role` varchar(255) NOT NULL,
   `image` varchar(500) DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
+  `archivedAt` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -62,6 +64,8 @@ CREATE TABLE `appointments` (
   `notes` text DEFAULT NULL,
   `status` varchar(50) DEFAULT 'Pending',
   `createdDate` datetime DEFAULT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
+  `archivedAt` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`doctorId`) REFERENCES `doctors`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -76,6 +80,8 @@ CREATE TABLE `orders` (
   `status` varchar(50) DEFAULT 'Pending',
   `paymentMethod` varchar(100) DEFAULT NULL,
   `paymentStatus` varchar(50) DEFAULT 'Pending',
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
+  `archivedAt` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -87,6 +93,8 @@ CREATE TABLE IF NOT EXISTS `customers` (
   `password` varchar(255) NOT NULL,
   `contactNumber` varchar(100) DEFAULT NULL,
   `createdAt` datetime NOT NULL,
+  `isActive` tinyint(1) NOT NULL DEFAULT 1,
+  `archivedAt` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

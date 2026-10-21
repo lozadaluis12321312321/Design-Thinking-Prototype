@@ -1,6 +1,7 @@
 <?php
 require_once 'db.php';
 
+ensureArchiveColumns($pdo);
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
@@ -43,31 +44,19 @@ if ($method === 'GET') {
     }
 } elseif ($method === 'PUT') {
     checkAuth();
-    preg_match('#^/(\d+)/status#', requestPath(), $matches);
-    if(isset($matches[1])) {
-        $id = intval($matches[1]);
+    preg_match('#^/(\d+)/(status|archive|restore)#', requestPath(), $matches);
+    if (!isset($matches[1])) fail(400, "Missing order id");
+    $id = intval($matches[1]);
+    if ($matches[2] === 'status') {
         $data = json_decode(file_get_contents("php://input"), true);
         $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
         $stmt->execute([$data['status'], $id]);
         echo json_encode(["message" => "Status updated"]);
+    } else {
+        setActive($pdo, 'orders', $id, $matches[2], 'Order');
     }
 } elseif ($method === 'DELETE') {
     checkAuth();
-    preg_match('#^/(\d+)#', requestPath(), $matches);
-    $id = isset($matches[1]) ? intval($matches[1]) : intval($_GET['id'] ?? 0);
-    if (!$id) { http_response_code(400); echo json_encode(["error" => "Missing order id"]); exit; }
-    $pdo->beginTransaction();
-    try {
-        $pdo->prepare("DELETE FROM order_items WHERE orderId = ?")->execute([$id]);
-        $stmt = $pdo->prepare("DELETE FROM orders WHERE id = ?");
-        $stmt->execute([$id]);
-        if ($stmt->rowCount() === 0) { $pdo->rollBack(); http_response_code(404); echo json_encode(["error" => "Order not found"]); exit; }
-        $pdo->commit();
-        echo json_encode(["message" => "Order deleted"]);
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        http_response_code(500);
-        echo json_encode(["error" => $e->getMessage()]);
-    }
+    fail(405, "Orders are archived rather than deleted. Use PUT /{id}/archive.");
 }
 ?>

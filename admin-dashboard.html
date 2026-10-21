@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=25">
-    <link rel="stylesheet" href="css/admin.css?v=25">
+    <link rel="stylesheet" href="css/style.css?v=26">
+    <link rel="stylesheet" href="css/admin.css?v=26">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23a8121f'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round'%3E%3Ccircle cx='20' cy='36' r='10'/%3E%3Ccircle cx='44' cy='36' r='10'/%3E%3Cpath d='M30 34q2-3 4 0'/%3E%3C/g%3E%3C/svg%3E">
     <script>
         if (localStorage.getItem('adminAuth') !== 'true' || !localStorage.getItem('adminToken')) { location.replace('admin-login.html'); }
@@ -38,6 +38,8 @@
         <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
         <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></symbol>
         <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5M14 11v5"/></symbol>
+        <symbol id="i-archive" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 002 2h12a2 2 0 002-2V8M10 12h4"/></symbol>
+        <symbol id="i-restore" viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
         <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></symbol>
         <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
         <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
@@ -113,6 +115,7 @@
                         <label class="adm-search"><span class="sr-only">Search appointments</span><svg class="i"><use href="#i-search"/></svg><input type="search" id="apptSearch" placeholder="Search name, doctor, type"></label>
                     </div>
                 </div>
+                <div class="adm-tabs" id="apptTabs" role="tablist" aria-label="Appointment list"></div>
                 <div class="adm-chips" id="apptChips" role="group" aria-label="Filter by status"></div>
                 <div class="adm-table-wrap">
                     <table class="adm-table">
@@ -146,6 +149,7 @@
         <section id="panel-orders" class="adm-panel">
             <div class="adm-card">
                 <div class="adm-card-head"><h2>Manage orders</h2></div>
+                <div class="adm-tabs" id="ordTabs" role="tablist" aria-label="Order list"></div>
                 <div class="adm-table-wrap">
                     <table class="adm-table">
                         <thead><tr><th>Order</th><th>Date</th><th>Customer</th><th class="num">Total</th><th>Payment</th><th>Status</th><th></th></tr></thead>
@@ -162,6 +166,7 @@
                     <h2>Patient records</h2>
                     <div class="adm-tools"><label class="adm-search"><span class="sr-only">Search patients</span><svg class="i"><use href="#i-search"/></svg><input type="search" id="patSearch" placeholder="Search name, email, contact"></label></div>
                 </div>
+                <div class="adm-tabs" id="patTabs" role="tablist" aria-label="Patient list"></div>
                 <div class="adm-table-wrap">
                     <table class="adm-table">
                         <thead><tr><th>Patient</th><th>DOB</th><th>Sex</th><th>Blood type</th><th>Last updated</th><th></th></tr></thead>
@@ -178,6 +183,7 @@
                     <h2>Manage doctors</h2>
                     <button type="button" class="btn btn-primary btn-sm" data-act="doctor-new"><svg class="i" width="15" height="15"><use href="#i-plus"/></svg>Add doctor</button>
                 </div>
+                <div class="adm-tabs" id="docTabs" role="tablist" aria-label="Doctor list"></div>
                 <div class="adm-doctors" id="doctor-grid"></div>
             </div>
         </section>
@@ -315,8 +321,8 @@
 </div>
 
 <script src="js/database.js"></script>
-<script src="js/ui-core.js?v=25"></script>
-<script src="js/theme.js?v=25"></script>
+<script src="js/ui-core.js?v=26"></script>
+<script src="js/theme.js?v=26"></script>
 <script>
     const { toast, openLayer, closeLayer, esc, digitsOnly } = window.OpticsUI;
     const $ = (id) => document.getElementById(id);
@@ -330,7 +336,13 @@
     const token = () => localStorage.getItem('adminToken');
 
     const state = { products: [], appointments: [], doctors: [], orders: [], patients: [], reports: {} };
-    const ui = { apptStatus: 'All', apptQ: '', invQ: '', patQ: '' };
+    const ui = { apptStatus: 'All', apptQ: '', invQ: '', patQ: '', apptView: 'active', ordView: 'active', patView: 'active', docView: 'active' };
+    const activeOf = (x) => Number(x.isActive ?? 1) === 1;
+    function viewTabs(key, act, arch) {
+        const cur = ui[key + 'View'];
+        const b = (v, n, c) => `<button type="button" role="tab" class="tab${cur === v ? ' is-active' : ''}" data-act="view-tab" data-key="${key}" data-view="${v}" aria-selected="${cur === v}">${n} <span class="tab-n">${c}</span></button>`;
+        return b('active', 'Active', act) + b('archived', 'Archived', arch);
+    }
     const APPT_STATUSES = ['Pending', 'Confirmed', 'Completed', 'Cancelled'];
     const ORDER_STATUSES = ['Pending', 'Processing', 'Completed', 'Cancelled'];
 
@@ -416,7 +428,7 @@
     }
 
     function renderDashboard() {
-        const appts = state.appointments;
+        const appts = state.appointments.filter(activeOf);
         const pending = appts.filter((a) => a.status === 'Pending');
         const confirmed = appts.filter((a) => a.status === 'Confirmed');
         $('stat-products').textContent = state.reports.totalProducts || state.products.length;
@@ -433,14 +445,39 @@
         $('queue-upcoming').innerHTML = upcoming.length ? upcoming.map((a) => queueItem(a, false)).join('') : empty('Nothing scheduled', 'Upcoming visits will appear here.');
     }
 
+    function apptActions(a, archived) {
+        const act = archived
+            ? `<button type="button" class="btn-icon ok" data-act="appt-restore" data-id="${a.id}" aria-label="Restore appointment ${a.id}" title="Restore">${ico('restore')}Restore</button>`
+            : `<button type="button" class="btn-icon danger" data-act="appt-archive" data-id="${a.id}" aria-label="Archive appointment ${a.id}" title="Archive">${ico('archive')}Archive</button>`;
+        return `<div class="adm-actions"><button type="button" class="btn-icon" data-act="appt-view" data-id="${a.id}">${ico('eye')}Details</button>${act}</div>`;
+    }
+
     function renderAppointments() {
-        const counts = { All: state.appointments.length };
-        APPT_STATUSES.forEach((s) => { counts[s] = state.appointments.filter((a) => a.status === s).length; });
+        const active = apptSorted().filter(activeOf), archived = apptSorted().filter((a) => !activeOf(a));
+        $('apptTabs').innerHTML = viewTabs('appt', active.length, archived.length);
+        const q = ui.apptQ;
+        const match = (a) => !q || `${a.customerName} ${a.email} ${a.doctorName} ${a.type}`.toLowerCase().includes(q);
+
+        if (ui.apptView === 'archived') {
+            $('apptChips').innerHTML = '';
+            const rows = archived.filter(match);
+            $('appt-body').innerHTML = rows.length ? rows.map((a) => `<tr class="row-archived">
+                <td>#${a.id}</td>
+                <td><strong>${esc(a.customerName)}</strong><span class="sub">${esc(a.email)}</span><span class="sub">${esc(a.contactNumber)}</span></td>
+                <td>${esc(a.doctorName || 'Not selected')}</td>
+                <td>${fmtDate(a.date)}<span class="sub">${esc(a.time)}</span></td>
+                <td>${esc(a.type)}<span class="sub">Archived ${fmtDT(a.archivedAt)}</span></td>
+                <td>${pill(a.status)}</td>
+                <td>${apptActions(a, true)}</td>
+            </tr>`).join('') : empty('No archived appointments', 'Archived appointments stay here for reference.', 7);
+            return;
+        }
+
+        const counts = { All: active.length };
+        APPT_STATUSES.forEach((s) => { counts[s] = active.filter((a) => a.status === s).length; });
         $('apptChips').innerHTML = ['All', ...APPT_STATUSES].map((s) => `<button type="button" class="chip" data-filter="${s}" aria-pressed="${ui.apptStatus === s}">${s} <span style="opacity:.65">${counts[s]}</span></button>`).join('');
 
-        const q = ui.apptQ;
-        const rows = apptSorted().filter((a) => (ui.apptStatus === 'All' || a.status === ui.apptStatus)
-            && (!q || `${a.customerName} ${a.email} ${a.doctorName} ${a.type}`.toLowerCase().includes(q)));
+        const rows = active.filter((a) => (ui.apptStatus === 'All' || a.status === ui.apptStatus) && match(a));
         $('appt-body').innerHTML = rows.length ? rows.map((a) => `<tr>
             <td>#${a.id}</td>
             <td><strong>${esc(a.customerName)}</strong><span class="sub">${esc(a.email)}</span><span class="sub">${esc(a.contactNumber)}</span></td>
@@ -448,10 +485,7 @@
             <td>${fmtDate(a.date)}<span class="sub">${esc(a.time)}</span></td>
             <td>${esc(a.type)}</td>
             <td><select class="status-select" data-act="appt-select" data-id="${a.id}" aria-label="Status for appointment ${a.id}">${APPT_STATUSES.map((s) => `<option ${s === a.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
-            <td><div class="adm-actions">
-                <button type="button" class="btn-icon" data-act="appt-view" data-id="${a.id}">${ico('eye')}Details</button>
-                <button type="button" class="btn-icon danger" data-act="appt-delete" data-id="${a.id}" aria-label="Delete appointment ${a.id}" title="Delete appointment">${ico('trash')}</button>
-            </div></td>
+            <td>${apptActions(a, false)}</td>
         </tr>`).join('') : empty('No appointments found', q || ui.apptStatus !== 'All' ? 'Try a different search or filter.' : 'New booking requests will show up here.', 7);
     }
 
@@ -473,50 +507,72 @@
     }
 
     function renderOrders() {
-        $('orders-body').innerHTML = state.orders.length ? state.orders.map((o) => {
+        const active = state.orders.filter(activeOf), archived = state.orders.filter((o) => !activeOf(o));
+        $('ordTabs').innerHTML = viewTabs('ord', active.length, archived.length);
+        const rows = ui.ordView === 'archived' ? archived : active;
+        $('orders-body').innerHTML = rows.length ? rows.map((o) => {
             const items = (o.items || []).map((i) => `${i.quantity}x ${i.name}`).join(', ');
-            return `<tr>
+            const archived = !activeOf(o);
+            return `<tr${archived ? ' class="row-archived"' : ''}>
                 <td>#${o.id}</td>
-                <td>${esc(new Date(o.date).toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' }))}</td>
+                <td>${esc(new Date(o.date).toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' }))}${archived ? `<span class="sub">Archived ${fmtDT(o.archivedAt)}</span>` : ''}</td>
                 <td><strong>${esc(o.customerName)}</strong><span class="sub">${esc(o.email)}</span><span class="sub">${esc(o.contactNumber)}</span></td>
                 <td class="num"><strong>${peso(o.totalAmount)}</strong><span class="sub">${esc(items)}</span></td>
                 <td>${esc(o.paymentMethod)}<span class="sub">${esc(o.paymentStatus || '')}</span></td>
-                <td><select class="status-select" data-act="order-select" data-id="${o.id}" aria-label="Status for order ${o.id}">${ORDER_STATUSES.map((s) => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
+                <td>${archived ? pill(o.status) : `<select class="status-select" data-act="order-select" data-id="${o.id}" aria-label="Status for order ${o.id}">${ORDER_STATUSES.map((s) => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}</select>`}</td>
                 <td><div class="adm-actions">
                     <button type="button" class="btn-icon" data-act="order-view" data-id="${o.id}">${ico('eye')}View</button>
-                    <button type="button" class="btn-icon danger" data-act="order-delete" data-id="${o.id}" aria-label="Delete order ${o.id}" title="Delete order">${ico('trash')}</button>
+                    ${archived
+                        ? `<button type="button" class="btn-icon ok" data-act="order-restore" data-id="${o.id}" aria-label="Restore order ${o.id}" title="Restore">${ico('restore')}Restore</button>`
+                        : `<button type="button" class="btn-icon danger" data-act="order-archive" data-id="${o.id}" aria-label="Archive order ${o.id}" title="Archive">${ico('archive')}Archive</button>`}
                 </div></td>
             </tr>`;
-        }).join('') : empty('No orders yet', 'Orders placed from the catalog will appear here.', 7);
+        }).join('') : empty(ui.ordView === 'archived' ? 'No archived orders' : 'No orders yet', ui.ordView === 'archived' ? 'Archived orders stay here for reference.' : 'Orders placed from the catalog will appear here.', 7);
     }
 
     const fmtDT = (d) => { const x = new Date(String(d || '').replace(' ', 'T')); return isNaN(x) ? '—' : x.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }); };
 
     function renderPatients() {
+        const active = state.patients.filter(activeOf), archived = state.patients.filter((r) => !activeOf(r));
+        $('patTabs').innerHTML = viewTabs('pat', active.length, archived.length);
         const q = ui.patQ;
-        const rows = state.patients.filter((r) => !q || `${r.fullName} ${r.email} ${r.contactNumber}`.toLowerCase().includes(q));
-        $('pat-body').innerHTML = rows.length ? rows.map((r) => `<tr>
-            <td><strong>${esc(r.fullName)}</strong><span class="sub">${esc(r.email)}</span><span class="sub">${esc(r.contactNumber || 'No contact number')}</span></td>
+        const rows = (ui.patView === 'archived' ? archived : active).filter((r) => !q || `${r.fullName} ${r.email} ${r.contactNumber}`.toLowerCase().includes(q));
+        $('pat-body').innerHTML = rows.length ? rows.map((r) => {
+            const archived = !activeOf(r);
+            return `<tr${archived ? ' class="row-archived"' : ''}>
+            <td><strong>${esc(r.fullName)}</strong>${archived ? ' ' + pill('Inactive') : ''}<span class="sub">${esc(r.email)}</span><span class="sub">${esc(r.contactNumber || 'No contact number')}</span></td>
             <td>${r.dateOfBirth ? fmtDate(r.dateOfBirth) : '—'}</td>
             <td>${esc(r.sex || '—')}</td>
             <td>${esc(r.bloodType || '—')}</td>
-            <td>${fmtDT(r.updatedAt)}</td>
+            <td>${fmtDT(r.updatedAt)}${archived ? `<span class="sub">Archived ${fmtDT(r.archivedAt)}</span>` : ''}</td>
             <td><div class="adm-actions">
                 <button type="button" class="btn-icon" data-act="patient-view" data-id="${r.id}">${ico('eye')}View / Edit</button>
-                <button type="button" class="btn-icon danger" data-act="patient-delete" data-id="${r.id}" aria-label="Delete record for ${esc(r.fullName)}">${ico('trash')}</button>
+                ${archived
+                    ? `<button type="button" class="btn-icon ok" data-act="patient-restore" data-id="${r.id}" aria-label="Restore ${esc(r.fullName)}" title="Restore">${ico('restore')}Restore</button>`
+                    : `<button type="button" class="btn-icon danger" data-act="patient-archive" data-id="${r.id}" aria-label="Set ${esc(r.fullName)} inactive" title="Set inactive">${ico('archive')}Inactive</button>`}
             </div></td>
-        </tr>`).join('') : empty('No patient records', q ? 'Try a different search.' : 'Records appear here once a customer creates an account.', 6);
+        </tr>`;
+        }).join('') : empty(ui.patView === 'archived' ? 'No archived patients' : 'No patient records', ui.patView === 'archived' ? 'Inactive patient accounts stay here for reference.' : (q ? 'Try a different search.' : 'Records appear here once a customer creates an account.'), 6);
     }
 
     function renderDoctors() {
-        $('doctor-grid').innerHTML = state.doctors.length ? state.doctors.map((d) => `<article class="adm-doc">
+        const active = state.doctors.filter(activeOf), archived = state.doctors.filter((d) => !activeOf(d));
+        $('docTabs').innerHTML = viewTabs('doc', active.length, archived.length);
+        const rows = ui.docView === 'archived' ? archived : active;
+        $('doctor-grid').innerHTML = rows.length ? rows.map((d) => {
+            const archived = !activeOf(d);
+            return `<article class="adm-doc${archived ? ' is-inactive' : ''}">
             ${img(d.image, d.name)}
             <strong>${esc(d.name)}</strong><span>${esc(d.role)}</span>
+            ${archived ? pill('Inactive') : ''}
             <div class="adm-actions">
-                <button type="button" class="btn-icon" data-act="doctor-edit" data-id="${d.id}">${ico('edit')}Edit</button>
-                <button type="button" class="btn-icon danger" data-act="doctor-delete" data-id="${d.id}" aria-label="Delete ${esc(d.name)}">${ico('trash')}</button>
+                ${archived
+                    ? `<button type="button" class="btn-icon ok" data-act="doctor-restore" data-id="${d.id}" aria-label="Restore ${esc(d.name)}" title="Restore">${ico('restore')}Restore</button>`
+                    : `<button type="button" class="btn-icon" data-act="doctor-edit" data-id="${d.id}">${ico('edit')}Edit</button>
+                       <button type="button" class="btn-icon danger" data-act="doctor-archive" data-id="${d.id}" aria-label="Set ${esc(d.name)} inactive" title="Set inactive">${ico('archive')}</button>`}
             </div>
-        </article>`).join('') : empty('No doctors yet', 'Add a doctor so customers can book appointments.');
+        </article>`;
+        }).join('') : empty(ui.docView === 'archived' ? 'No archived doctors' : 'No doctors yet', ui.docView === 'archived' ? 'Inactive doctors stay here for reference.' : 'Add a doctor so customers can book appointments.');
     }
 
     function bars(host, counts, tones) {
@@ -526,14 +582,15 @@
     }
 
     function renderReports() {
-        const appts = state.appointments;
+        const appts = state.appointments.filter(activeOf);
+        const activeOrders = state.orders.filter(activeOf);
         $('rep-sales').textContent = peso(state.reports.totalSales || 0);
         $('rep-orders').textContent = state.reports.totalOrders ?? state.orders.length;
         $('rep-appts').textContent = appts.length;
         $('rep-rate').textContent = appts.length ? Math.round((appts.filter((a) => a.status === 'Completed').length / appts.length) * 100) + '%' : '0%';
         const tones = { Pending: 'var(--warning)', Confirmed: 'var(--success)', Completed: 'var(--info)', Processing: 'var(--info)', Cancelled: 'var(--danger)' };
         bars($('bars-appts'), Object.fromEntries(APPT_STATUSES.map((s) => [s, appts.filter((a) => a.status === s).length])), tones);
-        bars($('bars-orders'), Object.fromEntries(ORDER_STATUSES.map((s) => [s, state.orders.filter((o) => o.status === s).length])), tones);
+        bars($('bars-orders'), Object.fromEntries(ORDER_STATUSES.map((s) => [s, activeOrders.filter((o) => o.status === s).length])), tones);
     }
 
     /* ---------- search + filters ---------- */
@@ -737,39 +794,47 @@
             case 'appt-view': openApptDetails(id); break;
             case 'order-view': openOrderDetails(id); break;
             case 'patient-view': openPatient(id); break;
-            case 'appt-delete': {
+            case 'view-tab': {
+                ui[t.dataset.key + 'View'] = t.dataset.view;
+                ({ appt: renderAppointments, ord: renderOrders, pat: renderPatients, doc: renderDoctors })[t.dataset.key]();
+                break;
+            }
+            case 'appt-archive': case 'appt-restore': {
                 const a = state.appointments.find((x) => x.id == id); if (!a) break;
-                if (await OpticsUI.confirm({ title: 'Delete this appointment?', message: `Appointment #${a.id} for ${a.customerName} (${fmtDate(a.date)}, ${a.time}) will be permanently removed from the database.`, confirmText: 'Delete', danger: true })) {
+                const restoring = t.dataset.act === 'appt-restore';
+                if (restoring || await OpticsUI.confirm({ title: 'Archive this appointment?', message: `Appointment #${a.id} for ${a.customerName} will move to the Archived tab. The record is kept and the slot is freed.`, confirmText: 'Archive', danger: true })) {
                     try {
-                        await window.OpticsDB.deleteAppointment(id);
-                        state.appointments = state.appointments.filter((x) => x.id != id);
-                        toast(`Appointment #${id} deleted.`, 'success');
+                        restoring ? await window.OpticsDB.restoreAppointment(id) : await window.OpticsDB.archiveAppointment(id);
+                        a.isActive = restoring ? 1 : 0; a.archivedAt = restoring ? null : new Date().toISOString().slice(0, 19).replace('T', ' ');
+                        toast(`Appointment #${id} ${restoring ? 'restored' : 'archived'}.`, 'success');
                         renderDashboard(); renderAppointments(); renderReports();
-                    } catch (ex) { console.error(ex); toast(ex.message || 'Could not delete the appointment.', 'error'); }
+                    } catch (ex) { console.error(ex); toast(ex.message || 'Could not update the appointment.', 'error'); }
                 }
                 break;
             }
-            case 'order-delete': {
+            case 'order-archive': case 'order-restore': {
                 const o = state.orders.find((x) => x.id == id); if (!o) break;
-                if (await OpticsUI.confirm({ title: 'Delete this order?', message: `Order #${o.id} for ${o.customerName} (${peso(o.totalAmount)}) and its items will be permanently removed. Product stock is not restored.`, confirmText: 'Delete', danger: true })) {
+                const restoring = t.dataset.act === 'order-restore';
+                if (restoring || await OpticsUI.confirm({ title: 'Archive this order?', message: `Order #${o.id} for ${o.customerName} (${peso(o.totalAmount)}) will move to the Archived tab. The record and its items are kept.`, confirmText: 'Archive', danger: true })) {
                     try {
-                        await window.OpticsDB.deleteOrder(id);
-                        state.orders = state.orders.filter((x) => x.id != id);
-                        toast(`Order #${id} deleted.`, 'success');
+                        restoring ? await window.OpticsDB.restoreOrder(id) : await window.OpticsDB.archiveOrder(id);
+                        o.isActive = restoring ? 1 : 0; o.archivedAt = restoring ? null : new Date().toISOString().slice(0, 19).replace('T', ' ');
+                        toast(`Order #${id} ${restoring ? 'restored' : 'archived'}.`, 'success');
                         renderOrders(); renderReports();
-                    } catch (ex) { console.error(ex); toast(ex.message || 'Could not delete the order.', 'error'); }
+                    } catch (ex) { console.error(ex); toast(ex.message || 'Could not update the order.', 'error'); }
                 }
                 break;
             }
-            case 'patient-delete': {
+            case 'patient-archive': case 'patient-restore': {
                 const r = state.patients.find((x) => x.id == id); if (!r) break;
-                if (await OpticsUI.confirm({ title: 'Delete this patient record?', message: `"${r.fullName}" and their account will be permanently removed. This cannot be undone.`, confirmText: 'Delete', danger: true })) {
+                const restoring = t.dataset.act === 'patient-restore';
+                if (restoring || await OpticsUI.confirm({ title: 'Set this patient inactive?', message: `"${r.fullName}" will no longer be able to sign in, but their record stays in the Archived tab and can be restored any time.`, confirmText: 'Set inactive', danger: true })) {
                     try {
-                        await window.OpticsDB.deletePatientRecord(id);
-                        state.patients = state.patients.filter((x) => x.id != id);
-                        toast('Patient record deleted.', 'success');
+                        const res = restoring ? await window.OpticsDB.restorePatientRecord(id) : await window.OpticsDB.archivePatientRecord(id);
+                        r.isActive = res.isActive; r.archivedAt = restoring ? null : new Date().toISOString().slice(0, 19).replace('T', ' ');
+                        toast(`${r.fullName} ${restoring ? 'restored' : 'set inactive'}.`, 'success');
                         renderPatients();
-                    } catch (ex) { console.error(ex); toast(ex.message || 'Could not delete the record.', 'error'); }
+                    } catch (ex) { console.error(ex); toast(ex.message || 'Could not update the record.', 'error'); }
                 }
                 break;
             }
@@ -785,11 +850,16 @@
                 }
                 break;
             }
-            case 'doctor-delete': {
+            case 'doctor-archive': case 'doctor-restore': {
                 const d = state.doctors.find((x) => x.id == id); if (!d) break;
-                if (await OpticsUI.confirm({ title: 'Delete this doctor?', message: `${d.name} will no longer be available for booking.`, confirmText: 'Delete', danger: true })) {
-                    try { await window.OpticsDB.deleteDoctor(id); toast('Doctor deleted.', 'success'); await load(); }
-                    catch (ex) { console.error(ex); toast('Could not delete the doctor.', 'error'); }
+                const restoring = t.dataset.act === 'doctor-restore';
+                if (restoring || await OpticsUI.confirm({ title: 'Set this doctor inactive?', message: `${d.name} will be hidden from the booking page and moved to the Archived tab. Their history is kept.`, confirmText: 'Set inactive', danger: true })) {
+                    try {
+                        restoring ? await window.OpticsDB.restoreDoctor(id) : await window.OpticsDB.archiveDoctor(id);
+                        d.isActive = restoring ? 1 : 0; d.archivedAt = restoring ? null : new Date().toISOString().slice(0, 19).replace('T', ' ');
+                        toast(`${d.name} ${restoring ? 'restored' : 'set inactive'}.`, 'success');
+                        renderDoctors();
+                    } catch (ex) { console.error(ex); toast(ex.message || 'Could not update the doctor.', 'error'); }
                 }
                 break;
             }

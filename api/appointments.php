@@ -1,13 +1,14 @@
 <?php
 require_once 'db.php';
 
+ensureArchiveColumns($pdo);
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     if (isset($_GET['action']) && $_GET['action'] === 'unavailable_times') {
         $doctorId = $_GET['doctorId'];
         $date = $_GET['date'];
-        $stmt = $pdo->prepare("SELECT time FROM appointments WHERE doctorId = ? AND date = ? AND status NOT IN ('Cancelled', 'Completed')");
+        $stmt = $pdo->prepare("SELECT time FROM appointments WHERE doctorId = ? AND date = ? AND isActive = 1 AND status NOT IN ('Cancelled', 'Completed')");
         $stmt->execute([$doctorId, $date]);
         $times = $stmt->fetchAll(PDO::FETCH_COLUMN);
         echo json_encode($times);
@@ -15,14 +16,19 @@ if ($method === 'GET') {
     }
     
     checkAuth();
+    // Admin gets every appointment, active and archived; the UI splits them.
     $stmt = $pdo->query("SELECT a.*, d.name as doctorName FROM appointments a LEFT JOIN doctors d ON a.doctorId = d.id ORDER BY a.id DESC");
     echo json_encode($stmt->fetchAll());
 } elseif ($method === 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
     $data['contactNumber'] = cleanPhone($data['contactNumber'] ?? '', 'contactNumber', true);
+
+    $doc = $pdo->prepare("SELECT id FROM doctors WHERE id = ? AND isActive = 1");
+    $doc->execute([$data['doctorId']]);
+    if (!$doc->fetch()) fail(400, "That doctor is not currently accepting appointments.", ['field' => 'doctorId']);
     
     // Check for existing appointment
-    $checkStmt = $pdo->prepare("SELECT id FROM appointments WHERE doctorId = ? AND date = ? AND time = ? AND status NOT IN ('Cancelled', 'Completed')");
+    $checkStmt = $pdo->prepare("SELECT id FROM appointments WHERE doctorId = ? AND date = ? AND time = ? AND isActive = 1 AND status NOT IN ('Cancelled', 'Completed')");
     $checkStmt->execute([$data['doctorId'], $data['date'], $data['time']]);
     if ($checkStmt->rowCount() > 0) {
         http_response_code(409); // Conflict
@@ -40,21 +46,18 @@ if ($method === 'GET') {
     echo json_encode(["id" => $pdo->lastInsertId(), "message" => "Appointment booked"]);
 } elseif ($method === 'PUT') {
     checkAuth();
-    preg_match('#^/(\d+)/status#', requestPath(), $matches);
-    if(isset($matches[1])) {
-        $id = intval($matches[1]);
+    preg_match('#^/(\d+)/(status|archive|restore)#', requestPath(), $matches);
+    if (!isset($matches[1])) fail(400, "Missing appointment id");
+    $id = intval($matches[1]);
+    if ($matches[2] === 'status') {
         $data = json_decode(file_get_contents("php://input"), true);
         $stmt = $pdo->prepare("UPDATE appointments SET status = ? WHERE id = ?");
         $stmt->execute([$data['status'], $id]);
         echo json_encode(["message" => "Status updated"]);
+    } else {
+        setActive($pdo, 'appointments', $id, $matches[2], 'Appointment');
     }
 } elseif ($method === 'DELETE') {
     checkAuth();
-    preg_match('#^/(\d+)#', requestPath(), $matches);
-    $id = isset($matches[1]) ? intval($matches[1]) : intval($_GET['id'] ?? 0);
-    if (!$id) { http_response_code(400); echo json_encode(["error" => "Missing appointment id"]); exit; }
-    $stmt = $pdo->prepare("DELETE FROM appointments WHERE id = ?");
-    $stmt->execute([$id]);
-    if ($stmt->rowCount() === 0) { http_response_code(404); echo json_encode(["error" => "Appointment not found"]); exit; }
-    echo json_encode(["message" => "Appointment deleted"]);
+    fail(405, "Appointments are archived rather than deleted. Use PUT /{id}/archive.");
 }

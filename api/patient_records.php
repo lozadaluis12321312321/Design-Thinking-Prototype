@@ -10,7 +10,9 @@
  *   GET    patient_records.php?q=search       all records, newest update first
  *   GET    patient_records.php/{id}           one record
  *   PUT    patient_records.php/{id}           update any field incl. clinicalNotes
- *   DELETE patient_records.php/{id}           delete the record and the customer account
+ *   PUT    patient_records.php/{id}/archive   set the customer inactive (record kept, sign-in blocked)
+ *   PUT    patient_records.php/{id}/restore   re-activate the customer
+ * Records are never deleted; archived ones stay visible to admins under the Archived tab.
  */
 require_once 'db.php';
 
@@ -30,7 +32,7 @@ const RECORD_FIELDS = [
 ];
 const ADMIN_ONLY_FIELDS = ['clinicalNotes' => [10000, null]];
 
-const SELECT_RECORD = "SELECT r.*, c.fullName, c.email, c.contactNumber, c.createdAt AS accountCreatedAt
+const SELECT_RECORD = "SELECT r.*, c.fullName, c.email, c.contactNumber, c.createdAt AS accountCreatedAt, c.isActive, c.archivedAt
                        FROM patient_records r JOIN customers c ON c.id = r.customerId";
 
 function validDate($s) {
@@ -111,8 +113,9 @@ function ownRecord($pdo, $customer) {
     return fetchRecord($pdo, "r.customerId = ?", [$customer['id']]);
 }
 
-preg_match('#^/(\d+)#', requestPath(), $m);
+preg_match('#^/(\d+)(?:/(archive|restore))?#', requestPath(), $m);
 $pathId = isset($m[1]) ? intval($m[1]) : null;
+$pathAction = $m[2] ?? '';
 
 if (isAdmin()) {
     if ($method === 'GET' && $pathId === null) {
@@ -129,9 +132,22 @@ if (isAdmin()) {
         echo json_encode(array_map(fn($r) => shape($r, true), $stmt->fetchAll()));
 
     } elseif ($method === 'GET') {
+        if ($pathAction !== '') fail(404, "Record not found");
         $row = fetchRecord($pdo, "r.id = ?", [$pathId]);
         if (!$row) fail(404, "Record not found");
         echo json_encode(shape($row, true));
+
+    } elseif ($method === 'PUT' && $pathId !== null && $pathAction !== '') {
+        $row = fetchRecord($pdo, "r.id = ?", [$pathId]);
+        if (!$row) fail(404, "Record not found");
+        // Archiving keeps the record but deactivates the customer account (sign-in blocked).
+        $active = $pathAction === 'restore' ? 1 : 0;
+        $pdo->beginTransaction();
+        $pdo->prepare("UPDATE customers SET isActive = ?, archivedAt = ? WHERE id = ?")->execute([$active, $active ? null : date('Y-m-d H:i:s'), $row['customerId']]);
+        $pdo->prepare("UPDATE patient_records SET updatedAt = ? WHERE id = ?")->execute([date('Y-m-d H:i:s'), $pathId]);
+        if (!$active) $pdo->prepare("DELETE FROM customer_tokens WHERE customerId = ?")->execute([$row['customerId']]);
+        $pdo->commit();
+        echo json_encode(["message" => "Patient " . ($active ? "restored" : "archived"), "isActive" => $active]);
 
     } elseif ($method === 'PUT' && $pathId !== null) {
         $row = fetchRecord($pdo, "r.id = ?", [$pathId]);
@@ -140,15 +156,8 @@ if (isAdmin()) {
         applyUpdate($pdo, $pathId, $row['customerId'], cleanRecord($data, RECORD_FIELDS + ADMIN_ONLY_FIELDS), cleanProfile($data));
         echo json_encode(shape(fetchRecord($pdo, "r.id = ?", [$pathId]), true));
 
-    } elseif ($method === 'DELETE' && $pathId !== null) {
-        $row = fetchRecord($pdo, "r.id = ?", [$pathId]);
-        if (!$row) fail(404, "Record not found");
-        $pdo->beginTransaction();
-        $pdo->prepare("DELETE FROM patient_records WHERE id = ?")->execute([$pathId]);
-        $pdo->prepare("DELETE FROM customer_tokens WHERE customerId = ?")->execute([$row['customerId']]);
-        $pdo->prepare("DELETE FROM customers WHERE id = ?")->execute([$row['customerId']]);
-        $pdo->commit();
-        echo json_encode(["message" => "Record deleted"]);
+    } elseif ($method === 'DELETE') {
+        fail(405, "Patient records are archived rather than deleted. Use PUT /{id}/archive.");
 
     } else {
         fail(405, "Method not allowed");

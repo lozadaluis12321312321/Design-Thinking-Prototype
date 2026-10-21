@@ -57,6 +57,7 @@ if ($method === 'POST' && $action === 'register') {
     $stmt->execute([$email]);
     $customer = $stmt->fetch();
     if (!$customer || !password_verify($data['password'] ?? '', $customer['password'])) fail(400, "That email or password is not correct.");
+    if (isset($customer['isActive']) && !$customer['isActive']) fail(403, "This account has been deactivated by the clinic. Please contact them for help.");
     echo json_encode(['token' => issueToken($pdo, $customer['id']), 'customer' => publicCustomer($customer)]);
 
 } elseif ($method === 'GET' && $action === 'me') {
