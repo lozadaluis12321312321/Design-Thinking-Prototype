@@ -228,6 +228,11 @@
     if (!e.target.matches || !e.target.matches('[data-digits]') || e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
     if (!/[0-9]/.test(e.key)) e.preventDefault();
   });
+  // Mobile keyboards / IME often report key "Unidentified" on keydown, so also reject at beforeinput.
+  document.addEventListener('beforeinput', (e) => {
+    if (!e.target.matches || !e.target.matches('[data-digits]') || e.data == null) return;
+    if (/\D/.test(e.data)) { e.preventDefault(); const d = e.data.replace(/\D+/g, ''); if (d && e.inputType === 'insertFromPaste') document.execCommand && document.execCommand('insertText', false, d); }
+  });
 
   window.OpticsUI = { toast, openLayer, closeLayer, confirm: confirmDialog, esc, digitsOnly };
 })();
